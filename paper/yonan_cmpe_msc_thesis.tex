@@ -22,6 +22,7 @@
 \usepackage{amssymb}
 \usepackage{amsmath}
 \usepackage{amsthm}
+\usepackage{relsize} % \mathlarger
 \usepackage{mathtools}
 \usepackage{braket}
 \usepackage{enumerate, enumitem}
@@ -33,7 +34,7 @@
 
 % Declarations for Front Matter
 
-\title{FASTPas - Fast Predictive Ariel Scanning}
+\title{FASTPas - Fast Predictive Aerial Scanning}
 \author{Sargis S Yonan}
 \degreeyear{2018}
 \degreemonth{June}
@@ -78,23 +79,51 @@ To all those who think flying robots are cool, and to my mother, Marina.
 
 
 \begin{acknowledgements}
-I want to thank Sharon Rabinovich, who helped me make sense of everything, as well as the rest of the Autonomous Systems Lab at UC Santa Cruz for the support and motivation to continue this project everyday.
+I want to thank Sharon Rabinovich, who helped me make sense of the various concepts involved in and out of this project. I would like to extend my thanks to the rest of the Autonomous Systems Lab at UC Santa Cruz for the support and motivation to continue this project everyday.
 \end{acknowledgements}
 
 \end{frontmatter}
+
+\part{Mathematical Background}
+
+\section{Variography}
+\subsection{Covariance}
+\subsection{Variance}
+\subsection{Autocorrelation}
+\subsection{Autocorrelation in A Gaussian Stochastic Process}
+\subsubsection{Lag Distribution Statistics}
+\subsubsection{Autocorrelation from Lag Distribution}
+
+\section{Geospatial Autocorrelation}
+\subsection{Autocorrelated Geological Stochastic Processes}
+
+\section{Least-Squares}
+\subsection{Residuals From Least-Squares}
+\subsection{Fitting Continuous Functions From Discrete Data}
+
+\section{Best Linear Unbiased Estimators}
+
+\section{Required Graph Theory}
+\subsection{Vertices and Edges}
+\subsection{Path Problems}
+\subsubsection{Optimizing a Route}
 
 \part{Efficient Interpolation}
 
 \chapter{Introduction}
 There currently exists no consumer-level UAV system that can autonomously scan a perimeter of area to quickly map an unknown field. Due to the benefits of the solution to the problem, in terms of scientific research and benefit to fire fighting, I believe that designing a modified mathematical statistical interpolation method could make this system possible. Using a modified Kriging Method and a custom autonomous pod-UAV simulation, I would like to demonstrate that the system is possible, and could also benefit a variety of civil servants and scientists. We will, in this chapter, develop the tools and understanding of a method for interpolating data autonomously from just a few measured positions.
 
+\section{Standard Inverse Distance Weighted Sums}
+
 \section{Kriging Prediction}
 It can be impossible to scan every square unit of area in a field, even with UAVs. Depending on the size of the map, it can often be most beneficial, in the interest of time flying above an area, to get a good enough prediction of the status of a field based off of a limited number of samples.\\
-The Universal Kriging Method, also known as the Wiener–Kolmogorov prediction, is a geostatistical Gaussian process historically used to interpolate data in fields varying from natural resource location prediction for mining to real estate value appraisals.\\
-Using the Kriging method, the unknown probability of interest at point $s_{0}$ is achieved via:
+The Universal Kriging Method, also known as the Wiener–Kolmogorov prediction, is a geostatistical Gaussian process interpolation method historically used in fields varying from natural resource location prediction for mining to real estate value appraisals.\\
+
+Using the Kriging method, the unknown prediction of interest at point $s_{0}$ is achieved via:
 \begin{equation}
-\widetilde{Z}(s_{0})=w_{1}Z(s_{1}) + w_{2}Z(s_{2}) + ... + w_{n}Z(s_{n})
+\widetilde{Z}(s_{0})=\mathlarger{\sum\limits_{i=1}^{n}\lambda_{i}Z(s_{i})}
 \end{equation}
+where $\lambda_{i}$ is the Kriging weight associated with the sampled point at $Z(s_{i})$.
 \begin{center}
 	\begin{figure}[h]
 		\begin{tabular}{cc}
@@ -103,15 +132,28 @@ Using the Kriging method, the unknown probability of interest at point $s_{0}$ i
 			\includegraphics[width=0.49\linewidth]{kriging_prediction.eps} \\
 			Randomly Generated Field & Kriging Method Predicted Field\\
 		\end{tabular}
-		\caption{A comparison of a random field generated using 500 random autocorrelated points, and a prediction of the field using the Kriging Method at randomly sampled points. \textit{figures generated using MATLAB.}}
+		\caption{A comparison of a random field generated using 500 random autocorrelated points, and a prediction of the field using the Kriging Method at 50 randomly sampled points. \textit{figures generated using MATLAB.}}
 	\end{figure}
 \end{center}
-The Kriging method also provides a variogram, with its prediction. The variogram provides a confidence score for each probability it computes via the computation of a discrete semi-variogram:\\
+
+The Kriging method fits values to the $\lambda_{i}$ weights using information interpreted from the field as data comes into the system. 
+
+\subsection{Variography in Kriging Weight Selection}
+%% add more
+The factors that play into the calculations of these weights come from the variances of disjoint points sampled in the fields as well as factors inversely proportional to the square distances of the point in question and all other points sampled. Hence, the method also provides a variogram (a continuous approximation of variances between any given point in the prediction area and another point) with its prediction. The variogram provides what could be used as a measure of confidence in the Kriging prediction. This comes from the fact that the fields in question contain points of interest that are geospatially autocorrelated. 
+
+\subsection{Semi-Variogram}
+Kriging finds a continuous variogram by computing a discrete variogram function, a \textit{Semi-Variogram}, from points it has actually sampled
+
 \begin{equation}
 \hat{\gamma}({\bf{h}})=\dfrac{1}{2N({\bf{h}})}\sum_{i=1}^{N({\bf{h}})}\Big[Z(s_{i})-Z(s_{i}+{\bf{h}})\Big]^{2}
-\end{equation}\\
-Where $N({\bf{h}})$ is the number of pairs of data locations that are vector ${\bf{h}}$ apart.\\
-The semi-variogram is then fit by a least squares to a continuous variogram that can be sampled for each point at question.
+\end{equation}
+Where $N({\bf{h}})$ is the number of pairs of data locations that are vector ${\bf{h}}$ apart.
+
+\subsection{Variogram}
+The discrete function is then fit by a least squares to a continuous variogram that can be sampled at each point in question.
+% conveyed information
+
 \begin{center}
 	\begin{figure}[h]
 		\centering
@@ -119,18 +161,30 @@ The semi-variogram is then fit by a least squares to a continuous variogram that
 		\caption{The variance of each prediction point from Figure 1. Larger spacing between the contours indicate greater variance. \textit{figure generated using MATLAB.}}
 	\end{figure}
 \end{center}
-Although the method is optimal for data with no trends or drift, the use of the unmodified Kriging Method technique has the drawback of being computationally intensive and slow to compute in a live and timely manner. This is due to the multiple matrix inversions and least squares fittings to calculate the weights of the interpolation and the continuous variograms. It would be desired, in the case of autonomous UAVs that must constantly steer themselves in the best direction, to quickly calculate probabilities and covariances. \\
 
-\section{Kriging Variance}
-\subsection{Semivariogram}
-\subsection{Variogram}
+% fit to different kernels
+\subsubsection{Gaussian (Normal) Kernel}
+\subsubsection{Spherical Kernel}
+\subsubsection{Exponential Kernel}
+\subsubsection{Other Kernels}
 
-\section{Autonmous Waypoint Selection}
-\subsection{Searching for low confidence}
-\subsection{Selecting points of low confidence}
+\subsection{Choosing Kriging Weights}
+% inverse distances and variances
+
+\subsection{Measuring Prediction Confidence}
+% MSRE
+
+\subsection{Drawbacks To The Kriging Method}
+Although the method is optimal for data with no trends or drift, the use of the unmodified Kriging Method technique has the drawback of being computationally intensive and slow to compute in a live and timely manner. This is due to the multiple matrix inversions and least squares fittings required to calculate the weights of the interpolation from the continuous variograms. It would be desired, in the case of autonomous UAVs that must constantly steer themselves in the best direction, to quickly calculate probabilities and variances. We will further discuss methods of efficient interpolation using the Universal Kriging Method.
+
 
 \section{Natural Neighbor Selection}
-\subsection{Voronoi Tesselations}
+\subsection{Voronoi Tessellations}
+
+\part{Autonomous Path Finding}
+We know for a geospatially autocorrelated field there is a stochastic process underlying in the data we would like to predict, and therefore could interpolate further based off of the variances of two disjoint points in the field. The variances, from samples collected in the scanning process which factor into our variogram, then become our relative confidence scores of predictions in our field in question. The values in the variogram are what will be used to terminate the interpolation when a level of least-confidence in total prediction is achieved, and what will dictate the future scan locations for a UAV or a pod of UAVs.
+\subsection{Constructing a Confidence Graph}
+\subsection{Confidence Optimized Path Finding}
 
 \chapter{Previous Work}
 Some other research was once performed.
@@ -141,11 +195,16 @@ Some other research was once performed.
 \section{Custom Simulation}
 \subsection{Flying Engine}
 \subsubsection{Plot Drawing}
-\subsubsection{Waypoint Selection}
+\subsubsection{Way-point Selection}
 
 \section{FastPAS}
 \subsection{The Algorithm}
 \subsection{Simulating It}
+
+\section{Other Uses}
+% real estate
+% crypto price pred.
+% gentrify
 
 \chapter{Results}
 

@@ -350,7 +350,7 @@
     \bigskip
     {\bfseries {\expandafter\uppercase\expandafter{\@title}} \par}
     \medskip
-    A dissertation submitted in partial satisfaction of the \par
+    A thesis submitted in partial satisfaction of the \par
     requirements for the degree of \par
     \bigskip
     {\expandafter\expandafter{\@degree}} \par
