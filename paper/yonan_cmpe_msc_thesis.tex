@@ -14,6 +14,7 @@
 % The Current Maintainer of this work is Daniel Gildea.
 
 \documentclass[11pt]{ucthesis}
+\setlength\parindent{0.5cm}
 
 %% The graphicx package provides the includegraphics command.
 \usepackage{graphicx}
@@ -27,11 +28,9 @@
 \usepackage{braket}
 \usepackage{enumerate, enumitem}
 
-
 \def\dsp{\def\baselinestretch{2.0}\large\normalsize}
 \dsp
 \begin{document}
-
 % Declarations for Front Matter
 
 \title{FASTPas - Fast Predictive Aerial Scanning}
@@ -60,6 +59,7 @@
 \listoftables
 
 \begin{abstract}
+
 Unmanned Aerial Vehicles (UAVs) have become more prevalent in fields of work and study that benefit from having a birds eye view on a given situation. Firefighter teams have been using UAVs to find the origin of fires, and where fires are spreading to. Scientific researchers have been using aerial thermal imaging to determine rates of change in ice growth and melting, and thermal exchange between the ocean and atmosphere.
 \par
 The use of autonomous UAVs could benefit rescue teams, firefighters, scientific re- searchers, and private sector industries in the interest of time and data discovery. Using a single or multiple UAVs in a flying network, an area with fields of interest can be scanned efficiently completely autonomously. By simply drawing on a map the general area wished to be scanned by the autonomous fleet, a deployed pod of these UAVs can stream back, to a ground station, live aerial information. This mapping time can be greatly reduced with the use of statistical interpolation techniques that help the pod or single UAV avoid having to scan an entire region, but rather, have the UAVs scan the areas with the lowest level of confidence in prediction.
@@ -71,7 +71,7 @@ The Kriging Method, a popular interpolation tool offers a prediction and a varia
 \null\vfil
 {\large
 \begin{center}
-To all those who think flying robots are cool, and to my mother, Marina.
+To all who think flying robots are cool
 \vspace{12pt}
 \end{center}}
 \vfil\null
@@ -79,31 +79,85 @@ To all those who think flying robots are cool, and to my mother, Marina.
 
 
 \begin{acknowledgements}
-I want to thank Sharon Rabinovich, who helped me make sense of the various concepts involved in and out of this project. I would like to extend my thanks to the rest of the Autonomous Systems Lab at UC Santa Cruz for the support and motivation to continue this project everyday.
+I want to thank Sharon Rabinovich, who reminded me: "Although a cow is tied up, it still wants eat grass."
+
+%who helped me make sense of the various concepts involved in and out of this project. I would like to extend my thanks to the rest of the Autonomous Systems Lab at UC Santa Cruz for the support and motivation to continue this project everyday.
 \end{acknowledgements}
 
 \end{frontmatter}
 
-\part{Mathematical Background}
+\part{Background}
+
+\section{Mathematical and Geographical Background}
+We will exploit several concepts developed in the field of Geostatistics and Geography to assist our flight planning and aerial prediction system. Tobler's First Law of Geography states, "Everything is related to everything else, but near things are more related than distant things."\cite{tobler:first_law} Regarding geospatial data, we can say at the very least, there is a positive correlation between entities that are closely related in distance.\cite{miller:on_toblers_first_law}, implying the existence of spatial autocorrelation in observed geographies. We can exploit this fundamental law of Geography for Geostatistical interpolation methods like inverse distance weighting. Furthermore, if we view our observed fields as an unknown stochastic process, with a generally known model, there exists an overall trend with correlated variation between observed points. We can use these additional caveats to create a Best Linear Unbiased Predictor (BLUP) which can robustly predict intermediate spatial points between observations alongside an additional measure of confidence. We Will exploit these geostatiscal processes to construct graphs of confidence for flight planning, and to predict unknown fields, aerially using UAVs, to some degree of confidence.
+
+\subsection{Measuring and Estimating Points of Interest on a Field}
+The basis of our predictions will be observations we make using reliable sensors. For the methods we will explore and develop, we must estimate the coordinates, likely using The Global Positioning System, for each point of interest we measure. In order to use the techniques we will explore we must assume that we can get a Euclidean distance between any two measured points. If a GPS sensor is used to estimate position, we will likely use a Haversine Transformation to convert Earth longitude and latitude estimated by our sensor to points on a Cartesian plane where we will represent our measurements. For each coordinate measured, we will also need to measure some value of interest. If tracking and predicting the current location of a wildfire, for example, we will likely use an infrared sensor to measure the thermal output of the field in which we would like to predict.\\
+
+\subsection{Random Field Notation}
+For the sake of convention throughout this work, we will denote $(\vec{x_1}, \vec{x_2})$ to be vectors of position measurements on the domain and co-domain of the Cartesian plane respectively. The $i^{th}$ element of each vector, as a point-pair denoted as $\vec{x}_i = (x_{1_i}, x_{2_i})$, will represent the location of the $i^{th}$ observed location on the Cartesian plane.\\
+We will denote the vector, $\vec{u}$, to be a vector of our measured values at our $i^{th}$ observation. The $i^{th}$ element of $\vec{u}$ will correspond to a scalar observation located at $(x_{1_i}, x_{2_i})$, a random variable in a stochastic process, or field, $Z$. Giving us, $Z(\vec{x})=u(\vec{x})$, where $u(\vec{x}): \vec{x} \rightarrow \mathbb{R},\ \vec{x} \in \rm{D} \subset \mathbb{R}^2$\\
+% TODO: plot a geospatially autocorrelated field and place it here
+
+\subsection{Inverse Distance Weighting}
+A simple Inverse Distance Weighting (IDW), using Shepard's Method \cite{shepard:idw}, gives us a prediction of observation, $u$, at location $\vec{x}$ to be:
+\begin{equation}
+	u(\vec{x})=\begin{cases}
+			\dfrac{\sum\limits_{i=1}^N w(\vec{x}_i)u_i}{\sum\limits_{i=1}^{N} w(\vec{x}_i)} & \text{if}\ d(\vec{x},\vec{x}_i) \neq 0\ \forall i \\
+			u_i & \text{if}\ d(\vec{x},\vec{x}_{i})=0\\
+		\end{cases}
+\end{equation}\\
+where\\
+\begin{equation}
+	w(\vec{x}_i)=\frac{1}{d(\vec{x},\vec{x}_{i})^{p}}
+\end{equation}\\
+where, in our cases,\\
+\begin{equation}
+	d(\vec{x},\vec{x}_{i})^{p} = \|\vec{x}-\vec{x}_i\|_{2}^p
+\end{equation}\\
+and $p$ is a positive real number, called the power parameter.\\ %TODO: plot a IDW for the same field as the previous section at some sampled locations
+This method gives us a prediction of all points $\vec{x}$ in a field where a set of observations at labeled positions were made, i.e. $Z(\vec{x})=u(\vec{x})$. Unfortunately, the method is limited in that it does not take advantage of the underlying stochastic model of the field, $Z$, being observed. We will further expand on this method to exploit the fact that $Z$ is a stochastic process with underlying geospatially autocorrelated random variables.
 
 \section{Variography}
-\subsection{Covariance}
-\subsection{Variance}
-\subsection{Autocorrelation}
-\subsection{Autocorrelation in A Gaussian Stochastic Process}
-\subsubsection{Lag Distribution Statistics}
-\subsubsection{Autocorrelation from Lag Distribution}
+Variography is a set of procedures for examining and interpreting spacial dependence and geospatial autocorrelation in observed data. We would like to unravel the autocorrelation, or spatial dependence, of observed data to factor into a classical Inverse Distance Weighting, yielding a Best Linear Unbiased Predictor. The heart of variography is the Variogram Function, a function of quantified dependence for observed data separated at a given distance on the domain.
 
-\section{Geospatial Autocorrelation}
-\subsection{Autocorrelated Geological Stochastic Processes}
+\subsection{The Semi-Variogram}
+A Semi-Variogram is a function representing the variance of the observation value difference between two sampled locations that are some distance $h$ apart. 
+\begin{equation}
+	\gamma(h)=\frac{1}{2V}\iiint\limits_V [f(\vec{x}+h)-f(\vec{x})]^2 \,dV \\
+\end{equation}
+% semivariogram was first defined by Matheron (1963)
+This definition can be adapted to 2-Dimensional fields that are more appropriate for our purposes. For all sample locations $\vec{x}_{i}$, $\vec{x}_{j}$, that are $h=\|\vec{x}_{i} - \vec{x}_{j} \|_{2}$, with respective observations $Z(\vec{x}_{i})$ and $Z(\vec{x}_{j})$, we will define an Empirical Variogram, a discrete 2-D semi-variogram, as:
+\begin{equation}
+	\hat{\gamma}(h\pm\delta) := \frac{1}{2|N(h\pm\delta|}\sum\limits_{(i,j)\in N(h\pm\delta)}|Z(\vec{x}_i) - Z(\vec{x}_j)|^2 % (Cressie 1993)
+\end{equation}
+where $N(h\pm\delta)$ is the number of pairs of data locations that are vector distance $h\pm\delta$ apart ($\delta$ is a bound of ranges acceptable to "bin" alongside $h$).
+This function gives us an approximate factor of the variance between all points that are distance (or lag) $h$ apart.
+% TODO: add a cloud plot of a semivariogram for the same set of sample locations from before
 
-\section{Least-Squares}
-\subsection{Residuals From Least-Squares}
-\subsection{Fitting Continuous Functions From Discrete Data}
+\subsection{The Variogram - Fitting A Semi-Variogram Using Least Squares}
+A Variogram, which is intended to be a continuous function, yields a variance between two observations $Z(\vec{x}_{i})$, $Z(\vec{x}_{j})$ at a distance $h$ apart, as:
+\begin{equation}
+2\gamma(\vec{x}_i, \vec{x}_j)= \text{var} (Z(\vec{x}_{i}) - Z(\vec{x}_{j}))=E[( (Z(\vec{x}_{i}) - \mu(\vec{x}_i) ) - (Z(\vec{x}_{j}) - \mu(\vec{x}_j) ))^2]
+\end{equation} % (Cressie 1993)
+Because it is infeasible and likely impossible to estimate an observation value at each possible point to compute a total variogram, we will fit our discrete empirical variogram using a least squares fit. This approach will allow us to approximate $\frac{1}{2}\gamma(h)$ for all possible $h$.
+%TODO define least squares
+%TODO define it for our use
+%TODO plot a polyfit on the sampled data from before
+\subsection{Fitting a Statistical Kernel Model for the Variogram}
+range, kernel, sill -- gaussian, exp, spherical
+% TODO write this
+% TODO plot the kernel of the sampled data
+\subsection{Covariance-Variance Matrix}
 
-\section{Best Linear Unbiased Estimators}
+\section{The Kriging Method}
+\subsection{Exploiting Geospatial Autocorrelation}
+\subsection{The Kriging Formula - A Best Linear Unbiased Predictor}
 
-\section{Required Graph Theory}
+\section{Natural Neighbor Selection}
+\subsection{Finding Natural Neighbors}
+
+\section{Graph Construction}
 \subsection{Vertices and Edges}
 \subsection{Path Problems}
 \subsubsection{Optimizing a Route}
@@ -112,8 +166,6 @@ I want to thank Sharon Rabinovich, who helped me make sense of the various conce
 
 \chapter{Introduction}
 There currently exists no consumer-level UAV system that can autonomously scan a perimeter of area to quickly map an unknown field. Due to the benefits of the solution to the problem, in terms of scientific research and benefit to fire fighting, I believe that designing a modified mathematical statistical interpolation method could make this system possible. Using a modified Kriging Method and a custom autonomous pod-UAV simulation, I would like to demonstrate that the system is possible, and could also benefit a variety of civil servants and scientists. We will, in this chapter, develop the tools and understanding of a method for interpolating data autonomously from just a few measured positions.
-
-\section{Standard Inverse Distance Weighted Sums}
 
 \section{Kriging Prediction}
 It can be impossible to scan every square unit of area in a field, even with UAVs. Depending on the size of the map, it can often be most beneficial, in the interest of time flying above an area, to get a good enough prediction of the status of a field based off of a limited number of samples.\\
