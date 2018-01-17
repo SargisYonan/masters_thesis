@@ -30,6 +30,7 @@
 
 \def\dsp{\def\baselinestretch{2.0}\large\normalsize}
 \dsp
+
 \begin{document}
 % Declarations for Front Matter
 
@@ -126,11 +127,12 @@ A Semi-Variogram is a function representing the variance of the observation valu
 \begin{equation}
 	\gamma(h)=\frac{1}{2V}\iiint\limits_V [f(\vec{x}+h)-f(\vec{x})]^2 \,dV \\
 \end{equation}
-% semivariogram was first defined by Matheron (1963)
+\cite{matheron:geostat}
 This definition can be adapted to 2-Dimensional fields that are more appropriate for our purposes. For all sample locations $\vec{x}_{i}$, $\vec{x}_{j}$, that are $h=\|\vec{x}_{i} - \vec{x}_{j} \|_{2}$, with respective observations $Z(\vec{x}_{i})$ and $Z(\vec{x}_{j})$, we will define an Empirical Variogram, a discrete 2-D semi-variogram, as:
 \begin{equation}
 	\hat{\gamma}(h\pm\delta) := \frac{1}{2|N(h\pm\delta|}\sum\limits_{(i,j)\in N(h\pm\delta)}|Z(\vec{x}_i) - Z(\vec{x}_j)|^2 % (Cressie 1993)
 \end{equation}
+\cite{cressie:spatial}
 where $N(h\pm\delta)$ is the number of pairs of data locations that are vector distance $h\pm\delta$ apart ($\delta$ is a bound of ranges acceptable to "bin" alongside $h$).
 This function gives us an approximate factor of the variance between all points that are distance (or lag) $h$ apart.
 % TODO: add a cloud plot of a semivariogram for the same set of sample locations from before
@@ -138,8 +140,9 @@ This function gives us an approximate factor of the variance between all points 
 \subsection{The Variogram - Fitting A Semi-Variogram Using Least Squares}
 A Variogram, which is intended to be a continuous function, yields a variance between two observations $Z(\vec{x}_{i})$, $Z(\vec{x}_{j})$ at a distance $h$ apart, as:
 \begin{equation}
-2\gamma(\vec{x}_i, \vec{x}_j)= \text{var} (Z(\vec{x}_{i}) - Z(\vec{x}_{j}))=E[( (Z(\vec{x}_{i}) - \mu(\vec{x}_i) ) - (Z(\vec{x}_{j}) - \mu(\vec{x}_j) ))^2]
-\end{equation} % (Cressie 1993)
+	2\gamma(\vec{x}_i, \vec{x}_j)= \text{var} (Z(\vec{x}_{i}) - Z(\vec{x}_{j}))=E[( (Z(\vec{x}_{i}) - \bar{Z} ) - (Z(\vec{x}_{j}) - \bar{Z} ))^2]
+\end{equation}
+\cite{cressie:spatial}
 Because it is infeasible and likely impossible to estimate an observation value at each possible point to compute a total variogram, we will fit our discrete empirical variogram using a least squares fit. This approach will allow us to approximate $\frac{1}{2}\gamma(h)$ for all possible $h$.
 %TODO define least squares
 %TODO define it for our use
@@ -271,9 +274,5 @@ If time and resources are available, the algorithm will be ported to a real pod 
 
 \appendix
 \chapter{Ancillary Material}
-kriging formula
-least squares
-semi-v to v procedure
-calcuylating weights
 
 \end{document}
