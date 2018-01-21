@@ -27,9 +27,12 @@
 \usepackage{mathtools}
 \usepackage{braket}
 \usepackage{enumerate, enumitem}
+\usepackage{caption}
 
 \def\dsp{\def\baselinestretch{2.0}\large\normalsize}
 \dsp
+
+\newcommand{\vect}[1]{{\it{\boldsymbol{#1}}}}
 
 \begin{document}
 % Declarations for Front Matter
@@ -96,58 +99,78 @@ We will exploit several concepts developed in the field of Geostatistics and Geo
 The basis of our predictions will be observations we make using reliable sensors. For the methods we will explore and develop, we must estimate the coordinates, likely using The Global Positioning System, for each point of interest we measure. In order to use the techniques we will explore we must assume that we can get a Euclidean distance between any two measured points. If a GPS sensor is used to estimate position, we will likely use a Haversine Transformation to convert Earth longitude and latitude estimated by our sensor to points on a Cartesian plane where we will represent our measurements. For each coordinate measured, we will also need to measure some value of interest. If tracking and predicting the current location of a wildfire, for example, we will likely use an infrared sensor to measure the thermal output of the field in which we would like to predict.\\
 
 \subsection{Random Field Notation}
-For the sake of convention throughout this work, we will denote $(\vec{x_1}, \vec{x_2})$ to be vectors of position measurements on the domain and co-domain of the Cartesian plane respectively. The $i^{th}$ element of each vector, as a point-pair denoted as $\vec{x}_i = (x_{1_i}, x_{2_i})$, will represent the location of the $i^{th}$ observed location on the Cartesian plane.\\
-We will denote the vector, $\vec{u}$, to be a vector of our measured values at our $i^{th}$ observation. The $i^{th}$ element of $\vec{u}$ will correspond to a scalar observation located at $(x_{1_i}, x_{2_i})$, a random variable in a stochastic process, or field, $Z$. Giving us, $Z(\vec{x})=u(\vec{x})$, where $u(\vec{x}): \vec{x} \rightarrow \mathbb{R},\ \vec{x} \in \rm{D} \subset \mathbb{R}^2$\\
+For the sake of convention throughout this work, we will denote $(\vect{x_1}, \vect{x_2})$ to be vectors of position measurements on the domain and co-domain of the Cartesian plane respectively. The $i^{th}$ element of each vector, as a point-pair denoted as $\vect{x}_i = (x_{1_i}, x_{2_i})$, will represent the location of the $i^{th}$ observed location on the Cartesian plane.\\
+We will denote the vector, $\vect{u}$, to be a vector of our measured values at our $i^{th}$ observation. The $i^{th}$ element of $\vect{u}$ will correspond to a scalar observation located at $(x_{1_i}, x_{2_i})$, a random variable in a stochastic process, or field, $Z$. Giving us, $Z(\vect{x})=u(\vect{x})$, where $u(\vect{x}): \vect{x} \rightarrow \mathbb{R},\ \vect{x} \in \rm{D} \subset \mathbb{R}^2$\\
+
+\subsection{Autocorrelation in a Field}
+Positively correlated geospatial autocorrelation in a field implies the existance of a cluster of similar observed values near one another. The opposite is true when the overall geospatial autocorellation of a field in negative. We can assume, from Tobler's First Law of Geography, that the fields we will measure will contain positive autocorrelation. This degree of geospatial autocorrelation can be measured, and will be discussed in the subsection on variography.
 % TODO: plot a geospatially autocorrelated field and place it here
 
 \subsection{Inverse Distance Weighting}
-A simple Inverse Distance Weighting (IDW), using Shepard's Method \cite{shepard:idw}, gives us a prediction of observation, $u$, at location $\vec{x}$ to be:
+A simple Inverse Distance Weighting (IDW), using Shepard's Method \cite{shepard:idw}, gives us a prediction of observation, $u$, at location $\vect{x}$ to be:
 \begin{equation}
-	u(\vec{x})=\begin{cases}
-			\dfrac{\sum\limits_{i=1}^N w(\vec{x}_i)u_i}{\sum\limits_{i=1}^{N} w(\vec{x}_i)} & \text{if}\ d(\vec{x},\vec{x}_i) \neq 0\ \forall i \\
-			u_i & \text{if}\ d(\vec{x},\vec{x}_{i})=0\\
+	u(\vect{x})=\begin{cases}
+			\dfrac{\sum\limits_{i=1}^N w(\vect{x}_i)u_i}{\sum\limits_{i=1}^{N} w(\vect{x}_i)} & \text{if}\ d(\vect{x},\vect{x}_i) \neq 0\ \forall i \\
+			u_i & \text{if}\ d(\vect{x},\vect{x}_{i})=0\\
 		\end{cases}
 \end{equation}\\
 where\\
 \begin{equation}
-	w(\vec{x}_i)=\frac{1}{d(\vec{x},\vec{x}_{i})^{p}}
+	w(\vect{x}_i)=\frac{1}{d(\vect{x},\vect{x}_{i})^{p}}
 \end{equation}\\
 where, in our cases,\\
 \begin{equation}
-	d(\vec{x},\vec{x}_{i})^{p} = \|\vec{x}-\vec{x}_i\|_{2}^p
+	d(\vect{x},\vect{x}_{i})^{p} = \|\vect{x}-\vect{x}_i\|_{2}^p
 \end{equation}\\
 and $p$ is a positive real number, called the power parameter.\\ %TODO: plot a IDW for the same field as the previous section at some sampled locations
-This method gives us a prediction of all points $\vec{x}$ in a field where a set of observations at labeled positions were made, i.e. $Z(\vec{x})=u(\vec{x})$. Unfortunately, the method is limited in that it does not take advantage of the underlying stochastic model of the field, $Z$, being observed. We will further expand on this method to exploit the fact that $Z$ is a stochastic process with underlying geospatially autocorrelated random variables.
+This method gives us a prediction of all points $\vect{x}$ in a field where a set of observations at labeled positions were made, i.e. $Z(\vect{x})=u(\vect{x})$. Unfortunately, the method is limited in that it does not take advantage of the underlying stochastic model of the field, $Z$, being observed. We will further expand on this method to exploit the fact that $Z$ is a stochastic process with underlying geospatially autocorrelated random variables.\\
+In order to apply the Inverse Distance Weighting prediction method to the previously generated map, we will first generate a random set of sample points.
+\begin{figure}[!htb]
+    \captionsetup{skip=0.4\baselineskip,size=footnotesize}
+    \centering
+	\includegraphics[scale=0.5]{figures/sampled_generated_field.png}
+    \caption{Sampled locations (50 points marked in black) of the previously generated geospatially autocorrelated field}
+    \label{fig:sampled_field}
+\end{figure}
+
+\begin{figure}[!htb]
+    \captionsetup{skip=0.4\baselineskip,size=footnotesize}
+    \centering
+	\includegraphics[scale=0.5]{figures/idw_predicted_field.png}
+    \caption{An Inverse Distance Weighting generated predicted field ($p=3$). Generated from 50 randomly observed points.}
+    \label{fig:idw_field}
+\end{figure}
+
+\newpage
 
 \section{Variography}
 Variography is a set of procedures for examining and interpreting spacial dependence and geospatial autocorrelation in observed data. We would like to unravel the autocorrelation, or spatial dependence, of observed data to factor into a classical Inverse Distance Weighting, yielding a Best Linear Unbiased Predictor. The heart of variography is the Variogram Function, a function of quantified dependence for observed data separated at a given distance on the domain.
 
 \subsection{The Semi-Variogram}
-A Semi-Variogram is a function representing the variance of the observation value difference between two sampled locations that are some distance $h$ apart. 
+A Semi-Variogram is a function representing the variance of the observation value difference between two sampled locations that are some vector $\vect{h}$ apart \cite{matheron:geostat}.
 \begin{equation}
-	\gamma(h)=\frac{1}{2V}\iiint\limits_V [f(\vec{x}+h)-f(\vec{x})]^2 \,dV \\
+	\gamma(\vect{h})=\frac{1}{2V}\iiint_V [f(\vect{x}+\vect{h})-f(\vect{x})]^2 \,dV \\
 \end{equation}
-\cite{matheron:geostat}
-This definition can be adapted to 2-Dimensional fields that are more appropriate for our purposes. For all sample locations $\vec{x}_{i}$, $\vec{x}_{j}$, that are $h=\|\vec{x}_{i} - \vec{x}_{j} \|_{2}$, with respective observations $Z(\vec{x}_{i})$ and $Z(\vec{x}_{j})$, we will define an Empirical Variogram, a discrete 2-D semi-variogram, as:
+This definition can be adapted to 2-Dimensional fields that are more appropriate for our purposes. For all sample locations $\vect{x}_{i}$, $\vect{x}_{j}$, that are $h=\|\vect{h}\|=\|\vect{x}_{i} - \vect{x}_{j} \|_{2}$, with respective observations $Z(\vect{x}_{i})$ and $Z(\vect{x}_{j})$, we will define an Empirical Variogram, a discrete 2-D semi-variogram, as \cite{cressie:spatial}:
 \begin{equation}
-	\hat{\gamma}(h\pm\delta) := \frac{1}{2|N(h\pm\delta|}\sum\limits_{(i,j)\in N(h\pm\delta)}|Z(\vec{x}_i) - Z(\vec{x}_j)|^2 % (Cressie 1993)
+	2\hat{\gamma}(\vect{h}+\vect{\delta}) := \frac{1}{|N(\vect{h}+\vect{\delta})|}\sum\limits_{(i,j)\in N(\vect{h}+\vect{\delta})}|Z(\vect{x}_i) - Z(\vect{x}_j)|^2 % (Cressie 1993)
 \end{equation}
-\cite{cressie:spatial}
-where $N(h\pm\delta)$ is the number of pairs of data locations that are vector distance $h\pm\delta$ apart ($\delta$ is a bound of ranges acceptable to "bin" alongside $h$).
-This function gives us an approximate factor of the variance between all points that are distance (or lag) $h$ apart.
+where $\vect{\delta}=\begin{bmatrix}\pm\delta\\ \pm\delta\end{bmatrix}$.\\\\
+where $N(\vect{h}+\vect{\delta})$ is the number of pairs of data locations that are vector distance $\vect{h}+\vect{\delta}$ apart ($\delta$ is a bound of ranges acceptable to "bin" alongside $\vect{h}$).
+This function gives us an approximate factor of the variance between all points that are distance (or lag) $h$ apart.\cite{cressie:spatial}
 % TODO: add a cloud plot of a semivariogram for the same set of sample locations from before
 
 \subsection{The Variogram - Fitting A Semi-Variogram Using Least Squares}
-A Variogram, which is intended to be a continuous function, yields a variance between two observations $Z(\vec{x}_{i})$, $Z(\vec{x}_{j})$ at a distance $h$ apart, as:
+A Variogram, which is intended to be a continuous function, yields a variance between two observations $Z(\vect{x}_{i})$, $Z(\vect{x}_{j})$ at a distance $h$ apart, as:
 \begin{equation}
-	2\gamma(\vec{x}_i, \vec{x}_j)= \text{var} (Z(\vec{x}_{i}) - Z(\vec{x}_{j}))=E[( (Z(\vec{x}_{i}) - \bar{Z} ) - (Z(\vec{x}_{j}) - \bar{Z} ))^2]
+	2\gamma(\vect{x}_i, \vect{x}_j)= \text{var} (Z(\vect{x}_{i}) - Z(\vect{x}_{j}))=E[( (Z(\vect{x}_{i}) - \bar{Z} ) - (Z(\vect{x}_{j}) - \bar{Z} ))^2]
 \end{equation}
-\cite{cressie:spatial}
+
 Because it is infeasible and likely impossible to estimate an observation value at each possible point to compute a total variogram, we will fit our discrete empirical variogram using a least squares fit. This approach will allow us to approximate $\frac{1}{2}\gamma(h)$ for all possible $h$.
+\subsection{Fitting a Statistical Kernel Model for the Variogram}
 %TODO define least squares
 %TODO define it for our use
 %TODO plot a polyfit on the sampled data from before
-\subsection{Fitting a Statistical Kernel Model for the Variogram}
 range, kernel, sill -- gaussian, exp, spherical
 % TODO write this
 % TODO plot the kernel of the sampled data
@@ -179,17 +202,6 @@ Using the Kriging method, the unknown prediction of interest at point $s_{0}$ is
 \widetilde{Z}(s_{0})=\mathlarger{\sum\limits_{i=1}^{n}\lambda_{i}Z(s_{i})}
 \end{equation}
 where $\lambda_{i}$ is the Kriging weight associated with the sampled point at $Z(s_{i})$.
-\begin{center}
-	\begin{figure}[h]
-		\begin{tabular}{cc}
-			\centering
-			\includegraphics[width=0.49\linewidth]{random_field.eps} &
-			\includegraphics[width=0.49\linewidth]{kriging_prediction.eps} \\
-			Randomly Generated Field & Kriging Method Predicted Field\\
-		\end{tabular}
-		\caption{A comparison of a random field generated using 500 random autocorrelated points, and a prediction of the field using the Kriging Method at 50 randomly sampled points. \textit{figures generated using MATLAB.}}
-	\end{figure}
-\end{center}
 
 The Kriging method fits values to the $\lambda_{i}$ weights using information interpreted from the field as data comes into the system. 
 
@@ -208,14 +220,6 @@ Where $N({\bf{h}})$ is the number of pairs of data locations that are vector ${\
 \subsection{Variogram}
 The discrete function is then fit by a least squares to a continuous variogram that can be sampled at each point in question.
 % conveyed information
-
-\begin{center}
-	\begin{figure}[h]
-		\centering
-		\includegraphics[scale=.5]{kriging_variance.eps}
-		\caption{The variance of each prediction point from Figure 1. Larger spacing between the contours indicate greater variance. \textit{figure generated using MATLAB.}}
-	\end{figure}
-\end{center}
 
 % fit to different kernels
 \subsubsection{Gaussian (Normal) Kernel}

@@ -1,0 +1,41 @@
+%% SARGIS S YONAN
+% Master Thesis
+% Autonomous Systems Lab
+
+clear all;
+close all;
+clc;
+
+%% Create a random gaussian distributed autocorrelated field
+% and save to a file
+% field settings
+field_size = 100; % final area will be this square area
+field_distribution = 'gaussian';
+field_gain = 100;
+
+[X,~] = meshgrid(0: field_size - 1);
+Z = randn(size(X)); % normally distributed -- used rand() for a single round point
+
+sigma = 32; % inverse noise
+% autocorrelation
+field = field_gain * imfilter(Z, fspecial(field_distribution, [field_size, field_size], sigma));
+
+save('generated_field.mat', 'field');
+
+%% create a plot for the paper
+
+figure(1);
+top_surf = pcolor(field); 
+%set(top_surf, 'linestyle','none')
+shading interp; % gets rid of the grid lines on the surf()
+export_img_latex(gcf, 'generated_field_top_view')
+
+figure(2);
+side_surf = surf(field);
+set(side_surf,'LineStyle','none')
+
+lighting gouraud;
+light;
+material dull
+
+export_img_latex(gcf, 'generated_field_side_view')

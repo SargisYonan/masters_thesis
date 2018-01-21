@@ -145,7 +145,6 @@ clean-all: clean
 	$(RM) -f $(PDFGRAPHICSFILES)
 #	cd data && make clean
 
-
 #
 # view - view the PDF document
 #
