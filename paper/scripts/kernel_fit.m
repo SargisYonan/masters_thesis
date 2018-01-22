@@ -6,6 +6,8 @@ clear all;
 close all;
 clc;
 
+model = 'gaussian';
+
 D = load('kernel_params.mat');
 range = D.range;
 sill = D.sill;
