@@ -1,0 +1,8 @@
+#! /bin/bash
+
+## A script to accumulate MATLAB generated figures into the LaTeX figures/ directiory
+
+SCRIPT_DIR="scripts/"
+IMAGE_EXT="png"
+
+cp -r $SCRIPT_DIR/*.$IMAGE_EXT figures/

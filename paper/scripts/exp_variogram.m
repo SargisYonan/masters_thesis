@@ -84,6 +84,8 @@ for i = 1:n^2
     end
 end
 
+semivariogram = semivariogram * 2;
+
 % plot the semivariogram 
 figure()
 semi_v_plot = plot(distance, semivariogram, ...
@@ -93,16 +95,21 @@ semi_v_plot = plot(distance, semivariogram, ...
     'MarkerSize', 2);
 hold on;
 
+ylabel('Variance');
+xlabel('Distance');
+axis([0 max_var_dist -.125*max(semivariogram) 1.25*max(semivariogram)])
+export_img_latex(gcf, 'exp_variogram.png');
+
 %% fit a 2nd degree polynomial to the semivarigram and plot it
 
 ix = linspace(1, norm([field_size field_size]));
 p = polyfit(distance, semivariogram, 2);
 pfit = polyval(p, ix);
 pfit_plot = plot(ix, pfit);
-axis([0 max_var_dist 0 max(semivariogram)])
+axis([0 max_var_dist -.5*max(semivariogram) 2*max(semivariogram)])
 hold on;
 
-ylabel('Variogram');
+ylabel('Variance');
 xlabel('Distance');
 legend([pfit_plot, semi_v_plot], {'Least-Squares Fit Variogram', 'Experimental Variogram'});
 
@@ -112,4 +119,5 @@ legend([pfit_plot, semi_v_plot], {'Least-Squares Fit Variogram', 'Experimental V
 range = ix(isx);
 
 %% pack it up
-save('kernel_params.mat', 'sill', 'range');
+save('kernel_params.mat', 'sill', 'range', 'semivariogram', 'distance');
+export_img_latex(gcf, 'fit_exp_variogram.png');

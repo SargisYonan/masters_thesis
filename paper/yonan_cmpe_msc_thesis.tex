@@ -28,6 +28,8 @@
 \usepackage{braket}
 \usepackage{enumerate, enumitem}
 \usepackage{caption}
+\usepackage{subcaption}
+\usepackage{float}
 
 \def\dsp{\def\baselinestretch{2.0}\large\normalsize}
 \dsp
@@ -104,7 +106,28 @@ We will denote the vector, $\vect{u}$, to be a vector of our measured values at 
 
 \subsection{Autocorrelation in a Field}
 Positively correlated geospatial autocorrelation in a field implies the existance of a cluster of similar observed values near one another. The opposite is true when the overall geospatial autocorellation of a field in negative. We can assume, from Tobler's First Law of Geography, that the fields we will measure will contain positive autocorrelation. This degree of geospatial autocorrelation can be measured, and will be discussed in the subsection on variography.
-% TODO: plot a geospatially autocorrelated field and place it here
+
+\begin{figure*}[ht!]
+    \centering
+    \begin{subfigure}[t]{0.5\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{figures/generated_field_top_view.png}
+        \captionsetup{skip=0.5\baselineskip,size=footnotesize}
+        \caption{Top view of the generated field}
+		\label{fig:top_view_field}
+    \end{subfigure}%
+    ~ 
+    \begin{subfigure}[t]{0.5\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{figures/generated_field_side_view.png}
+		\captionsetup{skip=0.5\baselineskip,size=footnotesize}
+		\caption{Side view of the generated field}
+		\label{fig:side_view_field}
+    \end{subfigure}
+    \captionsetup{skip=0.5\baselineskip,size=footnotesize}
+    \caption{A Gaussian distributed randomly generated spatially autocorrelated field created in MATLAB}
+    \label{fig:gen_field}
+\end{figure*}
 
 \subsection{Inverse Distance Weighting}
 A simple Inverse Distance Weighting (IDW), using Shepard's Method \cite{shepard:idw}, gives us a prediction of observation, $u$, at location $\vect{x}$ to be:
@@ -122,24 +145,32 @@ where, in our cases,\\
 \begin{equation}
 	d(\vect{x},\vect{x}_{i})^{p} = \|\vect{x}-\vect{x}_i\|_{2}^p
 \end{equation}\\
-and $p$ is a positive real number, called the power parameter.\\ %TODO: plot a IDW for the same field as the previous section at some sampled locations
+and $p$ is a positive real number, called the power parameter.\\
 This method gives us a prediction of all points $\vect{x}$ in a field where a set of observations at labeled positions were made, i.e. $Z(\vect{x})=u(\vect{x})$. Unfortunately, the method is limited in that it does not take advantage of the underlying stochastic model of the field, $Z$, being observed. We will further expand on this method to exploit the fact that $Z$ is a stochastic process with underlying geospatially autocorrelated random variables.\\
 In order to apply the Inverse Distance Weighting prediction method to the previously generated map, we will first generate a random set of sample points.
-\begin{figure}[!htb]
-    \captionsetup{skip=0.4\baselineskip,size=footnotesize}
-    \centering
-	\includegraphics[scale=0.5]{figures/sampled_generated_field.png}
-    \caption{Sampled locations (50 points marked in black) of the previously generated geospatially autocorrelated field}
-    \label{fig:sampled_field}
-\end{figure}
 
-\begin{figure}[!htb]
-    \captionsetup{skip=0.4\baselineskip,size=footnotesize}
+\begin{figure*}[ht!]
     \centering
-	\includegraphics[scale=0.5]{figures/idw_predicted_field.png}
-    \caption{An Inverse Distance Weighting generated predicted field ($p=3$). Generated from 50 randomly observed points.}
-    \label{fig:idw_field}
-\end{figure}
+    \begin{subfigure}[t]{0.5\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{figures/sampled_generated_field.png}
+        \captionsetup{skip=0.5\baselineskip,size=footnotesize}
+        \caption{Sampled locations (50 points marked in black) of the previously generated geospatially autocorrelated field}
+		\label{fig:sampled_field}
+    \end{subfigure}%
+    ~ 
+    \begin{subfigure}[t]{0.5\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{figures/idw_predicted_field.png}
+		\captionsetup{skip=0.5\baselineskip,size=footnotesize}
+		\caption{An Inverse Distance Weighting generated predicted field ($p=3$). Generated from 50 randomly observed points.}
+		\label{fig:idw_field}
+    \end{subfigure}
+    \captionsetup{skip=0.5\baselineskip,size=footnotesize}
+    \caption{A randomly generated field where 50 observations were made (left), and an Inverted Distance Weighted Prediction (right) of that field from the marked observations.}
+    \label{fig:idw_side_by_side}
+\end{figure*}
+
 
 \newpage
 
@@ -152,13 +183,19 @@ A Semi-Variogram is a function representing the variance of the observation valu
 	\gamma(\vect{h})=\frac{1}{2V}\iiint_V [f(\vect{x}+\vect{h})-f(\vect{x})]^2 \,dV \\
 \end{equation}
 This definition can be adapted to 2-Dimensional fields that are more appropriate for our purposes. For all sample locations $\vect{x}_{i}$, $\vect{x}_{j}$, that are $h=\|\vect{h}\|=\|\vect{x}_{i} - \vect{x}_{j} \|_{2}$, with respective observations $Z(\vect{x}_{i})$ and $Z(\vect{x}_{j})$, we will define an Empirical Variogram, a discrete 2-D semi-variogram, as \cite{cressie:spatial}:
-\begin{equation}
+\begin{equation} \label{eq:exp_var}
 	2\hat{\gamma}(\vect{h}+\vect{\delta}) := \frac{1}{|N(\vect{h}+\vect{\delta})|}\sum\limits_{(i,j)\in N(\vect{h}+\vect{\delta})}|Z(\vect{x}_i) - Z(\vect{x}_j)|^2 % (Cressie 1993)
 \end{equation}
 where $\vect{\delta}=\begin{bmatrix}\pm\delta\\ \pm\delta\end{bmatrix}$.\\\\
 where $N(\vect{h}+\vect{\delta})$ is the number of pairs of data locations that are vector distance $\vect{h}+\vect{\delta}$ apart ($\delta$ is a bound of ranges acceptable to "bin" alongside $\vect{h}$).
 This function gives us an approximate factor of the variance between all points that are distance (or lag) $h$ apart.\cite{cressie:spatial}
-% TODO: add a cloud plot of a semivariogram for the same set of sample locations from before
+\begin{figure}[H]
+    \centering    
+	\includegraphics[width=\linewidth]{figures/exp_variogram.png}
+	\captionsetup{skip=0.5\baselineskip,size=footnotesize}
+	\caption{An experimental variogram generated using Equation \ref{eq:exp_var} ($\delta=0$) in \textit{MATLAB}}
+	\label{fig:exp_var}
+\end{figure}
 
 \subsection{The Variogram - Fitting A Semi-Variogram Using Least Squares}
 A Variogram, which is intended to be a continuous function, yields a variance between two observations $Z(\vect{x}_{i})$, $Z(\vect{x}_{j})$ at a distance $h$ apart, as:
@@ -167,13 +204,24 @@ A Variogram, which is intended to be a continuous function, yields a variance be
 \end{equation}
 
 Because it is infeasible and likely impossible to estimate an observation value at each possible point to compute a total variogram, we will fit our discrete empirical variogram using a least squares fit. This approach will allow us to approximate $\frac{1}{2}\gamma(h)$ for all possible $h$.
+\begin{figure}[H]
+    \centering    
+	\includegraphics[width=\linewidth]{figures/fit_exp_variogram.png}
+	\captionsetup{skip=0.5\baselineskip,size=footnotesize}
+	\caption{An second degree least-squares fit of the experimental variogram in Figure \ref{fig:exp_var}}
+	\label{fig:fit_exp_var}
+\end{figure}
+
 \subsection{Fitting a Statistical Kernel Model for the Variogram}
-%TODO define least squares
-%TODO define it for our use
-%TODO plot a polyfit on the sampled data from before
 range, kernel, sill -- gaussian, exp, spherical
 % TODO write this
-% TODO plot the kernel of the sampled data
+\begin{figure}[H]
+    \centering    
+	\includegraphics[width=\linewidth]{figures/fit_kern_comp.png}
+	\captionsetup{skip=0.5\baselineskip,size=footnotesize}
+	\caption{A comparison of the Gaussian Kernel and the Spherical Kernel fit to the data previously sampled}
+	\label{fig:kern_fit}
+\end{figure}
 \subsection{Covariance-Variance Matrix}
 
 \section{The Kriging Method}
