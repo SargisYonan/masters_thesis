@@ -6,11 +6,7 @@ clear all;
 close all;
 clc;
 
-kernel_model = 'sph';
-
-K = load('kernel_params.mat');
-range = K.range;
-sill = K.sill;
+kernel_model = 'spherical';
 
 F = load('generated_field.mat');
 field = F.field;
@@ -22,6 +18,19 @@ n = max(size(observations));
 
 O = load('sampled_locations.mat');
 observation_locations = O.sample_locations;
+
+D = load('kernel_params.mat');
+semivariogram = D.semivariogram;
+distances = D.distance;
+
+
+
+VAR = variogram([observation_locations(:,1), observation_locations(:,2)], observations, 'plot', false, 'type', 'gamma', 'nrbins', floor(max(size(observations))/2));
+c0 = max(VAR.val);
+a0 = max(VAR.distance)*2/3;
+[range, sill, nugget, VF] = variogramfit(VAR.distance, VAR.val, a0, c0, 1, 'model', kernel_model, 'solver','fminsearchbnd', 'plotit', false);
+var_params = [range, sill, nugget];
+variogram_model = VF.func;
 
 %% Calculate the covariance-variance matrix
 C = zeros(n,n);
@@ -38,7 +47,11 @@ for i = 1:n
         
         h = norm([delta_x delta_y]);
         
-        C(i,j) = kernel(h, range, sill, kernel_model);
+        if (h == 0)
+            h = 0.1;
+        end
+        
+        C(i,j) = variogram_model(var_params, h);%kernel(h, range, sill, kernel_model);
     end
 end
 
@@ -52,6 +65,9 @@ pred_field = zeros(field_size, field_size);
 
 d = zeros(n, 1);
 
+warning('off','all')
+warning
+
 for i = 1:field_size
     for j = 1:field_size
         
@@ -63,8 +79,11 @@ for i = 1:field_size
             delta_y = j - y;
 
             h = norm([delta_x delta_y]);
-
-            d(k) = kernel(h, range, sill, kernel_model);
+            if (h == 0)
+                h = 0.1;
+            end
+            
+            d(k) = variogram_model(var_params, h); %kernel(h, range, sill, kernel_model);
         end
         
         pred_field(i,j) = observations' * (C\d);
@@ -73,18 +92,34 @@ for i = 1:field_size
 end
 
 figure(1);
-subplot(2,1,1);
 surf(pred_field)
 title('Predicted Field')
-subplot(2,1,2);
-surf(field)
-title('Actual Field')
+xlabel('x_1');
+ylabel('x_2');
+zlabel('u');
+export_img_latex(gcf, 'kriging_side_pred_field');
 
 figure(2);
-subplot(2,1,1);
+surf(field)
+title('Actual Field')
+xlabel('x_1');
+ylabel('x_2');
+zlabel('u');
+
+figure(3);
 pcolor(pred_field)
 title('Predicted Field')
-subplot(2,1,2);
+shading interp; % gets rid of the grid lines on the surf()
+xlabel('x_1');
+ylabel('x_2');
+zlabel('u');
+export_img_latex(gcf, 'kriging_top_pred_field');
+
+figure(4);
 pcolor(field)
 title('Actual Field')
+shading interp; % gets rid of the grid lines on the surf()
+xlabel('x_1');
+ylabel('x_2');
+zlabel('u');
 

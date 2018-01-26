@@ -48,25 +48,19 @@ for i = 1:field_size
 end
 
 figure(1);
-
-%subplot(1,2,1);
 top_pred_surf = pcolor(pred_field); 
+xlabel('x_1');
+ylabel('x_2');
+zlabel('u');
 shading interp; % gets rid of the grid lines on the surf()
 
-%subplot(1,2,2);
-%top_field_surf = pcolor(field); 
-%shading interp; % gets rid of the grid lines on the surf()
-        
-%hold on;
-
-%for s = 1:n
-%    plot3(sampled_locations(s,1), sampled_locations(s,2), abs(samples(s)), ...
-%        'ko', 'LineWidth',2,...
-%        'MarkerEdgeColor','k',...
- %       'MarkerFaceColor',[0 0 0],...
-  %      'MarkerSize',5)
-  %  hold on;
-%end
-        
 export_img_latex(gcf, 'idw_predicted_field');
 save('idw_pred_field.mat', 'pred_field');
+
+figure(2);
+surf(pred_field); 
+xlabel('x_1');
+ylabel('x_2');
+zlabel('u');
+export_img_latex(gcf, 'idw_side_pred_field');
+

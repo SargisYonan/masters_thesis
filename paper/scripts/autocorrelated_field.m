@@ -26,16 +26,18 @@ save('generated_field.mat', 'field');
 
 figure(1);
 top_surf = pcolor(field); 
-%set(top_surf, 'linestyle','none')
+xlabel('x_1');
+ylabel('x_2');
+zlabel('u');
 shading interp; % gets rid of the grid lines on the surf()
+
 export_img_latex(gcf, 'generated_field_top_view')
+
 
 figure(2);
 side_surf = surf(field);
-set(side_surf,'LineStyle','none')
-
-lighting gouraud;
-light;
-material dull
+xlabel('x_1');
+ylabel('x_2');
+zlabel('u');
 
 export_img_latex(gcf, 'generated_field_side_view')

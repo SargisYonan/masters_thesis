@@ -93,19 +93,21 @@ I want to thank Sharon Rabinovich, who reminded me: "Although a cow is tied up, 
 \end{frontmatter}
 
 \part{Background}
+\chapter{Geostatistical Interpolation}
+Stochastic fields are areas where...we can predict if we take advantage of...
+\section{Tobler's First Law of Geography}
+We will exploit several concepts developed in the field of Geostatistics and Geography to assist our path finding and aerial prediction system. Tobler's First Law of Geography \cite{tobler:first_law} states, "Everything is related to everything else, but near things are more related than distant things." Regarding geospatial data, we can say at the very least, there is a positive correlation between entities that are closely related in distance \cite{miller:on_toblers_first_law}. This implies the existence of geospatial autocorrelation, or a positive correlelation between elements in a series, spatially, in this case for our observed geographies. We can exploit this fundamental law of Geography for geostatistical interpolation methods like inverse distance weighting. Furthermore, if we view our observed fields as an unknown stochastic process, with a generally known underlying statistical model, there exists an overall trend with correlated variation between observed points. We can use these additional caveats to create a Best Linear Unbiased Predictor (BLUP) which can robustly predict intermediate spatial points between observations alongside an additional measure of confidence via a weighted least-squares calculation. We will exploit these geostatiscal processes to construct graphs of confidence for flight planning, and to predict unknown fields, aerially using UAVs, to some degree of confidence.
 
-\section{Mathematical and Geographical Background}
-We will exploit several concepts developed in the field of Geostatistics and Geography to assist our flight planning and aerial prediction system. Tobler's First Law of Geography states, "Everything is related to everything else, but near things are more related than distant things."\cite{tobler:first_law} Regarding geospatial data, we can say at the very least, there is a positive correlation between entities that are closely related in distance.\cite{miller:on_toblers_first_law}, implying the existence of spatial autocorrelation in observed geographies. We can exploit this fundamental law of Geography for Geostatistical interpolation methods like inverse distance weighting. Furthermore, if we view our observed fields as an unknown stochastic process, with a generally known model, there exists an overall trend with correlated variation between observed points. We can use these additional caveats to create a Best Linear Unbiased Predictor (BLUP) which can robustly predict intermediate spatial points between observations alongside an additional measure of confidence. We Will exploit these geostatiscal processes to construct graphs of confidence for flight planning, and to predict unknown fields, aerially using UAVs, to some degree of confidence.
+\subsection{Measuring and Estimating Points of Interest in a Field}
+The basis of our predictions will be observations we make using reliable sensors. For the methods we will explore and develop, we must estimate the coordinates likely using The Global Positioning System for each point of interest we measure. In order to use the techniques we will explore we must assume that we can get a Euclidean distance between any two measured points. If a GPS sensor is used to estimate position, we will likely use a Haversine Transformation to convert Earth longitude and latitude estimated by our sensor to points on a Cartesian plane where we will represent our measurements. For each coordinate measured, we will also need to measure some value of interest. If tracking and predicting the current location of a wildfire, for example, we will likely use an infrared sensor to measure the thermal output of the field in which we would like to predict. We will assume that the points of interest will be measured with little to no error, and our coordinate system is on a Cartesian place with Euclidean distances separating points on a generic unit-distance scale.
 
-\subsection{Measuring and Estimating Points of Interest on a Field}
-The basis of our predictions will be observations we make using reliable sensors. For the methods we will explore and develop, we must estimate the coordinates, likely using The Global Positioning System, for each point of interest we measure. In order to use the techniques we will explore we must assume that we can get a Euclidean distance between any two measured points. If a GPS sensor is used to estimate position, we will likely use a Haversine Transformation to convert Earth longitude and latitude estimated by our sensor to points on a Cartesian plane where we will represent our measurements. For each coordinate measured, we will also need to measure some value of interest. If tracking and predicting the current location of a wildfire, for example, we will likely use an infrared sensor to measure the thermal output of the field in which we would like to predict.\\
+\subsection{Stochastic Field Notation}
+For the sake of convention throughout this work, we will denote $\begin{bmatrix} x_1 & x_2 \end{bmatrix}^{T}$ to be a column vector of position measurements on the domain (where $x_1$ is measured) and co-domain (where $x_2$ is measured) of the Cartesian plane representing a topological field respectively. The $i^{th}$ row of the matrix $X = \begin{bmatrix} \vect{x}_1 & \vect{x}_2 \end{bmatrix}^{T}$, as a point-pair denoted as $\vect{X}_i = \begin{bmatrix} \vect{X}_{1_i} & \vect{X}_{2_i} \end{bmatrix}^{T}$, will represent the location of the $i^{th}$ observed location on the Cartesian plane.
 
-\subsection{Random Field Notation}
-For the sake of convention throughout this work, we will denote $(\vect{x_1}, \vect{x_2})$ to be vectors of position measurements on the domain and co-domain of the Cartesian plane respectively. The $i^{th}$ element of each vector, as a point-pair denoted as $\vect{x}_i = (x_{1_i}, x_{2_i})$, will represent the location of the $i^{th}$ observed location on the Cartesian plane.\\
-We will denote the vector, $\vect{u}$, to be a vector of our measured values at our $i^{th}$ observation. The $i^{th}$ element of $\vect{u}$ will correspond to a scalar observation located at $(x_{1_i}, x_{2_i})$, a random variable in a stochastic process, or field, $Z$. Giving us, $Z(\vect{x})=u(\vect{x})$, where $u(\vect{x}): \vect{x} \rightarrow \mathbb{R},\ \vect{x} \in \rm{D} \subset \mathbb{R}^2$\\
+We will denote the vector, $\vect{u}$, to be a vector of our measured values at our $i^{th}$ observation, $u_i \in \mathbb{R}$, a non-location measurment of interest (e.g. an infrared sensor measurment). For an enclosed neighborhood of points, $D$, in a stochastic field, $Z$, we will define $Z(\vect{X}_i): \vect{X}_i \rightarrow \mathbb{R},\ \vect{X}_i \in \rm{D} \subset \mathbb{R}^2$. The $i^{th}$ element of $\vect{u}$, $u_i$, a random variable in a stochastic process, or field, $Z$, will correspond to a scalar observation located at $[x_{1_i}\ x_{2_i}]^{T}$. Giving us, $Z(\vect{X}_i)=u_i$. We will denote a predicted value on a field to be $\hat{Z}(\vect{X}_i)=\hat{u}_i$.
 
 \subsection{Autocorrelation in a Field}
-Positively correlated geospatial autocorrelation in a field implies the existance of a cluster of similar observed values near one another. The opposite is true when the overall geospatial autocorellation of a field in negative. We can assume, from Tobler's First Law of Geography, that the fields we will measure will contain positive autocorrelation. This degree of geospatial autocorrelation can be measured, and will be discussed in the subsection on variography.
+Positively correlated geospatial autocorrelation in a field implies the existance of a cluster of similar observed values near one another. The opposite is true when the overall geospatial autocorellation of a field is negative. We can assume, from Tobler's First Law of Geography, that the fields we will measure will contain positive autocorrelation. This degree of geospatial autocorrelation can be measured, and will be discussed in the subsection on variography.
 
 \begin{figure*}[ht!]
     \centering
@@ -124,29 +126,25 @@ Positively correlated geospatial autocorrelation in a field implies the existanc
 		\caption{Side view of the generated field}
 		\label{fig:side_view_field}
     \end{subfigure}
+
     \captionsetup{skip=0.5\baselineskip,size=footnotesize}
-    \caption{A Gaussian distributed randomly generated spatially autocorrelated field created in MATLAB}
+    \caption{A Gaussian distributed randomly generated spatially autocorrelated field created using \textit{MATLAB}}
     \label{fig:gen_field}
 \end{figure*}
 
-\subsection{Inverse Distance Weighting}
-A simple Inverse Distance Weighting (IDW), using Shepard's Method \cite{shepard:idw}, gives us a prediction of observation, $u$, at location $\vect{x}$ to be:
+\section{Inverse Distance Weighting}
+A simple Inverse Distance Weighting (IDW), using Shepard's Method \cite{shepard:idw}, gives us a prediction of an unobserved point, $\hat{u}_j$, at location $\vect{X}_j$, defining $\hat{Z}(\vect{X}_j)$ to be:
 \begin{equation}
-	u(\vect{x})=\begin{cases}
-			\dfrac{\sum\limits_{i=1}^N w(\vect{x}_i)u_i}{\sum\limits_{i=1}^{N} w(\vect{x}_i)} & \text{if}\ d(\vect{x},\vect{x}_i) \neq 0\ \forall i \\
-			u_i & \text{if}\ d(\vect{x},\vect{x}_{i})=0\\
+	\hat{Z}(\vect{X}_j)=\begin{cases}
+			\dfrac{\sum\limits_{i=1}^N w(\vect{X}_j, \vect{X}_i)u_i}{\sum\limits_{i=1}^{N} w(\vect{X}_j, \vect{X}_i)} & \text{if}\ \forall i \mid d(\vect{X}_j,\vect{X}_i) \neq 0\ \\
+			u_j & \text{if}\ \exists i \mid d(\vect{X}_j,\vect{X}_i)=0\\
 		\end{cases}
-\end{equation}\\
-where\\
+\end{equation}
 \begin{equation}
-	w(\vect{x}_i)=\frac{1}{d(\vect{x},\vect{x}_{i})^{p}}
-\end{equation}\\
-where, in our cases,\\
-\begin{equation}
-	d(\vect{x},\vect{x}_{i})^{p} = \|\vect{x}-\vect{x}_i\|_{2}^p
-\end{equation}\\
-and $p$ is a positive real number, called the power parameter.\\
-This method gives us a prediction of all points $\vect{x}$ in a field where a set of observations at labeled positions were made, i.e. $Z(\vect{x})=u(\vect{x})$. Unfortunately, the method is limited in that it does not take advantage of the underlying stochastic model of the field, $Z$, being observed. We will further expand on this method to exploit the fact that $Z$ is a stochastic process with underlying geospatially autocorrelated random variables.\\
+	w(\vect{X}_j, \vect{X}_i)=\frac{1}{d(\vect{X}_j,\vect{X}_{i})^{p}}=\|\vect{X}_j-\vect{X}_i\|_{2}^{-p}
+\end{equation}
+where $p \in \mathbb{R}^{+}$ is the IDW "power parameter". The power parameter, $p$, controls the emphasis on near and far observations on a prediction. As $p$ increases, the predicted values more closely resemble the closest made observation to the prediction location. Inversely, as $p$ gets smaller within $(0, 1]$, more emphasis is drawn from observations made further away.
+
 In order to apply the Inverse Distance Weighting prediction method to the previously generated map, we will first generate a random set of sample points.
 
 \begin{figure*}[ht!]
@@ -154,83 +152,161 @@ In order to apply the Inverse Distance Weighting prediction method to the previo
     \begin{subfigure}[t]{0.5\textwidth}
         \centering
         \includegraphics[width=\linewidth]{figures/sampled_generated_field.png}
-        \captionsetup{skip=0.5\baselineskip,size=footnotesize}
-        \caption{Sampled locations (50 points marked in black) of the previously generated geospatially autocorrelated field}
-		\label{fig:sampled_field}
+        \captionsetup{skip=0.5\baselineskip, width=0.8\textwidth, size=footnotesize}
+        \caption{Sampled locations (250 points marked in black) of the previously generated geospatially autocorrelated field in Figure \ref{fig:top_view_field}}
+        \label{fig:samples}
     \end{subfigure}%
     ~ 
     \begin{subfigure}[t]{0.5\textwidth}
         \centering
         \includegraphics[width=\linewidth]{figures/idw_predicted_field.png}
-		\captionsetup{skip=0.5\baselineskip,size=footnotesize}
-		\caption{An Inverse Distance Weighting generated predicted field ($p=3$). Generated from 50 randomly observed points.}
+		\captionsetup{skip=0.5\baselineskip, width=0.8\textwidth, size=footnotesize}
+		\caption{An Inverse Distance Weighting generated predicted field ($p=3$). Generated from 250 random observations made in Figure \ref{fig:samples}}
 		\label{fig:idw_field}
     \end{subfigure}
+    \\
+    \begin{subfigure}[t]{0.5\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{figures/generated_field_side_view.png}
+        \captionsetup{skip=0.5\baselineskip, width=0.8\textwidth, size=footnotesize}
+        \caption{A side view of the previously generated geospatially autocorrelated field in Figure \ref{fig:side_view_field}}
+    \end{subfigure}%
+    ~
+    \begin{subfigure}[t]{0.5\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{figures/idw_side_pred_field.png}
+        \captionsetup{skip=0.5\baselineskip, width=0.8\textwidth, size=footnotesize}
+        \caption{A side view of the IDW generated in Figure \ref{fig:idw_field}}
+    \end{subfigure}
     \captionsetup{skip=0.5\baselineskip,size=footnotesize}
-    \caption{A randomly generated field where 50 observations were made (left), and an Inverted Distance Weighted Prediction (right) of that field from the marked observations.}
+    \caption{A randomly generated field where 250 observations were made (left), and an Inverted Distance Weighted Prediction (right) of that field}
     \label{fig:idw_side_by_side}
 \end{figure*}
 
-
-\newpage
+This method can give us a prediction for all possible $\vect{X}_j$ points in a field where a set of observations at labeled positions were made, as done in Figure \ref{fig:idw_side_by_side}. Unfortunately, the method is limited in that it does not take advantage of the underlying stochastic model of the field, $Z$, being observed. We will further expand on this method to exploit the fact that $Z$ is a stochastic process with underlying geospatially autocorrelated random variables.
 
 \section{Variography}
-Variography is a set of procedures for examining and interpreting spacial dependence and geospatial autocorrelation in observed data. We would like to unravel the autocorrelation, or spatial dependence, of observed data to factor into a classical Inverse Distance Weighting, yielding a Best Linear Unbiased Predictor. The heart of variography is the Variogram Function, a function of quantified dependence for observed data separated at a given distance on the domain.
+Variography is a set of procedures for examining and interpreting spatial dependence and geospatial autocorrelation in observed data. We would like to unravel the autocorrelation, or spatial dependence, of observed data to factor into a classical Inverse Distance Weighting, yielding a Best Linear Unbiased Predictor. The heart of variography is the Variogram Function, a function which quantifies dependence for observed data separated by some vector distance and angle, i.e. the covariance between two given points in a stochastic field. We will develop the basis for the Variogram function and fit our sampled observations to a continuous Variogram model.
+
+\subsection{The Variogram}
+A Variogram is intended to be a continuous function which yields a covariance between two points $Z(\vect{X}_{i})$, $Z(\vect{X}_{j})$, which were not nessecarilly observed, but known to be a vector $\vect{h} \in \mathbb{R}^2$ apart. Using the assumption made in Equation 2.4.1 of Matherson, 1963 \cite{matheron:geostat}:
+
+\begin{equation}
+    Z(\vect{X}_i)=\mu(\vect{X}_i)+\delta(\vect{X}_i)
+    \label{eq:matheron:assum}
+\end{equation}
+
+Where $\delta(\cdot)$ is a zero-mean intrinsically stationary stochastic process, which our observations in a field $Z$ are therefore expected to be. If we assume a mean $\mu(\cdot)$ is only constant in a reasonably small neighborhood, a modified version of the variogram definition in equation 2.3.4 of Matherson, 1963 \cite{matheron:geostat} is defined to be:
+
+\begin{equation}
+	2\gamma(\vect{X}_i, \vect{X}_j)= \text{var} (Z(\vect{X}_{i}) - Z(\vect{X}_{j}))=E[( (Z(\vect{X}_{i}) - \bar{Z} ) - (Z(\vect{X}_{j}) - \bar{Z} ))^2]
+    \label{eq:cont_var}
+\end{equation}
+
+Where $\bar{Z}$ is the mean of the observations made in a stochastic field, $Z$, for a reasonably small neighborhood of points.
+
+It is infeasible and impossible to estimate an observation value at each possible point to compute a continuous variogram. We must therefore define a discrete model which will be fit into a continuous variogram model.
 
 \subsection{The Semi-Variogram}
-A Semi-Variogram is a function representing the variance of the observation value difference between two sampled locations that are some vector $\vect{h}$ apart \cite{matheron:geostat}.
-\begin{equation}
-	\gamma(\vect{h})=\frac{1}{2V}\iiint_V [f(\vect{x}+\vect{h})-f(\vect{x})]^2 \,dV \\
+A Semi-Variogram, or Empirical Variogram, is a discrete function representing the covariance of the observation value difference between two sampled locations that are some vector $\vect{h}$ apart. By modifying equation 2.4.2, Matheron, 1963 \cite{matheron:geostat} to include an additional boundery to classify a "bin", for two observations $\vect{X}_{i}$, $\vect{X}_{j}$ in a stochastic field, $Z$, the empirical semivariogram is defined to be:
+
+\begin{equation} 
+    \label{eq:exp_var}
+    2\hat{\gamma}(\vect{h}+\vect{\delta}) := \frac{1}{|N(\vect{h}+\vect{\delta})|}\sum\limits_{(i,j)\in N(\vect{h}+\vect{\delta})}|Z(\vect{X}_i) - Z(\vect{X}_j)|^2 % (Cressie 1993)
 \end{equation}
-This definition can be adapted to 2-Dimensional fields that are more appropriate for our purposes. For all sample locations $\vect{x}_{i}$, $\vect{x}_{j}$, that are $h=\|\vect{h}\|=\|\vect{x}_{i} - \vect{x}_{j} \|_{2}$, with respective observations $Z(\vect{x}_{i})$ and $Z(\vect{x}_{j})$, we will define an Empirical Variogram, a discrete 2-D semi-variogram, as \cite{cressie:spatial}:
-\begin{equation} \label{eq:exp_var}
-	2\hat{\gamma}(\vect{h}+\vect{\delta}) := \frac{1}{|N(\vect{h}+\vect{\delta})|}\sum\limits_{(i,j)\in N(\vect{h}+\vect{\delta})}|Z(\vect{x}_i) - Z(\vect{x}_j)|^2 % (Cressie 1993)
-\end{equation}
-where $\vect{\delta}=\begin{bmatrix}\pm\delta\\ \pm\delta\end{bmatrix}$.\\\\
-where $N(\vect{h}+\vect{\delta})$ is the number of pairs of data locations that are vector distance $\vect{h}+\vect{\delta}$ apart ($\delta$ is a bound of ranges acceptable to "bin" alongside $\vect{h}$).
-This function gives us an approximate factor of the variance between all points that are distance (or lag) $h$ apart.\cite{cressie:spatial}
+
+Where $N(\vect{h}+\vect{\delta})$ is the number of pairs of observed data locations that are a vector distance and angle $\vect{h}+\vect{\delta}$ apart, and $\vect{\delta} = \begin{bmatrix}\pm\delta & \pm\delta\end{bmatrix}^{T}$ is a bound of ranges acceptable to be "binned" alongside $\vect{h}$.
+
 \begin{figure}[H]
     \centering    
-	\includegraphics[width=\linewidth]{figures/exp_variogram.png}
-	\captionsetup{skip=0.5\baselineskip,size=footnotesize}
-	\caption{An experimental variogram generated using Equation \ref{eq:exp_var} ($\delta=0$) in \textit{MATLAB}}
-	\label{fig:exp_var}
+    \includegraphics[width=\linewidth]{figures/exp_variogram.png}
+    \captionsetup{skip=0.5\baselineskip,size=footnotesize}
+    \caption{An empirical variogram generated using Equation \ref{eq:exp_var} on the field and random samples previosuly generated in Figure \ref{fig:samples}. $\delta$ was chosen such that for $n$ observations, a total number of $\Big\lfloor \frac{n}{2} \Big\rfloor$ points were plotted}
+    \label{fig:exp_var}
 \end{figure}
 
-\subsection{The Variogram - Fitting A Semi-Variogram Using Least Squares}
-A Variogram, which is intended to be a continuous function, yields a variance between two observations $Z(\vect{x}_{i})$, $Z(\vect{x}_{j})$ at a distance $h$ apart, as:
-\begin{equation}
-	2\gamma(\vect{x}_i, \vect{x}_j)= \text{var} (Z(\vect{x}_{i}) - Z(\vect{x}_{j}))=E[( (Z(\vect{x}_{i}) - \bar{Z} ) - (Z(\vect{x}_{j}) - \bar{Z} ))^2]
-\end{equation}
+The plot of the empirical variogram in figure \ref{fig:exp_var} conveys to us the geospatial autocorrelation of the sampled field that was previously generated in figure \ref{fig:samples}. We can see that as the distance, $\|\vect{h}\|_2$, between two given points increases, the covariance also increases. At some point in the graph the covariance levels out to a steady value (the sill) at some distance in the domain (the range). This informs us of locations of where the loss of reliable geospatial autocorrelation between two points that are a vector distance $\vect{h}$ apart lies. This will later act as a method of prediction confidence in our Best Linear Unbiased Predictor.
 
-Because it is infeasible and likely impossible to estimate an observation value at each possible point to compute a total variogram, we will fit our discrete empirical variogram using a least squares fit. This approach will allow us to approximate $\frac{1}{2}\gamma(h)$ for all possible $h$.
-\begin{figure}[H]
-    \centering    
-	\includegraphics[width=\linewidth]{figures/fit_exp_variogram.png}
-	\captionsetup{skip=0.5\baselineskip,size=footnotesize}
-	\caption{An second degree least-squares fit of the experimental variogram in Figure \ref{fig:exp_var}}
-	\label{fig:fit_exp_var}
-\end{figure}
+\subsection{Converting a Semi-Variogram to a Variogram}
+The objective of fitting a statistical model to an empirical variogram is to approximate the continuous covariance for any two points on $Z$ that are at some known $\vect{h}$ apart, i.e. to obtain a decent approximation of equation \ref{eq:cont_var}.
 
-\subsection{Fitting a Statistical Kernel Model for the Variogram}
-range, kernel, sill -- gaussian, exp, spherical
-% TODO write this
+\subsection{Range, Sill, and Nugget}
+\subsection{Statistical Models}
+objective functions
+\subsubsection{The Gaussian Model}
+\subsubsection{The Exponential Model}
+\subsubsection{The Spherical Model}
+\subsubsection{Other Models}
+
+\subsection{Fitting A Semi-Variogram}
+fminsearchbound
+
 \begin{figure}[H]
     \centering    
 	\includegraphics[width=\linewidth]{figures/fit_kern_comp.png}
 	\captionsetup{skip=0.5\baselineskip,size=footnotesize}
-	\caption{A comparison of the Gaussian Kernel and the Spherical Kernel fit to the data previously sampled}
+	\caption{A comparison of the Gaussian, Spherical, and Exponential statistical models fit to the Empirical Variogram in Figure \ref{fig:exp_var}}
 	\label{fig:kern_fit}
 \end{figure}
-\subsection{Covariance-Variance Matrix}
+
+\section{Covariance-Variance Matrix}
 
 \section{The Kriging Method}
+\subsection{A Best Linear Unbiased Predictor}
 \subsection{Exploiting Geospatial Autocorrelation}
-\subsection{The Kriging Formula - A Best Linear Unbiased Predictor}
+\section{Forms of the Kriging Method}
+\section{The Kriging Formula}
+\section{The Kriging Prediction}
 
+\begin{figure*}[ht!]
+    \centering
+    \begin{subfigure}[t]{0.5\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{figures/sampled_generated_field.png}
+        \captionsetup{skip=0.5\baselineskip, width=0.8\textwidth, size=footnotesize}
+        \caption{Sampled locations (250 points marked in black) of the previously generated geospatially autocorrelated field}
+        \label{fig:sampled_field}
+    \end{subfigure}%
+    ~ 
+    \begin{subfigure}[t]{0.5\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{figures/kriging_top_pred_field.png}
+        \captionsetup{skip=0.5\baselineskip, width=0.8\textwidth, size=footnotesize}
+        \caption{A Kriging Prediction of the originally generated random field}
+        \label{fig:krig_field}
+    \end{subfigure}
+    \captionsetup{skip=0.5\baselineskip,size=footnotesize}
+    \caption{A randomly generated field where 250 observations were made (left), and a Kriging Prediction (right) of that field from the marked observations.}
+    \label{fig:krig_side_by_side}
+\end{figure*}
+
+\begin{figure*}[ht!]
+    \centering
+    \begin{subfigure}[t]{0.5\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{figures/generated_field_side_view.png}
+        \captionsetup{skip=0.5\baselineskip, width=0.8\textwidth, size=footnotesize}
+        \caption{A side view of the previously generated geospatially autocorrelated field}
+        \label{fig:sampled_field}
+    \end{subfigure}%
+    ~ 
+    \begin{subfigure}[t]{0.5\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{figures/kriging_side_pred_field.png}
+        \captionsetup{skip=0.5\baselineskip, width=0.8\textwidth, size=footnotesize}
+        \caption{A Kriging Prediction of the originally generated random field}
+        \label{fig:krig_side_field}
+    \end{subfigure}
+    \captionsetup{skip=0.5\baselineskip,size=footnotesize}
+    \caption{A randomly generated field where 250 observations were made (left), and a Kriging Prediction (right) of that field from the marked observations.}
+    \label{fig:krig_side_side_by_side}
+\end{figure*}
+
+\chapter{Optimization of Interpolation Methods}
 \section{Natural Neighbor Selection}
 \subsection{Finding Natural Neighbors}
 
+\chapter{Required Graph Theory}
 \section{Graph Construction}
 \subsection{Vertices and Edges}
 \subsection{Path Problems}

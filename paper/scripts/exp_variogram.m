@@ -70,7 +70,7 @@ max_var_dist = norm([field_size field_size])/4;
 for i = 1:n^2
     % find all repeating instances of a given distance in the semivariogram    
     h = rep_dist(i);
-    if (h < max_var_dist)
+    if (h < max_var_dist && h > 0)
         % you only need to average the semivariogram for the given distance, h,
         % if you havent previously
         if (~any(distance == h))
@@ -84,40 +84,23 @@ for i = 1:n^2
     end
 end
 
-semivariogram = semivariogram * 2;
+VAR = variogram([sampled_locations(:,1), sampled_locations(:,2)], samples, 'plot', false, 'type', 'gamma', 'nrbins', floor(max(size(samples))/2));
+semivar = VAR.val;
+distance = VAR.distance;
 
 % plot the semivariogram 
 figure()
-semi_v_plot = plot(distance, semivariogram, ...
+semi_v_plot = plot(distance, semivar, ...
     'ko', 'LineWidth', 2,...
     'MarkerEdgeColor', 'k',...
     'MarkerFaceColor', [0 0 0],...
     'MarkerSize', 2);
 hold on;
 
-ylabel('Variance');
+ylabel('\gamma');
 xlabel('Distance');
-axis([0 max_var_dist -.125*max(semivariogram) 1.25*max(semivariogram)])
+axis([0 max(distance) 0 max(semivar)])
 export_img_latex(gcf, 'exp_variogram.png');
 
-%% fit a 2nd degree polynomial to the semivarigram and plot it
-
-ix = linspace(1, norm([field_size field_size]));
-p = polyfit(distance, semivariogram, 2);
-pfit = polyval(p, ix);
-pfit_plot = plot(ix, pfit);
-axis([0 max_var_dist -.5*max(semivariogram) 2*max(semivariogram)])
-hold on;
-
-ylabel('Variance');
-xlabel('Distance');
-legend([pfit_plot, semi_v_plot], {'Least-Squares Fit Variogram', 'Experimental Variogram'});
-
-%% calculate range and sill -- variogram model parameter
-
-[sill, isx] = max(pfit);
-range = ix(isx);
-
 %% pack it up
-save('kernel_params.mat', 'sill', 'range', 'semivariogram', 'distance');
-export_img_latex(gcf, 'fit_exp_variogram.png');
+save('kernel_params.mat', 'semivar', 'distance', 'VAR');

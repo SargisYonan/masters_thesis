@@ -11,7 +11,7 @@ plot_sample_points = true;
 field_struct = load('generated_field.mat');
 field = field_struct.field;
 field_size = max(size(field));
-number_of_samples = 50;
+number_of_samples = 250;
 
 sample_locations = zeros(number_of_samples, 2);
 samples = zeros(number_of_samples, 1);
@@ -22,6 +22,9 @@ rng(seed, 'twister');
 
 if plot_sample_points
     top_surf = pcolor(field); 
+    xlabel('x_1');
+    ylabel('x_2');
+    zlabel('u');
     shading interp; % gets rid of the grid lines on the surf()
     hold on;
 end
@@ -40,6 +43,10 @@ for i = 1:number_of_samples
     end
     
 end
+
+xlabel('x_1');
+ylabel('x_2');
+zlabel('u');
 
 if plot_sample_points
    export_img_latex(gcf, 'sampled_generated_field')
