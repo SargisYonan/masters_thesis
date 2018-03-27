@@ -1,0 +1,1 @@
+%% Map an example of a map for the Stochastic Field Notation Section
