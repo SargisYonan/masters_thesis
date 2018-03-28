@@ -278,20 +278,69 @@ We specifically will use a modified (we specified bounds to decrease iterations 
 	\label{fig:kern_fit}
 \end{figure}
 
-\subsection{Variance-Covariance Matrix}
-From the fit variogram which represents our lag variances, we will construct a \textit{variance-covariance matrix}, $C_n$. The matrix will contain all of the relevant relationships required to interpolate a given neighborhood of a field from $n$ observations. The value of the element $C_{i,j}$, will represent the variance of the lag between the $i^{th}$ and $j^{th}$ observations, measured from the fit variogram.
-
-\subsection{The Proximity Vector}
-For any given point on a field, we can construct a \textit{proximity vector}, $d_n \in \mathbb{R}^n$, which contains the variance of a given point on the field with all of the $n$ observations made. The $k^{th}$ element of $d_n$, for a point ($i,j$) on the field, contains the variance for the lag between coordinate $\begin{bmatrix} i & j \end{bmatrix}^{T}$ on the field and the $k^{th}$ observation made, where $1 \leq k \leq n$.
-
 \section{The Kriging Method}
 The Kriging Method conducts a weighted least-squares fit using the Variance-Covariance Matrix generated from the continuous Variogram model that was fit to the physical observations made. The method can yield a prediction for each cell in a target space similar to the Inverse Distance Weighting method described in Section \ref{idw_intro} on Inverse Distance Weighting, but with more statistical robustness.
+
 \subsection{A Best Linear Unbiased Predictor}
 Inverse Distance Weighting boils down to an Ordinary Least Squares because it does not rely on the statistical information deduced from the underlying autocorrelation of the field in question. We say the Kriging Method is a \textit{Best} Linear \textit{unbiased} Predictor because the \textit{explanatory variables}, or observations, do not a have a combined zero mean, and in fact convey a stochastic process.
-\subsection{Exploiting Geospatial Autocorrelation}
-\section{Forms of the Kriging Method}
-There exists three forms of the Kriging Method. All of which differ primarily in the handling of the mean gathered from observations of a target field. The \textit{Simple Kriging Method} makes the assumption that the mean is known and constant throughout the entirety of an observed field. \cite{vandergraad:nnkrig}
-\section{The Ordinary Kriging Formula}
+
+\subsection{Forms of the Kriging Method}
+There exist three forms of the Kriging Method. All of which differ primarily in the handling of the mean gathered from observations of a target field. The \textit{Simple Kriging Method} makes the assumption that the mean is known and constant throughout the entirety of an observed field. This is of course not the case for fields that are very large as it does not follow Tobler's First Law. The \textit{Ordinary Kriging Method} can deduce the local mean of a neighborhood from a smaller subset of observations in a larger target field. This is done by classifying the larger field into smaller neighborhoods where the mean is only constant within those neighborhoods. Ordinary Kriging has the advantage that the mean is not required to be known before running a prediction. The \textit{Universal Kriging Method} can perform similar local mean calculations as the Ordinary Kriging Method, but does so by fitting a polynomial representing a mean trend model and not from a constant mean value representing that neighborhood \cite{vandergraaf:nnkrig}.
+
+\subsection{Variance-Covariance Matrix}
+From the fit variogram which represents our lag variances, we will construct a \textit{variance-covariance matrix}, $C_0$. The matrix will contain relevant relationships required to interpolate a given neighborhood of a field from $n$ observations. The value of the element $C_{i,j}$, will represent the covariance of the lag between the $i^{th}$ and $j^{th}$ observations, measured from the variogram. 
+
+\begin{equation}
+    C_{i,j} = Cov(Z(\vect{X}_{i}), Z(\vect{X}_{j}))
+    \label{eq:covvarmatelem}
+\end{equation}
+
+\begin{equation}
+    C_0 = \begin{bmatrix} C_{1,1} & C_{1,2} & \dots & C_{1, n} \\
+                        C_{2,1} & C_{2,2} & \dots & C_{2, n} \\
+                         \vdots & \vdots & \ddots & \vdots  \\
+                        C_{n,1} & C_{n,2} & \dots & C_{n,n} \\
+        \end{bmatrix}
+    \label{eq:covvarmat}
+\end{equation}
+
+\subsection{The Proximity Vector}
+For any given point on a field, we can construct a \textit{proximity vector}, $\vect{d}_n \in \mathbb{R}^n$, which contains the covariance of a given point on the field with all of the $n$ observations made. The $k^{th}$ element of $\vect{d}_n$, for a point ($i,j$) on the target field, contains the covariance for the lag between coordinate $\begin{bmatrix} i & j \end{bmatrix}^{T}$ on the field and the $k^{th}$ observation made, where $1 \leq k \leq n$, i.e. $\vect{d}_n(k) = C_{(i,j), k} = Cov(Z(i,j), Z(X_k))$. 
+
+\begin{equation}
+    \vect{d}_{(i,j)} = \begin{bmatrix} C_{1,(i,j)} \\
+                        C_{2,(i,j)} \\
+                         \vdots \\
+                        C_{n,(i,j)} \\
+        \end{bmatrix}
+    \label{eq:covvarmat}
+\end{equation}
+
+In order to construct the proximity vector, the lags (or distances) between each observation and the prediction point must be known.
+
+\subsection{The Kriging Weights}
+We will compute unbiased and best weights, the \textit{error variance vector}, $\vect{w}_{(i,j)}$ for each prediction point. not simply by the inverse distances as in IDW, but by resolving:
+
+\begin{equation}
+    \vect{w}_{(i,j)} = \begin{bmatrix} w_1 \\
+                        w_2 \\
+                         \vdots \\
+                        w_n \\
+        \end{bmatrix} = C_0^{-1}\vect{d}_{(i,j)}
+    \label{eq:krigweights}
+\end{equation}
+
+\subsection{The Ordinary Kriging Equation}
+We will be focusing our efforts on the Ordinary Kriging Method because it does not require knowledge of local means and does not require fitting an additional polynomial trend model. A prediction using the Kriging Method for an unobserved point at location $\vect{X}_{(i,j)}$ is therefore:
+\begin{equation}
+    \hat{Z}(\vect{X}_{(i,j)}) = \begin{bmatrix} Z(\vect{X}_1) & Z(\vect{X}_2) & \dots & Z(\vect{X}_n) \end{bmatrix}\vect{w}_{(i,j)}
+    \label{eq:krigeq}
+\end{equation}
+
+Where $Z(\vect{X}_1), Z(\vect{X}_2), \dots Z(\vect{X}_n)$ are measured observations at locations $\vect{X}_1, \vect{X}_2, \dots \vect{X}_n$ respectively.
+\subsection{The Kriging Error}
+% look at the wikipedia page
+
 \section{The Kriging Prediction}
 
 \begin{figure*}[ht!]
