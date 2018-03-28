@@ -29,6 +29,7 @@
 \usepackage{caption}
 \usepackage{subcaption}
 \usepackage{float}
+\usepackage[section]{placeins} % something to do with figures not floating into next section
 
 \def\dsp{\def\baselinestretch{2.0}\large\normalsize}
 \dsp
@@ -96,7 +97,7 @@ The use of the Kriging Method, a popular interpolation tool, offers a prediction
 The underlying statistical reasoning of the UAV discovery and persistent scanning problems introduced in this paper are Earth-based statistics. Many of the methods introduced will rely on work developed in the fields of geostatistics, signal processing, and econometrics. Geo-statisticians have developed much of this work in the geospatial domain, where as the others mostly focus their work in the time-domain. The Kriging Method, a best linear unbiased predictor, and the heart of the FastPAS method, produces a prediction based on statistical data gathered from aerial observations, and performs a weighted least-squares using a covariance matrix developed by the observations made. The method, and the surrounding methods of the FastPAS algorithm will first be presented.
 
 \section{Tobler's First Law of Geography}
-We will exploit several concepts developed in the field of Geostatistics and Geography to assist our path finding and aerial prediction system. Tobler's First Law of Geography \cite{tobler:first_law} states, "Everything is related to everything else, but near things are more related than distant things." Regarding geospatial data, we can say at the very least, there is a positive correlation between observations with a small difference in distance \cite{miller:on_toblers_first_law}. This implies the existence of geospatial autocorrelation, or a positive correlation between elements in a spatial series. We can exploit this fundamental law of Geography for geostatistical interpolation methods like inverse distance weighting. Furthermore, if we view our observed fields as an unknown stochastic process, with a generally known underlying statistical model, there exists an overall trend with correlated variation between observed points. We can use these additional caveats to create a Best Linear Unbiased Predictor (BLUP) which can robustly predict intermediate spatial points between observations alongside an additional measure of confidence via a weighted least-squares calculation. We will exploit these geostatiscal processes to construct graphs of confidence for flight planning, and to predict unknown fields, aerially using UAVs, to some degree of confidence.
+We will exploit several concepts developed in the field of geostatistics and Geography to assist our path finding and aerial prediction system. Tobler's First Law of Geography \cite{tobler:first_law} states, "Everything is related to everything else, but near things are more related than distant things." Regarding geospatial data, we can say at the very least, there is a positive correlation between observations with a small difference in distance \cite{miller:on_toblers_first_law}. This implies the existence of geospatial autocorrelation, or a positive correlation between elements in a spatial series. We can exploit this fundamental law of Geography for geostatistical interpolation methods like inverse distance weighting. Furthermore, if we view our observed fields as an unknown stochastic process, with a generally known underlying statistical model, there exists an overall trend with correlated variation between observed points. We can use these additional caveats to create a Best Linear Unbiased Predictor (BLUP) which can robustly predict intermediate spatial points between observations alongside an additional measure of confidence via a weighted least-squares calculation. We will exploit these geostatistical processes to construct graphs of confidence for flight planning, and to predict unknown fields, aerially using UAVs, to some degree of confidence.
 
 \subsection{Measuring and Estimating Points of Interest in a Field}
 The basis of our predictions will be observations we make using ideal reliable sensors. The sensors will measure an area of interest directly below the UAV (the "sensor footprint") in a larger "target field". The target field will be broken up into cells with an area that is approximately less than or equal to the area of the sensor footprint. Each cell will also have an associated "age", or the amount of time elapsed since that cell was observed. For the methods we will explore and develop, we must estimate the coordinates likely using The Global Positioning System for each point of interest we measure. In order to use the techniques we must assume that we can get a Euclidean distance between any two measured points. If a GPS sensor is used to estimate position we will likely use a Haversine Transformation to convert Earth longitude and latitude estimated by our sensor to points on a Cartesian plane where we will represent our measurements. For each coordinate measured, we will also need to measure some value of interest. If predicting the current location of a wildfire, for example, we will likely use an infrared sensor to measure the thermal output of the field in which we would like to predict. We will assume that the points of interest will be measured with little to no error, and our coordinate system is on a Cartesian place with Euclidean distances separating points on a generic unit-distance scale.
@@ -107,7 +108,7 @@ For the sake of convention throughout this work, we will denote $\begin{bmatrix}
 We will denote the vector, $\vect{u}$, to be a vector of our measured values at our $i^{th}$ observation, $u_i \in \mathbb{R}$, a measurement of interest (e.g. an infrared sensor measurement). For an enclosed neighborhood of points, $D$, in a stochastic field, $Z$, we will define $Z(\vect{X}_i): \vect{X}_i \rightarrow \mathbb{R},\ \vect{X}_i \in \rm{D} \subset \mathbb{R}^2$. The $i^{th}$ element of $\vect{u}$, $u_i$, a random variable in a stochastic process, or field, $Z$, will correspond to a scalar observation located at $[x_{1_i}\ x_{2_i}]^{T}$. Giving us, $Z(\vect{X}_i)=u_i$. We will denote a predicted value on a field to be $\hat{Z}(\vect{X}_i)=\hat{u}_i$.
 
 \subsection{Autocorrelation in a Field}
-Positively correlated geospatial autocorrelation in a field implies the existance of a cluster of similar observed values near one another. The opposite is true when the overall geospatial autocorellation of a field is negative. We can assume, from Tobler's First Law of Geography, that the fields we will measure will contain positive autocorrelation. This degree of geospatial autocorrelation can be measured, and will be discussed in the subsection on variography.
+Positively correlated geospatial autocorrelation in a field implies the existence of a cluster of similar observed values near one another. The opposite is true when the overall geospatial autocorrelation of a field is negative. We can assume, from Tobler's First Law of Geography, that the fields we will measure will contain positive autocorrelation. This degree of geospatial autocorrelation can be measured, and will be discussed in the subsection on variography.
 
 \begin{figure*}[ht!]
     \centering
@@ -132,8 +133,8 @@ Positively correlated geospatial autocorrelation in a field implies the existanc
     \label{fig:gen_field}
 \end{figure*}
 
-\section{Inverse Distance Weighting}
-A simple Inverse Distance Weighting (IDW), using Shepard's Method \cite{shepard:idw}, gives us a prediction of an unobserved point, $\hat{u}_j$, at location $\vect{X}_j$, defining $\hat{Z}(\vect{X}_j)$ to be:
+\section{Inverse Distance Weighting} \label{idw_intro}
+A simple Inverse Distance Weighting (IDW), using Shepard's Method \cite{shepard:idw}, gives us a prediction of an unobserved point, $\hat{u}_j$, at location $\vect{X}_j$, as a function of surrounding observed points to be:
 \begin{equation}
 	\hat{Z}(\vect{X}_j)=\begin{cases}
 			\dfrac{\sum\limits_{i=1}^N w(\vect{X}_j, \vect{X}_i)u_i}{\sum\limits_{i=1}^{N} w(\vect{X}_j, \vect{X}_i)} & \text{if}\ \forall i \mid d(\vect{X}_j,\vect{X}_i) \neq 0\ \\
@@ -147,7 +148,7 @@ where $p \in \mathbb{R}^{+}$ is the IDW "power parameter". The power parameter, 
 
 In order to apply the Inverse Distance Weighting prediction method to the previously generated map, we will first generate a random set of sample points.
 
-\begin{figure*}[ht!]
+\begin{figure*}[!]
     \centering
     \begin{subfigure}[t]{0.5\textwidth}
         \centering
@@ -189,7 +190,7 @@ This method can give us a prediction for all possible $\vect{X}_j$ points in a f
 Variography is a set of procedures for examining and interpreting spatial dependence and geospatial autocorrelation in observed data. We would like to unravel the autocorrelation, or spatial dependence, of observed data to factor into a classical Inverse Distance Weighting, yielding a Best Linear Unbiased Predictor. The heart of variography is the Variogram Function, a function which quantifies dependence for observed data separated by some vector distance and angle, i.e. the covariance between two given points in a stochastic field. We will develop the basis for the Variogram function and fit our sampled observations to a continuous Variogram model.
 
 \subsection{The Variogram}
-A Variogram is intended to be a continuous function which yields a covariance between two points $Z(\vect{X}_{i})$, $Z(\vect{X}_{j})$, which were not nessecarilly observed, but known to be a vector $\vect{h} \in \mathbb{R}^2$ apart. Using the assumption made in Equation 2.4.1 of Matherson, 1963 \cite{matheron:geostat}:
+A Variogram is intended to be a continuous function which yields a covariance between two points $Z(\vect{X}_{i})$, $Z(\vect{X}_{j})$, which were not necessarily observed, but known to be a vector $\vect{h} \in \mathbb{R}^2$ apart. Using the assumption made in Equation 2.4.1 of Matherson, 1963 \cite{matheron:geostat}:
 
 \begin{equation}
     Z(\vect{X}_i)=\mu(\vect{X}_i)+\delta(\vect{X}_i)
@@ -208,7 +209,7 @@ Where $\bar{Z}$ is the mean of the observations made in a stochastic field, $Z$,
 It is infeasible and impossible to estimate an observation value at each possible point to compute a continuous variogram. We must therefore define a discrete model which will be fit into a continuous variogram model.
 
 \subsection{The Semi-Variogram}
-A Semi-Variogram, or Experimental Variogram, is a discrete function representing the covariance of the observation value difference between two sampled locations that are some vector $\vect{h}$ apart. By modifying equation 2.4.2, Matheron, 1963 \cite{matheron:geostat} to include an additional boundery to classify a "bin", for two observations $\vect{X}_{i}$, $\vect{X}_{j}$ in a stochastic field, $Z$, the experimental semivariogram is defined to be:
+A Semi-Variogram, or Experimental Variogram, is a discrete function representing the covariance of the observation value difference between two sampled locations that are some vector $\vect{h}$ apart. By modifying equation 2.4.2, Matheron, 1963 \cite{matheron:geostat} to include an additional boundary to classify a "bin", for two observations $\vect{X}_{i}$, $\vect{X}_{j}$ in a stochastic field, $Z$, the experimental semi-variogram is defined to be:
 
 \begin{equation} 
     \label{eq:exp_var}
@@ -221,17 +222,17 @@ Where $N(\vect{h}+\vect{\delta})$ are the pairs of observed data locations that 
     \centering    
     \includegraphics[width=\linewidth]{figures/exp_variogram.png}
     \captionsetup{skip=0.5\baselineskip,size=footnotesize}
-    \caption{An experimental variogram generated using Equation \ref{eq:exp_var} on the field and random samples previosuly generated in Figure \ref{fig:samples}. $\delta$ was chosen such that for $n$ observations, a total number of $\Big\lfloor \frac{n}{2} \Big\rfloor$ points were plotted}
+    \caption{An experimental variogram generated using Equation \ref{eq:exp_var} on the field and random samples previously generated in Figure \ref{fig:samples}. $\delta$ was chosen such that for $n$ observations, a total number of $\Big\lfloor \frac{n}{2} \Big\rfloor$ points were plotted}
     \label{fig:exp_var}
 \end{figure}
 
 The plot of the experimental variogram in figure \ref{fig:exp_var} conveys to us the geospatial autocorrelation of the sampled field that was previously generated in figure \ref{fig:samples}. We can see that as the distance, $\|\vect{h}\|_2$, between two given points increases, the covariance also increases. At some point in the graph the covariance levels out to a steady value (the sill) at some distance in the domain (the range). This informs us of locations of where the loss of reliable geospatial autocorrelation between two points that are a vector distance $\vect{h}$ apart lies. This will later act as a method of prediction confidence in our Best Linear Unbiased Predictor.
 
 \subsection{Converting a Semi-Variogram to a Variogram}
-The intent of fitting a statistical model to an experimental variogram is to approximate the continuous covariance for any two points on $Z$ that are at some known $\vect{h}$ apart. This will allow us to obtain a decent approximation of the continuous Variogram function in equation \ref{eq:cont_var}. In order to define the experimental semi-variogram to variogram procedure, we must first define the \textit{range}, \textit{sill}, and \textit{nugget} characteristics of a variogram. The value on the co-domain where the variogram begins to flatten out (approximately a zero derivative variance) is referred to as the sill. The sill variance value associated with the sill is the largest variability between any two data pairs in the field. The cooresponding point on the distance domain is called the range. It is important to note that a lag larger than the range is not spatially autocorrelated \cite{felus:srn}. The nugget is defined to be the variance at zero separation. This value is exactly zero for ideal measurments, but is generally not for real-life measurments.
+The intent of fitting a statistical model to an experimental variogram is to approximate the continuous covariance for any two points on $Z$ that are at some known $\vect{h}$ apart. This will allow us to obtain a decent approximation of the continuous Variogram function in equation \ref{eq:cont_var}. In order to define the experimental semi-variogram to variogram procedure, we must first define the \textit{range}, \textit{sill}, and \textit{nugget} characteristics of a variogram. The value on the co-domain where the variogram begins to flatten out (approximately a zero derivative variance) is referred to as the sill. The sill variance value associated with the sill is the largest variability between any two data pairs in the field. The corresponding point on the distance domain is called the range. It is important to note that a lag larger than the range is not spatially autocorrelated \cite{felus:srn}. The nugget is defined to be the variance at zero separation. This value is exactly zero for ideal measurements, but is generally not for real-life measurements.
 
 \subsection{Variogram Models}
-Our variogram can take on the form of one of multiple well known "kernels", or statisticals models. All of which are scalar functions of the range, $a$, and sill, $s$, of our lag distribution model, and scalar $h = \|\vect{h}\|_2$. The three most common models are the following: %P. Goovaerts. Geostatistics for natural resources evaluation. Oxford University Press, New York, 1997.
+Our variogram can take on the form of one of multiple well known "kernels", or statistical models. All of which are scalar functions of the range, $a$, and sill, $s$, of our lag distribution model, and scalar $h = \|\vect{h}\|_2$. The three most common models are the following: %P. Goovaerts. Geostatistics for natural resources evaluation. Oxford University Press, New York, 1997.
 \subsubsection{The Gaussian Model}
 
 \begin{equation}
@@ -267,7 +268,7 @@ Though there exists no closed-form solution for obtaining a continuous variogram
 \min\limits_{h, s, a}\gamma(h, s, a)
 \end{equation}
 
-We specifically will use a modified (we specified bounds to decrease iterations of the function fit) \textit{fminsearch} function in \textit{MATLAB} which is defined to "find the minimum of unconstrained multivariable function using a derivative-free method". This is done by specifying an objective function to minimize (our desired statistical model) over our experimental semi-variogram.
+We specifically will use a modified (we specified bounds to decrease iterations of the function fit) \textit{fminsearch} function in \textit{MATLAB} which is defined to "find the minimum of unconstrained multi-variable function using a derivative-free method". This is done by specifying an objective function to minimize (our desired statistical model) over our experimental semi-variogram.
 
 \begin{figure}[ht!]
     \centering    
@@ -284,10 +285,13 @@ From the fit variogram which represents our lag variances, we will construct a \
 For any given point on a field, we can construct a \textit{proximity vector}, $d_n \in \mathbb{R}^n$, which contains the variance of a given point on the field with all of the $n$ observations made. The $k^{th}$ element of $d_n$, for a point ($i,j$) on the field, contains the variance for the lag between coordinate $\begin{bmatrix} i & j \end{bmatrix}^{T}$ on the field and the $k^{th}$ observation made, where $1 \leq k \leq n$.
 
 \section{The Kriging Method}
+The Kriging Method conducts a weighted least-squares fit using the Variance-Covariance Matrix generated from the continuous Variogram model that was fit to the physical observations made. The method can yield a prediction for each cell in a target space similar to the Inverse Distance Weighting method described in Section \ref{idw_intro} on Inverse Distance Weighting, but with more statistical robustness.
 \subsection{A Best Linear Unbiased Predictor}
+Inverse Distance Weighting boils down to an Ordinary Least Squares because it does not rely on the statistical information deduced from the underlying autocorrelation of the field in question. We say the Kriging Method is a \textit{Best} Linear \textit{unbiased} Predictor because the \textit{explanatory variables}, or observations, do not a have a combined zero mean, and in fact convey a stochastic process.
 \subsection{Exploiting Geospatial Autocorrelation}
 \section{Forms of the Kriging Method}
-\section{The Kriging Formula}
+There exists three forms of the Kriging Method. All of which differ primarily in the handling of the mean gathered from observations of a target field. The \textit{Simple Kriging Method} makes the assumption that the mean is known and constant throughout the entirety of an observed field. \cite{vandergraad:nnkrig}
+\section{The Ordinary Kriging Formula}
 \section{The Kriging Prediction}
 
 \begin{figure*}[ht!]
