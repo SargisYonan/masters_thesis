@@ -39,7 +39,7 @@
 
 \usepackage{etoolbox}
 \AtBeginEnvironment{algorithm}{\ssp}
-\AtBeginEnvironment{figure}{\ssp}
+% \AtBeginEnvironment{figure}{\ssp}
 \AtBeginEnvironment{equation}{\ssp}
 \AtBeginEnvironment{thebibliography}{\ssp}
 
@@ -288,7 +288,7 @@ Though there exists no closed-form solution for obtaining a continuous variogram
 	\label{fig:fit_kernel}
 \end{figure}
 
-The \textit{nugget} is defined to be the variance at zero separation ($\gamma(0)$. This value is exactly zero for ideal measurements, but is generally not for real-life measurements.
+The \textit{nugget} is defined to be the variance at zero separation, or $\gamma(0)$. This value is exactly zero for ideal measurements, but is generally not for real-life measurements.
 
 \section{The Kriging Method}
 The Kriging Method conducts a weighted sum using the continuous variogram model that was fit to the physical observations made. The method can yield a prediction for each vesicle in a target space similar to the Inverse Distance Weighting method described in Section \ref{sec:idw_intro}, but with more statistical robustness.

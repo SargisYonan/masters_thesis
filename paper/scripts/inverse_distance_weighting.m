@@ -63,5 +63,5 @@ figure(2);
 surf(pred_field); 
 xlabel('$s_1$', 'Interpreter', 'latex', 'FontSize', 20);
 ylabel('$s_2$', 'Interpreter', 'latex', 'FontSize', 20);
-zlabel('$\hat{Z}$', 'Interpreter', 'latex', 'FontSize', 20);
+zlabel('$\hat{Z}_{IDW}$', 'Interpreter', 'latex', 'FontSize', 20);
 export_img_latex(gcf, 'idw_side_pred_field');
