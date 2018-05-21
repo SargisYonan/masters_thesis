@@ -30,6 +30,34 @@
 \usepackage{subcaption}
 \usepackage{float}
 \usepackage[section]{placeins} % something to do with figures not floating into next section
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta}
+
+\usepackage{algorithm}
+\usepackage[noend]{algpseudocode}
+\usepackage{bbm}
+
+\usepackage{etoolbox}
+\AtBeginEnvironment{algorithm}{\ssp}
+\AtBeginEnvironment{figure}{\ssp}
+\AtBeginEnvironment{equation}{\ssp}
+\AtBeginEnvironment{thebibliography}{\ssp}
+
+\makeatletter
+\def\BState{\State\hskip-\ALG@thistlm}
+\makeatother
+
+\newcommand{\edge}{%
+  \mathrel{-}% minus as a relation
+  \joinrel\joinrel % some backup
+  \mathrel{-}% minus as a relation
+}
+\newcommand{\notedge}{%
+  \mathrel{\mkern2mu}% a small advancement
+  \arrownot % a short slash
+  \mathrel{\mkern-2mu}% compensate
+  \edge
+}
 
 \def\dsp{\def\baselinestretch{2.0}\large\normalsize}
 \dsp
@@ -39,9 +67,9 @@
 \begin{document}
 % Declarations for Front Matter
 
-\title{FASTPas - Fast Predictive Aerial Scanning}
+\title{Aerial Field Exploration Using The Universal Kriging Method}
 \author{Sargis S Yonan}
-\degreeyear{2018}
+\degreeyear{2019}
 \degreemonth{June}
 \degree{MASTER OF SCIENCE}
 \chair{Professor Gabriel Hugh Elkaim}
@@ -65,7 +93,11 @@
 \listoftables
 
 \begin{abstract}
-A method for exploration of semi-ergodic processes and persistent aerial scanning of surfaces of interest using an unmanned aerial vehicle (UAV) using the Kriging Method is introduced. The method employs the use of minimal scanning techniques to gather up to a minimum level of confidence in prediction to achieve "fast scanning". By tessellating a target scan-space into sub-targets using a Natural Neighbor Selection technique, a level of prediction confidence can be associated with each sub-target. A graph representing the confidence of predictions in adjacent tessellations can be constructed and traversed to reduce the maximum uncertainty of prediction of the entire target space. An experimental simulation and comparisons to other techniques are presented.
+Using an Unmanned Aerial Vehicle (UAV) system, a field of interest can be scanned within a more reasonable time frame compared to conventional scanning techniques involving sattelite and manned-airplane missions. Potentially more nuanced data can be gathered from the UAV made observations because of more desirable fields of view and more customizable sensors on-board.
+
+The Kriging Method, a \textit{Best Linear Unbiased Predictor} (BLUP) commonly used in the field of Geostatistics, exploits the statistical properties of natural phenomena to better predict unobserved points from a set of observed points. Using a modified Universal Kriging Method (for ``on the fly" use ), a prediction and confidence of prediction of the entirety of a given target field can be generated from a set of measurements. From the variances associated with the predictions by the Kriging Method, a corresponding path-planner for UAV field exploration is can be used to reduce the overall uncertainty of field prediction.
+
+A method for the exploration of semi-ergodic fields of interest using aerial observations from UAV using the Kriging Method is introduced. By tessellating a target scan-space into sub-fields with an associated level of prediction confidence, a graph representing the confidence of predictions in adjacent tessellations can be constructed and traversed to reduce the maximum uncertainty of prediction of the entire target space. An experimental simulation and comparisons to other techniques are presented. The method along with the cost-effective nature of a UAV can improve current methods of research, exploration, and natural emergency response. 
 \end{abstract}
 
 \begin{dedication}
@@ -80,172 +112,151 @@ yerba mate
 
 
 \begin{acknowledgements}
-Mate. Yerba Mate.
+% Mate. Yerba Mate.
 %who helped me make sense of the various concepts involved in and out of this project. I would like to extend my thanks to the rest of the Autonomous Systems Lab at UC Santa Cruz for the support and motivation to continue this project everyday.
 \end{acknowledgements}
 
 \end{frontmatter}
 \chapter{Introduction}
-Unmanned Aerial Vehicles (UAVs) have become more prevalent in fields of work and study that benefit from having a birds eye view on a given situation. Firefighter teams have been using UAVs to find the origin of fires, and find the locations of fires. UAVs can be useful in the event of an oil spill, in order to find the impacted zones faster. Scientific researchers have been using aerial thermal imaging to determine rates of change in ice growth and melting, and thermal exchange between the ocean and atmosphere.
-\par
-The use of autonomous UAVs could benefit rescue teams, firefighters, scientific research, and private sector industries in the interest of time and data discovery. Using a single or multiple UAVs in a flying network, an area with fields of interest can be scanned efficiently completely autonomously. By simply drawing on a map the general area wished to be scanned by the autonomous fleet, a deployed pod of these UAVs can stream back, to a ground station, live aerial information. This mapping time can be greatly reduced with the use of statistical interpolation techniques that help the pod or single UAV avoid having to scan an entire region, but rather, have the UAVs scan the areas with the lowest level of confidence in prediction.
-\par
-The use of the Kriging Method, a popular interpolation tool, offers a prediction and a variance of prediction, but is computationally expensive because of constant fitting procedures. We can exploit the Kriging variances generated by our prediction to motivate the UAVs to autonomously steer in the areas of least confidence until a minimum confidence in prediction is achieved for an entire unknown field. By designing a computational efficient algorithm based on a Universal Kriging Method, the system is feasible and could benefit a large group of potential users.
+% Why is this problem important? 
+% We are introducing the concept of aerial field exploration
+Aeriel field exploration is a method in which information from an unknown ground field, a \textit{target field}, can be collected in order to discover traits or track the trends about the field. An exploration method could be a portable generic method for field exploration where a model of the target field phenomena is not known. From a distance above the ground, traits of a target field can be measured using what ever sensor is portable enough to fly or orbit around a field of interest.
+
+%% Here we are going to argue why UAVs are the medium in which we should choose for our explorations
+Satellite imagery of Earth has been used for measuring various natural phenomena in the past several decades. Estimating polar ice cap melting rates and exploring the location of an oil spill are among the class of problems solved by this technology. Currently, using a service like the US Forest Services' Moderate Resolution Imaging Spectroradiometer (MODIS) Active Fire Mapping Program, images are updated every 1 to 2 days with a fixed sensor. While this program is helpful for detecting large events with long periods of activity, the sampling rate of this service might not give an emergency response team or a scientist the required resolution and precision in gathered data at their desired rate. The resolution and frequency problem along with the cost associated with building, launching, and maintaining an orbiting Earth satellite might even make some areas of research prohibitive. The use of unmanned aerial vehicles (UAVs) have more recently been used in similar fields of study and in environmental protection. The benefits gained from using UAVs is that of more rapidly acquired data with more easily adjusted accuracy. Furthermore, a UAV can give more nuanced and detailed data on features of a field that are not observable from the distance or field of view of an orbiting satellite. This is because the UAV can be equipped with any compatible sensor and can be deployed from virtually anywhere to fly virtually anywhere. Furthermore, an exploration technique, versus a patrolling or tracking technique, does not require a model of the target field dynamics.
+
+% What have others done before me? How is what I'm doing different? Why is it better?
+Presently, scanning fields with unmanned aerial vehicle systems is a task involving flying one or more UAVs in a zig-zag, or other predetermined, maneuver above a target field, while collecting data. This task might take longer than needed to collect the required data, and could potentially ineffectively use the flight time of the UAV which often has a short and limited flight time. Furthermore, scanning every point in a large unknown field is an unrealistic expectation for many UAVs. This is especially a problem if the field as a whole needs is very large and needs to only be explored to a small degree of confidence. A scheme for minimal scanning and effective path planning would be in the benefit of time of the user(s) of the system, and the flown equipment as well. 
+
+% How is what I'm doing different? Why is it better? (part II)
+Predictions of the field states must therefore be computed from only a finite set of measurements at known locations. The confidence of predictions should also be attainable through the scheme, as they will be used as metrics to determine the confidence of the predictions. Using a prediction based method to fill in the unseen gaps, though quicker than scanning every point, does not take advantage of the statistical properties of the target field to attempt to minimize flight time and path taken. 
+
+Due to the nature of much of the phenomena one might be interested in scanning in an unknown field, a method that exploits the known stochastic and statistical properties of the field could be used to decrease flight time. A field that exhibits properties of \textit{geospatial autocorrelation}, will be more statistically exploitable to find holes in confidence which can be used to help maneuver the UAV in a direction of low prediction confidence. The Kriging Method, a popular interpolation tool, offers a prediction and a variance of prediction. We can exploit the Kriging variances generated by our prediction to motivate the UAVs to autonomously steer in the areas of least confidence, while traversing over other areas of low prediction confidence, until a minimum confidence in prediction is achieved for an entire unknown target field. The methods introduced attempt to help a user of this system explore an unknown field to a desired level of confidence in a short period of time, using a more methodical path, relative to current exploration techniques. 
 
 \part{Background}
+
 \chapter{Geostatistical Interpolation}
-The underlying statistical reasoning of the UAV discovery and persistent scanning problems introduced in this paper are Earth-based statistics. Many of the methods introduced will rely on work developed in the fields of geostatistics, signal processing, and econometrics. Geo-statisticians have developed much of this work in the geospatial domain, where as the others mostly focus their work in the time-domain. The Kriging Method, a best linear unbiased predictor, and the heart of the FastPAS method, produces a prediction based on statistical data gathered from aerial observations, and performs a weighted least-squares using a covariance matrix developed by the observations made. The method, and the surrounding methods of the FastPAS algorithm will first be presented.
+Many of the methods introduced will rely on works developed in the fields of Geostatistics and Geography. Geo-statisticians have developed much of the work surrounding field predictions in the geospatial domain. The Kriging Method, a best linear unbiased predictor, and the heart of the method introduced, produces a prediction based on statistical data gathered from aerial observations, and performs a weighted least-squares using a covariance matrix created from the gathered field data.
 
-\section{Tobler's First Law of Geography}
-We will exploit several concepts developed in the field of geostatistics and Geography to assist our path finding and aerial prediction system. Tobler's First Law of Geography \cite{tobler:first_law} states, "Everything is related to everything else, but near things are more related than distant things." Regarding geospatial data, we can say at the very least, there is a positive correlation between observations with a small difference in distance \cite{miller:on_toblers_first_law}. This implies the existence of geospatial autocorrelation, or a positive correlation between elements in a spatial series. We can exploit this fundamental law of Geography for geostatistical interpolation methods like inverse distance weighting. Furthermore, if we view our observed fields as an unknown stochastic process, with a generally known underlying statistical model, there exists an overall trend with correlated variation between observed points. We can use these additional caveats to create a Best Linear Unbiased Predictor (BLUP) which can robustly predict intermediate spatial points between observations alongside an additional measure of confidence via a weighted least-squares calculation. We will exploit these geostatistical processes to construct graphs of confidence for flight planning, and to predict unknown fields, aerially using UAVs, to some degree of confidence.
+Tobler's First Law of Geography \cite{tobler:first_law} states, "Everything is related to everything else, but near things are more related than distant things." Regarding geospatial data, we can say at the very least, there is a positive correlation between observations with a small difference in distance \cite{miller:on_toblers_first_law}. This implies the existence of geospatial autocorrelation in many target fields of interest. This implies a positive correlation between elements in the spatial series that are of interest to the introduced technique. Geospatial autocorrelation is the hypothesis that allows naive prediction techniques, like Inverse Distance Weighting (Section \ref{sec:idw_intro}), to work. 
 
-\subsection{Measuring and Estimating Points of Interest in a Field}
-The basis of our predictions will be observations we make using ideal reliable sensors. The sensors will measure an area of interest directly below the UAV (the "sensor footprint") in a larger "target field". The target field will be broken up into cells with an area that is approximately less than or equal to the area of the sensor footprint. Each cell will also have an associated "age", or the amount of time elapsed since that cell was observed. For the methods we will explore and develop, we must estimate the coordinates likely using The Global Positioning System for each point of interest we measure. In order to use the techniques we must assume that we can get a Euclidean distance between any two measured points. If a GPS sensor is used to estimate position we will likely use a Haversine Transformation to convert Earth longitude and latitude estimated by our sensor to points on a Cartesian plane where we will represent our measurements. For each coordinate measured, we will also need to measure some value of interest. If predicting the current location of a wildfire, for example, we will likely use an infrared sensor to measure the thermal output of the field in which we would like to predict. We will assume that the points of interest will be measured with little to no error, and our coordinate system is on a Cartesian place with Euclidean distances separating points on a generic unit-distance scale.
+Furthermore, if the target fields are viewed as an unknown stochastic process, with a generally known underlying Gaussian statistical model, more weight in the Inverse Distance Weighting can be placed on the geospatial elements more related to the point to one desires to predict. A Best Linear Unbiased Predictor (BLUP), like The Kriging Method, does just that. The methods introduced in this chapter are intended to serve as an introduction to the Kriging Method, and aerial geospatial field interpolation in general.
 
-\subsection{Stochastic Field Notation}
-For the sake of convention throughout this work, we will denote $\begin{bmatrix} x_1 & x_2 \end{bmatrix}^{T}$ to be a column vector of position measurements on the domain (where $x_1$ is measured) and co-domain (where $x_2$ is measured) of the Cartesian plane representing a topological field respectively. The $i^{th}$ row of the matrix $X = \begin{bmatrix} \vect{x}_1 & \vect{x}_2 \end{bmatrix}^{T}$, as a point-pair denoted as $\vect{X}_i = \begin{bmatrix} \vect{X}_{1_i} & \vect{X}_{2_i} \end{bmatrix}^{T}$, will represent the location of the $i^{th}$ observed location on the Cartesian plane.
+\section{Problem Definitions} \label{sec:defs}
+In an effort to be consistent in naming conventions and parameter definitions throughout this work, the problem space will be defined. The conventions will be used throughout the rest of the work.
 
-We will denote the vector, $\vect{u}$, to be a vector of our measured values at our $i^{th}$ observation, $u_i \in \mathbb{R}$, a measurement of interest (e.g. an infrared sensor measurement). For an enclosed neighborhood of points, $D$, in a stochastic field, $Z$, we will define $Z(\vect{X}_i): \vect{X}_i \rightarrow \mathbb{R},\ \vect{X}_i \in \rm{D} \subset \mathbb{R}^2$. The $i^{th}$ element of $\vect{u}$, $u_i$, a random variable in a stochastic process, or field, $Z$, will correspond to a scalar observation located at $[x_{1_i}\ x_{2_i}]^{T}$. Giving us, $Z(\vect{X}_i)=u_i$. We will denote a predicted value on a field to be $\hat{Z}(\vect{X}_i)=\hat{u}_i$.
+\subsection{The Field}
+The initially unknown field, referred to as the \textit{target field}, will be a square field made up of pixel cells, referred to as \textit{vesicles}, of unit area $a$. The field variable, $Z \in \mathbb{R}^{|Z| \times |Z|}$ therefore has an area of $a|Z|$, where $|Z|$ is the cardinality of the field set $Z$. Each vesicle can also have an associated \textit{age}, or the amount of time elapsed since that cell was last observed, but this parameter will not be used in this work.
+
+\subsection{The Sensor}
+For the sake of a simpler introduction to the methods described in this chapter, the basis of the predictions will be observations of interest made using ideal sensors with no measurement noise. The sensors will measure a subset of the area of the entire target field. This area will be referred to as the \textit{sensor footprint}, and will be equal to the size of a single vesicle of the target field, $a$.
+
+For the methods developed, the locations of the sensor measurements must be known. The locations will be represented as Cartesian coordinates on the field $Z$. For an arbitrary observation of the field $Z$, the location of the measurement will be at coordinates $\vect{s} \in \mathbb{R}^2$, and the corresponding sensor measurement would be $Z(\vect{s})$. 
+
+\subsubsection{Real World Sensing Examples}
+If a Global Positioning System (GPS) sensor is used to estimate position, a Haversine Transformation would likely be used to convert Earth longitude and latitude to Cartesian coordinates within the target field. If predicting the current location of a wildfire, for example, an infrared sensor would likely be used to measure the values of interest, thermal output of the field in this case.
 
 \subsection{Autocorrelation in a Field}
-Positively correlated geospatial autocorrelation in a field implies the existence of a cluster of similar observed values near one another. The opposite is true when the overall geospatial autocorrelation of a field is negative. We can assume, from Tobler's First Law of Geography, that the fields we will measure will contain positive autocorrelation. This degree of geospatial autocorrelation can be measured, and will be discussed in the subsection on variography.
+Positively correlated geospatial autocorrelation in a field implies the existence of a cluster of similar observed values near one another. The opposite is true when the overall geospatial autocorrelation of a field is negative. We can assume, from Tobler's First Law of Geography, that the fields we will measure will contain positive autocorrelation. This degree of geospatial autocorrelation can be measured, and will be discussed in Section \ref{sec:vario} on Variography.
 
-\begin{figure*}[ht!]
+\begin{figure}[ht!]
     \centering
     \begin{subfigure}[t]{0.5\textwidth}
         \centering
-        \includegraphics[width=\linewidth]{figures/generated_field_top_view.png}
+        \includegraphics[width=\linewidth]{figures/generated_field.png}
         \captionsetup{skip=0.5\baselineskip,size=footnotesize}
-        \caption{Top view of the generated field}
-		\label{fig:top_view_field}
+        \caption{A randomly generated geospatially autocorrelated field.}
+		\label{fig:gen_field}
     \end{subfigure}%
     ~ 
-    \begin{subfigure}[t]{0.5\textwidth}
-        \centering
-        \includegraphics[width=\linewidth]{figures/generated_field_side_view.png}
-		\captionsetup{skip=0.5\baselineskip,size=footnotesize}
-		\caption{Side view of the generated field}
-		\label{fig:side_view_field}
-    \end{subfigure}
-
-    \captionsetup{skip=0.5\baselineskip,size=footnotesize}
-    \caption{A Gaussian distributed randomly generated spatially autocorrelated field created using \textit{MATLAB}}
-    \label{fig:gen_field}
-\end{figure*}
-
-\section{Inverse Distance Weighting} \label{idw_intro}
-A simple Inverse Distance Weighting (IDW), using Shepard's Method \cite{shepard:idw}, gives us a prediction of an unobserved point, $\hat{u}_j$, at location $\vect{X}_j$, as a function of surrounding observed points to be:
-\begin{equation}
-	\hat{Z}(\vect{X}_j)=\begin{cases}
-			\dfrac{\sum\limits_{i=1}^N w(\vect{X}_j, \vect{X}_i)u_i}{\sum\limits_{i=1}^{N} w(\vect{X}_j, \vect{X}_i)} & \text{if}\ \forall i \mid d(\vect{X}_j,\vect{X}_i) \neq 0\ \\
-			u_j & \text{if}\ \exists i \mid d(\vect{X}_j,\vect{X}_i)=0\\
-		\end{cases}
-\end{equation}
-\begin{equation}
-	w(\vect{X}_j, \vect{X}_i)=\frac{1}{d(\vect{X}_j,\vect{X}_{i})^{p}}=\|\vect{X}_j-\vect{X}_i\|_{2}^{-p}
-\end{equation}
-where $p \in \mathbb{R}^{+}$ is the IDW "power parameter". The power parameter, $p$, controls the emphasis on near and far observations on a prediction. As $p$ increases, the predicted values more closely resemble the closest made observation to the prediction location. Inversely, as $p$ gets smaller within $(0, 1]$, more emphasis is drawn from observations made further away.
-
-In order to apply the Inverse Distance Weighting prediction method to the previously generated map, we will first generate a random set of sample points.
-
-\begin{figure*}[!]
-    \centering
     \begin{subfigure}[t]{0.5\textwidth}
         \centering
         \includegraphics[width=\linewidth]{figures/sampled_generated_field.png}
-        \captionsetup{skip=0.5\baselineskip, width=0.8\textwidth, size=footnotesize}
-        \caption{Sampled locations (250 points marked in black) of the previously generated geospatially autocorrelated field in Figure \ref{fig:top_view_field}}
-        \label{fig:samples}
-    \end{subfigure}%
-    ~ 
-    \begin{subfigure}[t]{0.5\textwidth}
-        \centering
-        \includegraphics[width=\linewidth]{figures/idw_predicted_field.png}
-		\captionsetup{skip=0.5\baselineskip, width=0.8\textwidth, size=footnotesize}
-		\caption{An Inverse Distance Weighting generated predicted field ($p=3$). Generated from 250 random observations made in Figure \ref{fig:samples}}
-		\label{fig:idw_field}
+		\captionsetup{skip=0.5\baselineskip,size=footnotesize}
+		\caption{Samples at marked locations were taken of the target field in \ref{fig:gen_field}.}
+		\label{fig:sampled_field}
     \end{subfigure}
-    \\
-    \begin{subfigure}[t]{0.5\textwidth}
-        \centering
-        \includegraphics[width=\linewidth]{figures/generated_field_side_view.png}
-        \captionsetup{skip=0.5\baselineskip, width=0.8\textwidth, size=footnotesize}
-        \caption{A side view of the previously generated geospatially autocorrelated field in Figure \ref{fig:side_view_field}}
-    \end{subfigure}%
-    ~
-    \begin{subfigure}[t]{0.5\textwidth}
-        \centering
-        \includegraphics[width=\linewidth]{figures/idw_side_pred_field.png}
-        \captionsetup{skip=0.5\baselineskip, width=0.8\textwidth, size=footnotesize}
-        \caption{A side view of the IDW generated in Figure \ref{fig:idw_field}}
-    \end{subfigure}
-    \captionsetup{skip=0.5\baselineskip,size=footnotesize}
-    \caption{A randomly generated field where 250 observations were made (left), and an Inverted Distance Weighted Prediction (right) of that field}
-    \label{fig:idw_side_by_side}
-\end{figure*}
+    \caption{A Gaussian distributed randomly generated spatially autocorrelated field.}
+    \label{fig:generated_and_sampled_field}
+\end{figure}
 
-This method can give us a prediction for all possible $\vect{X}_j$ points in a field where a set of observations at labeled positions were made, as done in Figure \ref{fig:idw_side_by_side}. Unfortunately, the method is limited in that it does not take advantage of the underlying stochastic model of the field, $Z$, being observed. We will further expand on this method to exploit the fact that $Z$ is a stochastic process with underlying geospatially autocorrelated random variables.
-
-\section{Variography}
-Variography is a set of procedures for examining and interpreting spatial dependence and geospatial autocorrelation in observed data. We would like to unravel the autocorrelation, or spatial dependence, of observed data to factor into a classical Inverse Distance Weighting, yielding a Best Linear Unbiased Predictor. The heart of variography is the Variogram Function, a function which quantifies dependence for observed data separated by some vector distance and angle, i.e. the covariance between two given points in a stochastic field. We will develop the basis for the Variogram function and fit our sampled observations to a continuous Variogram model.
-
-\subsection{The Variogram}
-A Variogram is intended to be a continuous function which yields a covariance between two points $Z(\vect{X}_{i})$, $Z(\vect{X}_{j})$, which were not necessarily observed, but known to be a vector $\vect{h} \in \mathbb{R}^2$ apart. Using the assumption made in Equation 2.4.1 of Matherson, 1963 \cite{matheron:geostat}:
+\section{Inverse Distance Weighting} \label{sec:idw_intro}
+A simple Inverse Distance Weighting (IDW), using Shepard's Method \cite{shepard:idw}, gives a prediction, $\hat{Z}(\vect{s}_j)$, of an unobserved point, $\vect{s}_j$, as a function of the $N \in \mathbb{N}$ observed points, $\{Z(\vect{s}_1), Z(\vect{s}_2), \hdots, Z(\vect{s}_n) \}$.
 
 \begin{equation}
-    Z(\vect{X}_i)=\mu(\vect{X}_i)+\delta(\vect{X}_i)
+	\hat{Z}(\vect{s}_j)=\begin{cases}
+			\dfrac{\sum\limits_{i=1}^N [w(\vect{s}_j, \vect{s}_i)] Z(\vect{s}_i) }{\sum\limits_{i=1}^{N} w(\vect{s}_j, \vect{s}_i)} & \text{if}\ \forall i \mid d(\vect{s}_j,\vect{s}_i) \neq 0\ \\
+			Z(\vect{s}_j) & \text{if}\ \exists i \mid d(\vect{s}_j,\vect{s}_i)=0\\
+		\end{cases}
+\end{equation}
+\begin{equation}
+	w(\vect{s}_j, \vect{s}_i)=\frac{1}{d(\vect{s}_j,\vect{s}_{i})^{p}}=\|\vect{s}_j-\vect{s}_i\|_{2}^{-p}
+\end{equation}
+
+where $p \in \mathbb{R}^{+}$ is the IDW "power parameter". The power parameter, $p$, controls the emphasis on near and far observations on a prediction. As $p$ increases, the predicted values more closely resemble the closest made observation to the prediction location. Inversely, as $p$ gets smaller within $(0, 1]$, more emphasis is drawn from observations made further away.\\
+
+\begin{figure}[ht!]
+    \centering
+    \includegraphics[width=0.8\linewidth]{figures/idw_predicted_field.png}
+    \caption{An inverse distance weighting predicted field generated from the samples taken of Figure \ref{fig:gen_field} at the locations marked in Figure \ref{fig:sampled_field}.}
+    \label{fig:idw_field}
+\end{figure}
+
+This method can give us a prediction for all possible $\vect{s}_j$ points in a field where a set of observations at known locations were made, as done in Figure \ref{fig:idw_field}. Unfortunately, the method is limited in that it does not take advantage of the underlying stochastic model of the field, $Z$, being observed to make a more methodical weighted sum prediction.
+
+\section{Variography} \label{sec:vario}
+Variography is a set of procedures for examining and interpreting spatial dependence and geospatial autocorrelation in observed data. In order to make a more intelligent weighted sum for a prediction, extracting the underlying geospatial autocorrelation function, the \textit{variogram}, of a field will be required. The variogram function will be factored into a classical Inverse Distance Weighting, yielding a Kriging Weighting.
+
+\subsection{The Variogram}
+A variogram quantifies dependence for two disjoint observations separated by some distance away. The function therefore yields the covariance between two given points in a stochastic field.
+
+A Variogram is intended to be a continuous function which yields a covariance between two points $Z(\vect{s}_{i})$, $Z(\vect{s}_{j})$, which have not necessarily been observed, but known to be a Euclidean distance $h_{i,j} \in \mathbb{R}$ apart. 
+
+\begin{equation}
+h_{i,j} = \| \vect{s}_i - \vect{s}_j \|_2
+\end{equation}
+
+Using the assumption made in Equation 2.4.1 of Matherson, 1963 \cite{matheron:geostat}:
+
+\begin{equation}
+    Z(\vect{s}_i)=\mu(\vect{s}_i)+\theta(\vect{s}_i)
     \label{eq:matheron:assum}
 \end{equation}
 
-Where $\delta(\cdot)$ is a zero-mean intrinsically stationary stochastic process, which our observations in a field $Z$ are therefore expected to be. If we assume a mean $\mu(\cdot)$ is only constant in a reasonably small neighborhood, a modified version of the variogram definition in equation 2.3.4 of Matherson, 1963 \cite{matheron:geostat} is defined to be:
+Where $\theta(\cdot)$ is a zero-mean intrinsically stationary stochastic process, the Weiner Process. An assumption that the mean $\mu(\cdot) = \bar{Z}$ is only constant in a reasonably small neighborhood of $Z$. This becomes relevant when the sample sizes of the field increase where more reliable means will be derived from local neighborhoods.
 
-\begin{equation}
-	2\gamma(\vect{X}_i, \vect{X}_j)= \text{var} (Z(\vect{X}_{i}) - Z(\vect{X}_{j}))=E[( (Z(\vect{X}_{i}) - \bar{Z} ) - (Z(\vect{X}_{j}) - \bar{Z} ))^2]
-    \label{eq:cont_var}
-\end{equation}
-
-Where $\bar{Z}$ is the mean of the observations made in a stochastic field, $Z$, for a reasonably small neighborhood of points.
-
-It is infeasible and impossible to estimate an observation value at each possible point to compute a continuous variogram. We must therefore define a discrete model which will be fit into a continuous variogram model.
+It is infeasible to estimate an observation value at each possible point in the field to compute a continuous variogram. A discrete model must first be constructed, and will then be fit into a continuous variogram model. This is done by first constructing a discrete variogram, and then fitting a continuous model to it.
 
 \subsection{The Semi-Variogram}
-A Semi-Variogram, or Experimental Variogram, is a discrete function representing the covariance of the observation value difference between two sampled locations that are some vector $\vect{h}$ apart. By modifying equation 2.4.2, Matheron, 1963 \cite{matheron:geostat} to include an additional boundary to classify a "bin", for two observations $\vect{X}_{i}$, $\vect{X}_{j}$ in a stochastic field, $Z$, the experimental semi-variogram is defined to be:
+A Semi-Variogram, or Experimental Variogram, is a discrete function representing the covariance of the observation value difference between two sampled locations that are some distance $h$ apart. By modifying equation 2.4.2, Matheron, 1963 \cite{matheron:geostat} to include an additional boundary to classify a "bin", for two observations $\vect{s}_{i}$ and $\vect{s}_{j}$ in a stochastic field, $Z$, the experimental semi-variogram is defined to be:
 
 \begin{equation} 
     \label{eq:exp_var}
-    2\hat{\gamma}(\vect{h}+\vect{\delta}) := \frac{1}{|N(\vect{h}+\vect{\delta})|}\sum\limits_{(i,j)\in N(\vect{h}+\vect{\delta})}|Z(\vect{X}_i) - Z(\vect{X}_j)|^2 % (Cressie 1993)
+    2\hat{\gamma}(h) := \frac{1}{|N(h,\delta)|}\sum\limits_{\forall \vect{s}_i,\vect{s}_j \in N(h, \delta)}|Z(\vect{s}_i) - Z(\vect{s}_j)|^2 % (Cressie 1993)
 \end{equation}
 
-Where $N(\vect{h}+\vect{\delta})$ are the pairs of observed data locations that are a vector distance and angle, commonly referred to as a \textit{lag}, $\vect{h}+\vect{\delta}$ apart, $|\cdot|$ is the finite cardinality of such a set, and $\vect{\delta} = \begin{bmatrix}\pm\delta & \pm\delta\end{bmatrix}^{T}$ is a bound of ranges acceptable to be "binned" alongside $\vect{h}$.
+Where $N(h,\delta)$ is the set of all pairs of observed points that are a distance in the interval $[h-\delta, h+\delta]$ away. This distance is referred to as the \textit{lag} between two points. If $\delta = 0$, the semi-variogram is not said to be \textit{binned}.
 
-\begin{figure}[H]
-    \centering    
-    \includegraphics[width=\linewidth]{figures/exp_variogram.png}
-    \captionsetup{skip=0.5\baselineskip,size=footnotesize}
-    \caption{An experimental variogram generated using Equation \ref{eq:exp_var} on the field and random samples previously generated in Figure \ref{fig:samples}. $\delta$ was chosen such that for $n$ observations, a total number of $\Big\lfloor \frac{n}{2} \Big\rfloor$ points were plotted}
-    \label{fig:exp_var}
-\end{figure}
+The experimental variogram conveys the geospatial autocorrelation of a sampled field. As the lag between two given points increases, the covariance also increases. The covariance levels out to a steady value (the \textit{sill}) at some distance in the domain (the \textit{range}). This position in the function marks where the loss of reliable geospatial autocorrelation between two points that are a distance $h$ apart lays.
 
-The plot of the experimental variogram in figure \ref{fig:exp_var} conveys to us the geospatial autocorrelation of the sampled field that was previously generated in figure \ref{fig:samples}. We can see that as the distance, $\|\vect{h}\|_2$, between two given points increases, the covariance also increases. At some point in the graph the covariance levels out to a steady value (the sill) at some distance in the domain (the range). This informs us of locations of where the loss of reliable geospatial autocorrelation between two points that are a vector distance $\vect{h}$ apart lies. This will later act as a method of prediction confidence in our Best Linear Unbiased Predictor.
-
-\subsection{Converting a Semi-Variogram to a Variogram}
-The intent of fitting a statistical model to an experimental variogram is to approximate the continuous covariance for any two points on $Z$ that are at some known $\vect{h}$ apart. This will allow us to obtain a decent approximation of the continuous Variogram function in equation \ref{eq:cont_var}. In order to define the experimental semi-variogram to variogram procedure, we must first define the \textit{range}, \textit{sill}, and \textit{nugget} characteristics of a variogram. The value on the co-domain where the variogram begins to flatten out (approximately a zero derivative variance) is referred to as the sill. The sill variance value associated with the sill is the largest variability between any two data pairs in the field. The corresponding point on the distance domain is called the range. It is important to note that a lag larger than the range is not spatially autocorrelated \cite{felus:srn}. The nugget is defined to be the variance at zero separation. This value is exactly zero for ideal measurements, but is generally not for real-life measurements.
+\subsection{Converting a Semi-Variogram to a Variogram} \label{sec:semitovar}
+The intent of fitting a statistical model to an experimental variogram is to approximate the continuous covariance for any two points, that have not necessarily been observed, on $Z$ that are at some known lag apart. It is important to note that a lag larger than the range value is not geospatially autocorrelated \cite{felus:srn}. 
 
 \subsection{Variogram Models}
-Our variogram can take on the form of one of multiple well known "kernels", or statistical models. All of which are scalar functions of the range, $a$, and sill, $s$, of our lag distribution model, and scalar $h = \|\vect{h}\|_2$. The three most common models are the following: %P. Goovaerts. Geostatistics for natural resources evaluation. Oxford University Press, New York, 1997.
+The continuous variogram will be fit to a statistical model, or \textit{kernel}. The kernel function of the range, $a$, the sill, $s$, and our lag, $h$. Three commonly used models are the following: %P. Goovaerts. Geostatistics for natural resources evaluation. Oxford University Press, New York, 1997.
 \subsubsection{The Gaussian Model}
 
 \begin{equation}
-	\gamma(h, s, a) = s \Bigg[ 1 - \exp \Bigg( -\dfrac{h^2}{a^2} \Bigg) \Bigg]
+	\gamma_g(h, s, a) = s \Bigg[ 1 - \exp \Bigg( -\dfrac{h^2}{a^2} \Bigg) \Bigg]
 	\label{eq:gauss_model}
 \end{equation}
 
-The Gaussian models will asymptotically reach its sill. The \textit{practical range} is then used to refer the point on the domain where the variogram reaches 95\% of its sill.
+The Gaussian model will asymptotically reach its sill. The sill would be at the limit as $h$ approaches infinity. The \textit{practical range} is therefore used to refer the point on the domain where the variogram reaches 95\% of its sill.
 
 \subsubsection{The Exponential Model}
 
 \begin{equation}
-	\gamma(h, s, a) = s \Bigg[ 1 - \exp \Bigg( \dfrac{h}{a} \Bigg) \Bigg]
+	\gamma_e(h, s, a) = s \Bigg[ 1 - \exp \Bigg( \dfrac{h}{a} \Bigg) \Bigg]
 	\label{eq:exp_model}
 \end{equation}
 
@@ -254,184 +265,313 @@ The same rules as the Gaussian model apply to the Exponential model.
 \subsubsection{The Spherical Model}
 
 \begin{equation}
-	\gamma(h, s, a) = \frac{s}{2} \Bigg[ \dfrac{3h}{a} - \Bigg( \dfrac{h}{a} \Bigg)^3 \Bigg]
+	\gamma_s(h, s, a) = \frac{s}{2} \Bigg[ \dfrac{3h}{a} - \Bigg( \dfrac{h}{a} \Bigg)^3 \Bigg]
 	\label{eq:sph_model}
 \end{equation}
 
 The spherical model will reach an exactly zero slope at the sill and range.
 
-\subsection{Fitting A Semi-Variogram}
+\subsection{Fitting A Semi-Variogram} \label{sec:varfit}
 
-Though there exists no closed-form solution for obtaining a continuous variogram, we will use a nonlinear programming solver which searches for the minimum error in:
+Though there exists no closed-form solution for obtaining a continuous variogram, a nonlinear solver which searches for the minimum error in a cost function of the semi-variogram and the desired kernel would be used.
 
 \begin{equation}
-\min\limits_{h, s, a}\gamma(h, s, a)
+\gamma(h) = \min\ [\gamma_{kernel}(h,s,a) - \hat{\gamma}(h)]^2
 \end{equation}
 
-We specifically will use a modified (we specified bounds to decrease iterations of the function fit) \textit{fminsearch} function in \textit{MATLAB} which is defined to "find the minimum of unconstrained multi-variable function using a derivative-free method". This is done by specifying an objective function to minimize (our desired statistical model) over our experimental semi-variogram.
+% We specifically will use a modified (we specified bounds to decrease iterations of the function fit) \textit{fminsearch} function in \textit{MATLAB} which is defined to "find the minimum of unconstrained multi-variable function using a derivative-free method". This is done by specifying an objective function to minimize (our desired statistical model) over our experimental semi-variogram.
 
 \begin{figure}[ht!]
     \centering    
-	\includegraphics[width=\linewidth]{figures/fit_kern_comp.png}
-	\captionsetup{skip=0.5\baselineskip,size=footnotesize}
-	\caption{A comparison of the Gaussian, Spherical, and Exponential statistical models fit to the Experimental Semi-Variogram in Figure \ref{fig:exp_var}}
-	\label{fig:kern_fit}
+	\includegraphics[width=\linewidth]{figures/fit_kernel.png}
+	\caption{An experimental variogram generated using Equation \ref{eq:exp_var} from the samples taken in Figure \ref{fig:sampled_field}. $\delta$ was chosen such that for $n$ observations, a total number of $\Big\lfloor \frac{n}{2} \Big\rfloor$ points were plotted. A Gaussian statistical model was fit to the experimental variogram.}
+	\label{fig:fit_kernel}
 \end{figure}
 
-\section{The Kriging Method}
-The Kriging Method conducts a weighted least-squares fit using the Variance-Covariance Matrix generated from the continuous Variogram model that was fit to the physical observations made. The method can yield a prediction for each cell in a target space similar to the Inverse Distance Weighting method described in Section \ref{idw_intro} on Inverse Distance Weighting, but with more statistical robustness.
+The \textit{nugget} is defined to be the variance at zero separation ($\gamma(0)$. This value is exactly zero for ideal measurements, but is generally not for real-life measurements.
 
-\subsection{A Best Linear Unbiased Predictor}
-Inverse Distance Weighting boils down to an Ordinary Least Squares because it does not rely on the statistical information deduced from the underlying autocorrelation of the field in question. We say the Kriging Method is a \textit{Best} Linear \textit{unbiased} Predictor because the \textit{explanatory variables}, or observations, do not a have a combined zero mean, and in fact convey a stochastic process.
+\section{The Kriging Method}
+The Kriging Method conducts a weighted sum using the continuous variogram model that was fit to the physical observations made. The method can yield a prediction for each vesicle in a target space similar to the Inverse Distance Weighting method described in Section \ref{sec:idw_intro}, but with more statistical robustness.
 
 \subsection{Forms of the Kriging Method}
-There exist three forms of the Kriging Method. All of which differ primarily in the handling of the mean gathered from observations of a target field. The \textit{Simple Kriging Method} makes the assumption that the mean is known and constant throughout the entirety of an observed field. This is of course not the case for fields that are very large as it does not follow Tobler's First Law. The \textit{Ordinary Kriging Method} can deduce the local mean of a neighborhood from a smaller subset of observations in a larger target field. This is done by classifying the larger field into smaller neighborhoods where the mean is only constant within those neighborhoods. Ordinary Kriging has the advantage that the mean is not required to be known before running a prediction. The \textit{Universal Kriging Method} can perform similar local mean calculations as the Ordinary Kriging Method, but does so by fitting a polynomial representing a mean trend model and not from a constant mean value representing that neighborhood \cite{vandergraaf:nnkrig}.
+There exist three major forms of the Kriging Method. All of which differ primarily in the handling of the mean gathered from observations of a target field. The \textit{Simple Kriging Method} makes the assumption that the mean is known and constant throughout the entirety of an observed field. This is of course not the case for fields that are very large as it does not follow Tobler's First Law. The \textit{Ordinary Kriging Method} can deduce the local mean of a neighborhood from a smaller subset of observations in a larger target field. This is done by classifying the larger field into smaller neighborhoods where the mean is only constant within those neighborhoods. Ordinary Kriging has the advantage that the mean is not required to be known before running a prediction. The \textit{Universal Kriging Method} can perform similar local mean calculations as the Ordinary Kriging Method, but does so by fitting a polynomial representing a mean trend model and not from a constant mean value representing that neighborhood \cite{vandergraaf:nnkrig} as seen in Section \ref{sec:varfit} on fitting a variogram.
 
-\subsection{Variance-Covariance Matrix}
-From the fit variogram which represents our lag variances, we will construct a \textit{variance-covariance matrix}, $C_0$. The matrix will contain relevant relationships required to interpolate a given neighborhood of a field from $n$ observations. The value of the element $C_{i,j}$, will represent the covariance of the lag between the $i^{th}$ and $j^{th}$ observations, measured from the variogram. 
+\subsection{Covariance Matrix From A Variogram} \label{sec:covmat}
+From the fit variogram which represents our lag covariances, a \textit{covariance matrix} for $N$ observations, $P \in \mathbb{R}^{N \times N}$, will be constructed. The value of the element $P_{i,j}$, will represent the covariance of the lag between the $i^{th}$ and $j^{th}$ observations. If $i=j$, the value of the element, $P_{i,j}$ would be the variance of that observation. 
 
 \begin{equation}
-    C_{i,j} = Cov(Z(\vect{X}_{i}), Z(\vect{X}_{j}))
+    P_{i,j} = \text{cov}\{Z(\vect{s}_{i}), Z(\vect{s}_{j})\} = \gamma(\| \vect{s}_i - \vect{s}_j \|_2)
     \label{eq:covvarmatelem}
 \end{equation}
 
 \begin{equation}
-    C_0 = \begin{bmatrix} C_{1,1} & C_{1,2} & \dots & C_{1, n} \\
-                        C_{2,1} & C_{2,2} & \dots & C_{2, n} \\
-                         \vdots & \vdots & \ddots & \vdots  \\
-                        C_{n,1} & C_{n,2} & \dots & C_{n,n} \\
-        \end{bmatrix}
+    P = \begin{bmatrix} 
+
+    \text{var}\{\vect{s}_1\} & \text{cov}\{\vect{s}_1, \vect{s}_2\} & \dots & \text{cov}\{\vect{s}_1, \vect{s}_N\} \\
+    
+    \text{cov}\{\vect{s}_2, \vect{s}_1\} & \text{var}\{\vect{s}_2\} & \dots & \text{cov}\{\vect{s}_2, \vect{s}_N\} \\
+
+    \vdots & \vdots & \ddots & \vdots  \\
+    
+    \text{cov}\{\vect{s}_N, \vect{s}_1\} & \text{cov}\{\vect{s}_N, \vect{s}_2\} & \dots & \text{var}\{\vect{s}_N\} \\
+
+    \end{bmatrix}
     \label{eq:covvarmat}
 \end{equation}
 
 \subsection{The Proximity Vector}
-For any given point on a field, we can construct a \textit{proximity vector}, $\vect{d}_n \in \mathbb{R}^n$, which contains the covariance of a given point on the field with all of the $n$ observations made. The $k^{th}$ element of $\vect{d}_n$, for a point ($i,j$) on the target field, contains the covariance for the lag between coordinate $\begin{bmatrix} i & j \end{bmatrix}^{T}$ on the field and the $k^{th}$ observation made, where $1 \leq k \leq n$, i.e. $\vect{d}_n(k) = C_{(i,j), k} = Cov(Z(i,j), Z(X_k))$. 
+For any given point on a field, we can construct a \textit{proximity vector}, $\vect{d}_0 \in \mathbb{R}^N$, which contains the covariance of a given point, $\vect{s}_0$ on the field with the $N$ observations made. The $k^{th}$ element of $\vect{d}_N$, would therefore contain the covariance for the lag between point $\vect{s}_0$ and the $k^{th}$ observation made, $\vect{s}_k$.
+
+$$\vect{d}_0(k) = \text{cov}\{Z(\vect{s}_0), Z(\vect{s}_k)\} = \gamma(\| \vect{s}_0 - \vect{s}_k \|_2)$$
 
 \begin{equation}
-    \vect{d}_{(i,j)} = \begin{bmatrix} C_{1,(i,j)} \\
-                        C_{2,(i,j)} \\
-                         \vdots \\
-                        C_{n,(i,j)} \\
-        \end{bmatrix}
-    \label{eq:covvarmat}
+    \vect{d}_0 = \begin{bmatrix} 
+                    \text{cov}\{Z(\vect{s}_0), Z(\vect{s}_1)\} \\
+                    \text{cov}\{Z(\vect{s}_0), Z(\vect{s}_2)\} \\
+                     \vdots \\
+                    \text{cov}\{Z(\vect{s}_0), Z(\vect{s}_N)\} \\
+        \end{bmatrix} = 
+        \begin{bmatrix} 
+                    \gamma(\| \vect{s}_0 - \vect{s}_1 \|_2) \\
+                    \gamma(\| \vect{s}_0 - \vect{s}_2 \|_2) \\
+                     \vdots \\
+                    \gamma(\| \vect{s}_0 - \vect{s}_N \|_2) \\
+        \end{bmatrix} 
+    \label{eq:proxvect}
 \end{equation}
 
-In order to construct the proximity vector, the lags (or distances) between each observation and the prediction point must be known.
-
 \subsection{The Kriging Weights}
-We will compute unbiased and best weights, the \textit{error variance vector}, $\vect{w}_{(i,j)}$ for each prediction point. not simply by the inverse distances as in IDW, but by resolving:
+Similarly to the Inverse Distance Weighting method, a set a weights will be computed for each vesicle in the target field. These weights will be referred to as the \textit{Kriging Weights}, or the \textit{error variance vector}. For a given prediction location, $\vect{s}_0$, the Kriging Weight vector, $\vect{\lambda}_0$, will be defined as the product of the inverse of the covariance matrix of the field and the proximity vector of the point to predict.
 
 \begin{equation}
-    \vect{w}_{(i,j)} = \begin{bmatrix} w_1 \\
-                        w_2 \\
-                         \vdots \\
-                        w_n \\
-        \end{bmatrix} = C_0^{-1}\vect{d}_{(i,j)}
+    \vect{\lambda}_{0} = P^{-1}\vect{d}_{0}
     \label{eq:krigweights}
 \end{equation}
 
-\subsection{The Ordinary Kriging Equation}
-We will be focusing our efforts on the Ordinary Kriging Method because it does not require knowledge of local means and does not require fitting an additional polynomial trend model. A prediction using the Kriging Method for an unobserved point at location $\vect{X}_{(i,j)}$ is therefore:
+\subsection{The Kriging Prediction Equation}
+The Kriging equation will be used to predict the value, $\hat{Z}(\vect{s}_0)$ of an unobserved location, $\vect{s}_0$. The prediction is a function of the Kriging Weights and a vector of $N$ observations. 
+
 \begin{equation}
-    \hat{Z}(\vect{X}_{(i,j)}) = \begin{bmatrix} Z(\vect{X}_1) & Z(\vect{X}_2) & \dots & Z(\vect{X}_n) \end{bmatrix}\vect{w}_{(i,j)}
+    \hat{Z}(\vect{s}_0) = \begin{bmatrix} Z(\vect{s}_1) & Z(\vect{s}_2) & \dots & Z(\vect{s}_N) \end{bmatrix}\vect{\lambda}_{0}
     \label{eq:krigeq}
 \end{equation}
 
-Where $Z(\vect{X}_1), Z(\vect{X}_2), \dots Z(\vect{X}_n)$ are measured observations at locations $\vect{X}_1, \vect{X}_2, \dots \vect{X}_n$ respectively.
+\begin{figure}[!]
+    \centering
+    \includegraphics[width=0.8\linewidth]{figures/kriging_prediction.png}
+    \caption{A Kriging Method predicted field generated from the samples taken of Figure \ref{fig:gen_field} at the locations marked in Figure \ref{fig:sampled_field}.}
+    \label{fig:krig_field}
+\end{figure}
+
 \subsection{The Kriging Error}
 % look at the wikipedia page
+From the method described in Equation \ref{eq:krigeq}, an error can be computed by comparing the predicted value of a previously observed point, $\hat{Z}(\vect{s}_p)$, to the observed value of the point, $Z(\vect{s}_p)$.
 
-\section{The Kriging Prediction}
+\begin{equation}
+    \tilde{Z}(\vect{s}_p) = \hat{Z}(\vect{s}_p) - Z(\vect{s}_p) 
+    \label{eq:krigerr}
+\end{equation}
 
-\begin{figure*}[ht!]
-    \centering
-    \begin{subfigure}[t]{0.5\textwidth}
-        \centering
-        \includegraphics[width=\linewidth]{figures/sampled_generated_field.png}
-        \captionsetup{skip=0.5\baselineskip, width=0.8\textwidth, size=footnotesize}
-        \caption{Sampled locations (250 points marked in black) of the previously generated geospatially autocorrelated field}
-        \label{fig:sampled_field}
-    \end{subfigure}%
-    ~ 
-    \begin{subfigure}[t]{0.5\textwidth}
-        \centering
-        \includegraphics[width=\linewidth]{figures/kriging_top_pred_field.png}
-        \captionsetup{skip=0.5\baselineskip, width=0.8\textwidth, size=footnotesize}
-        \caption{A Kriging Prediction of the originally generated random field}
-        \label{fig:krig_field}
-    \end{subfigure}
-    \captionsetup{skip=0.5\baselineskip,size=footnotesize}
-    \caption{A randomly generated field where 250 observations were made (left), and a Kriging Prediction (right) of that field from the marked observations.}
-    \label{fig:krig_side_by_side}
-\end{figure*}
+The Kriging Error value will be used to test the unbiasedness of the predictions made, and is factored into confidence of predictions made.
 
-\begin{figure*}[ht!]
-    \centering
-    \begin{subfigure}[t]{0.5\textwidth}
-        \centering
-        \includegraphics[width=\linewidth]{figures/generated_field_side_view.png}
-        \captionsetup{skip=0.5\baselineskip, width=0.8\textwidth, size=footnotesize}
-        \caption{A side view of the previously generated geospatially autocorrelated field}
-        \label{fig:sampled_field}
-    \end{subfigure}%
-    ~ 
-    \begin{subfigure}[t]{0.5\textwidth}
-        \centering
-        \includegraphics[width=\linewidth]{figures/kriging_side_pred_field.png}
-        \captionsetup{skip=0.5\baselineskip, width=0.8\textwidth, size=footnotesize}
-        \caption{A Kriging Prediction of the originally generated random field}
-        \label{fig:krig_side_field}
-    \end{subfigure}
-    \captionsetup{skip=0.5\baselineskip,size=footnotesize}
-    \caption{A randomly generated field where 250 observations were made (left), and a Kriging Prediction (right) of that field from the marked observations.}
-    \label{fig:krig_side_side_by_side}
-\end{figure*}
+\subsection{Procedure For Field Prediction Using The Kriging Method}
+In order to predict the entirety of a target field from a finite set of $N$ observations and their respective locations, $O$, the Kriging Prediction is run at every possible unobserved vesicle in the target field, $Z$. For a single iteration of collecting observations and making predictions, a covariance matrix must first be constructed, and then a the proximity vector and Kriging Weights are computed for all unobserved vesicles. The Kriging prediction formula is then used to compute the predicted value of each vesicle to predict.
 
-\subsection{Kriging Variance}
-%Interpolation Accuracy
+\begin{algorithm}[thpb!]
+\caption{Kriging Prediction of Target Field}\label{alg:krig}
+\begin{algorithmic}[1]
+\Procedure{KrigingPredictField}{$Z$, $O$}
+\BState \emph{Generate Semi-Variogram}:
+\State $\forall$ $\vect{s}_i$, $Z(\vect{s}_i)$ $\in O$:
+\State \ \ \ \ $\hat{\gamma}(h) \gets \vect{s}_i$, $Z(\vect{s}_i)$\\
+\BState \emph{Generate Variogram}:
+\State $\gamma(h)$ fits to $\hat{\gamma}(h)$\\
+\BState \emph{Construct Covariance Matrix}:
+\State $\forall (\vect{s}_i,\vect{s}_j) \in O:$
+\State \ \ \ \ $h_{i,j} = \|\vect{s}_i - \vect{s}_j\|_2$
+\State \ \ \ \ $P_{i,j} = \gamma(h_{i,j})$\\
+\BState \emph{Run Kriging Predictions For Target Field}:
+\State $\forall$ $\vect{p}_i \in Z$:
+\State \ \ \ \ $\vect{d}_{i} = \begin{bmatrix} \gamma(\| \vect{s}_1 - \vec{p}_i \|_2) \dots \gamma(\| \vect{s}_N - \vec{p}_i \|_2) \end{bmatrix}^T$
+\State \ \ \ \ $\lambda_{i} = P^{-1}\vect{d}_{i}$
+\State \ \ \ \ $\hat{Z}(\vect{p}_i) = \begin{bmatrix} Z(\vect{s}_1) \dots Z(\vect{s}_N) \end{bmatrix} \lambda_{\vec{p}_i}$
+\EndProcedure
+\end{algorithmic}
+\end{algorithm}
 
-\chapter{Optimization of Interpolation Methods}
-Although the method is optimal for data with no trends or drift, the use of the unmodified Kriging Method technique has the drawback of being computationally intensive and slow to compute in a live and timely manner. This is due to the multiple matrix inversions and least squares fittings required to calculate the weights of the interpolation from the continuous variograms. It would be desired, in the case of autonomous UAVs that must constantly steer themselves in the best direction, to quickly calculate probabilities and variances. We will further discuss methods of efficient interpolation using the Universal Kriging Method.
-\section{Natural Neighbor Selection}
-\subsection{Voronoi Tessellations}
-\subsection{Finding Natural Neighbors}
+When Algorithm \ref{alg:krig} is run on the target field from Figure \ref{fig:generated_field}, for the samples taken in Figure \ref{fig:sampled_field}, a prediction of the entire field can be generated, as seen in Figure \ref{fig:krig_field}.
 
-\chapter{Required Graph Theory}
-\section{Graph Construction}
-\subsection{Vertices and Edges}
-\subsection{Path Problems}
-\subsubsection{Optimizing a Route}
+
+\section{Limitations of the Kriging Method}
+no trends in data\\
+its gotta have no obvious clustering \\
+assumption of semi/ergodic fields must be used
 
 \chapter{Previous Work}
-Some other research was once performed.
+Oil Spills Boundary Tracking Using Universal Kriging
+And Model Predictive Control By UAV - Zhang\\\\
+sharon's stuff\\\\
+An Efficient Natural Neighbour Interpolation
+Algorithm for Geoscientific Modelling - Gold
 
-\chapter{Live Aerial Interpolation}
+\part{Procedure For Autonoumous Field Exploration}
+\section{Field Exploration Manipulation}
+The Variogram represents the confidences of any two predictions that are a distance $h$ apart. We can measure the quality of our predictions, or \textit{confidences} of our predictions, from the fit Variogram. This metric will be used to measure the average uncertainty of state predictions in a subfield, or \textit{neighborhood}, in the target field.
 
-\chapter{Live Autonomous Path Finding}
-We know for a geospatially autocorrelated field there is a stochastic process underlying in the data we would like to predict, and therefore could interpolate further based off of the variances of two disjoint points in the field. The variances, from samples collected in the scanning process which factor into our variogram, then become our relative confidence scores of predictions in our field in question. The values in the variogram are what will be used to terminate the interpolation when a level of least-confidence in total prediction is achieved, and what will dictate the future scan locations for a UAV or a pod of UAVs.
-\subsection{Constructing a Confidence Graph}
-\subsection{Confidence Optimized Path Finding}
+\subsection{Field Tessellation}
+By tessellating a target field into natural neighborhoods of Voronoi cells, $\upsilon_i \in \Upsilon$. % talk about this more
 
-\part{Simulation}
-\subsection{Flying Engine}
-\subsubsection{Plot Drawing}
-\subsubsection{Way-point Selection}
+\subsection{Neighborhood Prediction Confidence}
+A metric for a prediction confidence can be calculated for each neighborhood. A ratio between the average proximity vector and the most ideal proximity vector gives a ratio of confidence of the prediction quality in that neighborhood. % add this to contributions of this paper
 
-\section{FastPAS}
-\subsection{The Algorithm}
-\subsection{Simulating It}
+% the idea is that we want to fidn the \vec{d}_{max} that gives us the worst \nu_i confidence
+\begin{equation}
+\label{equ:neigh_conf}
+\nu_i = \operatornamewithlimits{argmin}_{\| \vec{d}_{min} \|_2 \in \upsilon_i} \frac{1}{|\upsilon_i|} \large\sum_{i = 1}^{|\upsilon_i|} \frac{\| \vec{d}_{\vec{p}_i} \|_{2}^{-1}} {\| \vec{d}_{min} \|_2^{-1}}
+\end{equation}
 
-\section{Other Uses}
+Where $\vec{p}_i$ is a point in neighborhood $i$, and $|\upsilon_i|$ is the number of points measurable and predictable in neighborhood $i$. The average is normalized to the worst best possible confidence associated with that neighborhood. This is the value associated with the proximity vector with the smallest elements, i.e. least covariance between predicted and measured. % even the measured point in the hood wont be ideal and this will actually give us a decent error still
+The best possible prediction confidence occurs when every proximity vector in a given neighborhood is as close as possible to the proximity vector that is composed entirely of elements equal to the smallest value possible in the variogram model. The smallest value of the variogram is referred to as the \textit{nugget} in the Geostatistics literature, and ideally is zero. Due to fields that are not perfectly geospatially autocorrelated and because real-world sensors include some noise, the nugget value is often positive and non-zero. 
+
+\subsection{Total Field Prediction Confidence}
+The total field prediction confidence will be defined to be a ration of the function of the neighborhood prediction confidences and sizes to the number of possible points in the field $Z$.
+
+\begin{equation}
+\delta = \frac{1}{|Z|} \sum_{i = 1}^{|\Upsilon|} |\upsilon_i| \nu_i
+\end{equation}
+
+\subsection{Field Graph Construction}
+A graph representing the average confidence of prediction for each neighborhood can be generated. The confidence of a neighborhood, inversely proportional to its uncertainty, will be calculated from a set of proximity vectors from the neighborhood using Equation \ref{equ:neigh_conf}. Neighbors adjacent in the tessellated field are placed in the graph representation as adjacent vertices. For two given vertices in the graph, $\upsilon_i$ and $\upsilon_j$, the corresponding edge weight is the sum of the confidences of the two associated neighborhoods:
+
+\begin{equation}
+    w_{ij} = w_{ji} = \nu_i + \nu_j
+\end{equation}
+
+\begin{figure}[thpb]
+\centering
+    \begin{subfigure}[b]{\textwidth}
+        \centering
+        \includegraphics[width=0.8\textwidth]{./figures/natural_neighborhood_selection.png}
+        \captionsetup{skip=0.0\baselineskip,size=footnotesize}
+        \caption{Voronoi tessellations of the predicted field in Figure \ref{fig:krig_field}.}
+        \label{fig:nat_neigh}
+    \end{subfigure}
+    \\
+    \begin{subfigure}[b]{\textwidth}
+        % \includegraphics[width=0.7\textwidth]{./figures/undir_graph_save.png}
+
+        %https://tex.stackexchange.com/questions/270543/draw-a-graph-in-latex-with-tikz
+        \centering
+        \begin{tikzpicture}
+        \begin{scope}[every node/.style={circle,thick,draw}]
+            \node (N4) at (0.2,3) {$N_4$};
+            \node (N2) at (1.6,.6) {$N_2$};
+            \node (N7) at (4.5,.4) {$N_{7}$};
+            \node (N12) at (2.7,3) {$N_{12}$};
+            
+        \end{scope}
+
+        \begin{scope}[>={Stealth[black]},
+                      every node/.style={fill=white,circle},
+                      every edge/.style={draw=red,very thick}]
+
+            \draw (N7) -- (4.6,1.8) [dashed];
+            \draw (N7) -- (5.0,1.6) [dashed];
+
+            \draw (N2) -- (0.4,1.5) [dashed];
+            \draw (N2) -- (0.4,1.1) [dashed];
+            \draw (N2) -- (0.0,0.9) [dashed];
+            \draw (N2) -- (2.6,1.3) [dashed];
+
+            \draw (N4) -- (1.0,2.6) [dashed];
+            \draw (N4) -- (0.9,2.4) [dashed];
+            \draw (N4) -- (0.4,1.8) [dashed];
+            \draw (N4) -- (0,2.0) [dashed];
+
+            \draw (N12) -- (3.9,2.7) [dashed];
+            % edge[bend right=90] node
+            \path [-] (N4) edge node {$w_{4,2}$} (N2);
+            \path [-] (N4) edge node {$w_{4,12}$} (N12);
+            \path [-] (N12) edge node {$w_{12,2}$} (N2);
+            \path [-] (N12) edge node {$w_{12,7}$} (N7);
+            \path [-] (N2) edge node {$w_{2,7}$} (N7);
+            
+
+        \end{scope}
+        \end{tikzpicture}
+
+        \captionsetup{skip=0.5\baselineskip,size=footnotesize}
+        \caption{A subset of the weighted graph representing the adjacencies of the neighbors in Figure \ref{fig:nat_neigh}}
+        \label{fig:neigh_graph}
+  \end{subfigure}
+  \captionsetup{skip=0.5\baselineskip,size=small}
+  \caption{The predicted field is tessellated based on the measured point locations in \ref{fig:nat_neigh}. An undirected graph is constructed from the tessellations in \ref{fig:neigh_graph}. The label in each neighborhood identifies the neighborhood name, $\upsilon_i$, and the associated confidence of prediction, $\nu_i$, for that neighborhood.}
+\end{figure}
+
+\section{Path Planning}
+A path-planning technique based on a shortest-path algorithm is run on the graph. The result will be a path that will guide a UAV into the direction of least confidence while traversing through other uncertain areas. This is because the edge weights are inversely proportional to uncertainty, and maximized in the traversal. 
+
+\subsection{Graph Path Finding}
+a*
+
+\subsection{Algorithm For Path Planning}
+The path-planning maneuver in turn reduces the uncertainty of prediction of the target field as a whole. 
+
+As more observations are made, the field is re-tessellated and a new graph is created and re-traversed in an attempt to reduce overall uncertainty to a previously specified threshold.
+
+\begin{algorithm}[thpb!]
+\caption{Uncertainty Suppressing Field Exploration}\label{alg:uncert}
+\begin{algorithmic}[2]
+\Procedure{TargetFieldPathPlan}{$Z$}
+    \BState \emph{Generate Kriging Prediction}:
+    \State $C, \hat{Z} = \textit{KrigingPredictField}(N,Z)$
+    \State \textit{Display} $\hat{Z}$\\
+    \BState \emph{Tessellate Field}:
+    \State $\Upsilon = \textit{Voronoi}(Z, N)$\\
+    \BState \emph{Calculate Neighborhood Confidences}:
+    \State $\forall \upsilon_i \in \Upsilon$:
+    \State \ \ \ \ $\forall \vec{p}_j \in \upsilon_i$:
+    \State \ \ \ \ \ \ \ \ $\vec{d}_{\vec{p}_j} = \begin{bmatrix} C_{1,\vec{p}_j} \dots C_{n,\vec{p}_j} \end{bmatrix}^T$
+    \State \ \ \ \ $\nu_i = \operatornamewithlimits{argmin}_{\| \vec{d}_{min} \|_2 \in \upsilon_i} \frac{1}{|\upsilon_i|} \large\sum_{i = 1}^{|\upsilon_i|} \frac{\| \vec{d}_{\vec{p}_i} \|_{2}^{-1}} {\| \vec{d}_{min} \|_2^{-1}}$\\
+    \BState \emph{Construct Graph Adjacency Matrix, $W$}:
+    \State $\forall \upsilon_i \in \Upsilon:$
+    \State \ \ \ \ $\forall \upsilon_j \in \Upsilon$:
+    \State \ \ \ \ \ \ \ \ \textbf{If} {$\upsilon_j \edge \upsilon{i}$}
+    \State \ \ \ \ \ \ \ \ \ \ \ \  $w_{i,j} = w_{j,i} = \nu_{\upsilon_i} + \nu_{\upsilon_j}$
+    \State \ \ \ \ \ \ \ \ \textbf{Else}
+    \State \ \ \ \ \ \ \ \ \ \ \ \  $w_{i,j} = 0$\\
+    \BState \emph{Construct Field Graph}:
+    \State $\Gamma = \textit{Graph}(W)$\\
+    \BState \emph{Run Path Finding Algorithm on $\Gamma$ To Get a Path $P$}:
+    \State $P = \textit{Graph}(W)$\\
+    \BState \emph{Explore Field With The Found Path}:
+    \State $\forall p_i \in P$:
+    \State \ \ \ \ \textit{NavigateTo}($p_i$)\\
+    \BState \emph{Calculate Overall Uncertainty}:
+    \State $\delta = \frac{1}{|Z|} \sum_{i = 1}^{|\Upsilon|} |\upsilon_i| \nu_i$\\
+    \BState{Check Overall Confidence}:
+    \State \textbf{If} $\delta < \delta_{max}$:
+    \State \ \ \ \ \textbf{goto:} \textit{Generate Kriging Prediction}
+    \State \textbf{Else}:
+    \State \ \ \ \ \textbf{return}
+\EndProcedure
+\end{algorithmic}
+\end{algorithm}
+
+\part{Other Uses}
 % real estate
 % crypto price pred.
 % gentrify
 
+\part{Simulation Framework}
+% \subsection{Flying Engine}
+% \subsubsection{Plot Drawing}
+% \subsubsection{Way-point Selection}
+
 \chapter{Results}
 
 \chapter{Conclusion}
-The method has proven to be a powerful interpolation method in simulations for simulated fields. The Kriging method has proven to be a working aerial mapping technique that provides a robust model for predictions and confidence scores. The goal of this thesis will be to design the algorithm for use with a pod of autonomous UAVs. A modified technique will have to first be developed to reduce the computational complexity of the algorithm by autonomously selecting optimal neighborhoods of sub-areas to run the method on.\\
-Once the new method has been developed, an accurate simulation demonstrating its effectiveness and potential to be used in a real pod of UAVs will then be created and demonstrated. 
-If time and resources are available, the algorithm will be ported to a real pod of UAVs to accomplish the task of autonomous scanning using thermal imaging (via infrared sensors). Tests will be conducted to prove the effectiveness and time efficiency of the newly developed algorithm.
+The potential in a procedure using the Kriging Method as an aerial field exploration technique with UAVs was demonstrated. By characterizing the confidence of the Kriging predictions made from observations in a field, along with a natural neighbor selection technique, a method for path-planning was developed to increase overall confidence in prediction of a target field as a whole. Future work to validate these results with a UAV in the loop will be conducted.
 
 \nocite{*}
 \bibliographystyle{plain}
