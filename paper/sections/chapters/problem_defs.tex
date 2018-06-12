@@ -1,0 +1,14 @@
+\chapter{Problem Definitions} \label{ch:defs}
+In an effort to be consistent in naming conventions and parameter definitions throughout this work, the problem space will be defined. The conventions described in Section \ref{ch:defs} will be used throughout the rest of the work.
+
+\section{The Field}
+The initially unknown field, referred to as the \textit{target field}, will be a square field made up of pixel cells, referred to as \textit{vesicles}, of unit area $a$. The field variable, $Z \in \mathbb{R}^{|Z| \times |Z|}$ therefore has an area of $a|Z|$, where $|Z|$ is the cardinality of the field set $Z$. Each vesicle can also have an associated \textit{age}, or the amount of time elapsed since that cell was last observed, but this parameter will not be used in this work.
+
+\section{The Sensor}
+For the sake of a simpler introduction to the methods described in this chapter, the basis of the predictions will be observations of interest made using ideal sensors with no measurement noise. The sensors will measure a subset of the area of the entire target field. This area will be referred to as the \textit{sensor footprint}, and will be equal to the size of a single vesicle of the target field, $a$.
+
+For the methods developed, the locations of the sensor measurements must be known. The locations will be represented as Cartesian coordinates on the field $Z$. For an arbitrary observation of the field $Z$, the location of the measurement will be at coordinates $\vect{s} \in \mathbb{R}^2$, and the corresponding sensor measurement would be $Z(\vect{s})$. 
+
+\subsection{Real World Sensing Examples}
+If a Global Positioning System (GPS) sensor is used to estimate position, a Haversine Transformation would likely be used to convert Earth longitude and latitude to Cartesian coordinates within the target field. If predicting the current location of a wildfire, for example, an infrared sensor would likely be used to measure the values of interest, thermal output of the field in this case.
+

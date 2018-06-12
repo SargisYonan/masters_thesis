@@ -92,8 +92,11 @@
 \include{sections/introduction}
 
 \part{Background}
-\include{sections/chapters/background}
+\include{sections/chapters/problem_defs}
 \include{sections/chapters/previous_work}
+
+\part{Geostatistics}
+\include{sections/chapters/geostatistics}
 
 \part{Autonomous Field Exploration Using The Kriging Method}
 \include{sections/chapters/characterizing_prediction_confidence}
@@ -102,21 +105,14 @@
 
 \include{sections/chapters/path_planning}
 
-\part{Other Applications of The Technique}
-% real estate
-% crypto price pred.
-% gentrify
-
-\part{Simulation Framework}
-% \subsection{Flying Engine}
-% \subsubsection{Plot Drawing}
-% \subsubsection{Way-point Selection}
-
+\part{Simulation \& Results}
+\include{sections/chapters/simulation_framework}
 \include{sections/chapters/results}
-\include{sections/conclusions}
 
 \phantomsection{}
 \addcontentsline{toc}{part}{End Matter}%
+
+\include{sections/conclusions}
 
 \nocite{*}
 \bibliographystyle{plain}

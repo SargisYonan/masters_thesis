@@ -1,7 +1,13 @@
 
 \chapter{Previous Work}
-Oil Spills Boundary Tracking Using Universal Kriging
-And Model Predictive Control By UAV - Zhang\\\\
-sharon's stuff\\\\
-An Efficient Natural Neighbour Interpolation
-Algorithm for Geoscientific Modelling - Gold
+The field of aerial field scanning, predicting, and exploring is an active research area. Several publications in the past decade alone have covered the types of missions UAVs are capable of accomplishing.
+
+Exploration is a subset of the types of missions UAVs have been used for recently. From Section 2 of Nikhil Nigam's \textit{The Multiple Unmanned Air Vehicle Persistent Surveillance Problem: A Review} \cite{nigam:missions}, the various types of missions possible are described. There exist problems of tracking and patrolling which involve following a moving target, or of finding the spread rate and source of an item of interest. The \textit{exploration} mission type is a procedure which runs parallel to the these types of missions. 
+
+Exploration missions often do not specify the model of the item of interest being tracked. Knowing the model and kinematics of the item being tracked (fire for example), makes it possible to use an optimal estimation tool such as an Extended Kalman Filter as in Sharon Rabinovich's \textit{A Methodology For Estimation of Ground Phenomena Propagation} \cite{sharon:uav_est} where the velocity and position states of a ground fire are estimated while tracking the points surrounding the periphery of a wildfire.
+
+Often times, exploration missions are not searching for anything in particular, but rather exploring for the sake of discovery. Without of model describing the states of the item of interest being explored, a simple scanning procedure involving random movements or following a predetermined path, like a zig-zag about the field as in \cite{semsch:uav_zig} are executed, or a zig-zag which incorporates the model dynamics of the vehicle, as in \cite{nigam:zigzag}. 
+
+The Kriging Method has been used in a UAV Contour Tracking problem in \textit{Oil Spills Boundary Tracking Using Universal Kriging And Model Predictive Control By UAV} \cite{zhang:oil_krig}. The paper relies on the knowledge of a model of the oil spill, and therefore is not a generic case of an exploration problem. 
+
+There exists a void in the related research area that deals with non-preplanned or non-random exploration techniques which exploit the geospatial statistical properties of a field on the fly. Though other papers discuss the use of Aerial Field Exploration and the use of The Kriging Method independently, the two strategies have not been combined to produce a geostatistically methodical path planning method for the field exploration of an unknown phenomena.
