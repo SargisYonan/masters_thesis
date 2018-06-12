@@ -1,0 +1,25 @@
+\chapter{Characterizing Prediction Confidence}
+\section{Confidence From Variography}
+The Variogram represents the confidences of any two predictions that are a distance $h$ apart. We can measure the quality of our predictions, or \textit{confidences} of our predictions, from the fit Variogram. This metric will be used to measure the average uncertainty of state predictions in a subfield, or \textit{neighborhood}, in the target field.
+
+\subsection{Field Tessellation}
+By tessellating a target field into natural neighborhoods of Voronoi cells, $\upsilon_i \in \Upsilon$. % talk about this more
+
+\subsection{Neighborhood Prediction Confidence}
+A metric for a prediction confidence can be calculated for each neighborhood. A ratio between the average proximity vector and the most ideal proximity vector gives a ratio of confidence of the prediction quality in that neighborhood. % add this to contributions of this paper
+
+% the idea is that we want to fidn the \vec{d}_{max} that gives us the worst \nu_i confidence
+\begin{equation}
+\label{equ:neigh_conf}
+\nu_i = \operatornamewithlimits{argmin}_{\| \vec{d}_{min} \|_2 \in \upsilon_i} \frac{1}{|\upsilon_i|} \large\sum_{i = 1}^{|\upsilon_i|} \frac{\| \vec{d}_{\vec{p}_i} \|_{2}^{-1}} {\| \vec{d}_{min} \|_2^{-1}}
+\end{equation}
+
+Where $\vec{p}_i$ is a point in neighborhood $i$, and $|\upsilon_i|$ is the number of points measurable and predictable in neighborhood $i$. The average is normalized to the worst best possible confidence associated with that neighborhood. This is the value associated with the proximity vector with the smallest elements, i.e. least covariance between predicted and measured. % even the measured point in the hood wont be ideal and this will actually give us a decent error still
+The best possible prediction confidence occurs when every proximity vector in a given neighborhood is as close as possible to the proximity vector that is composed entirely of elements equal to the smallest value possible in the variogram model. The smallest value of the variogram is referred to as the \textit{nugget} in the Geostatistics literature, and ideally is zero. Due to fields that are not perfectly geospatially autocorrelated and because real-world sensors include some noise, the nugget value is often positive and non-zero. 
+
+\subsection{Total Field Prediction Confidence}
+The total field prediction confidence will be defined to be a ration of the function of the neighborhood prediction confidences and sizes to the number of possible points in the field $Z$.
+
+\begin{equation}
+\delta = \frac{1}{|Z|} \sum_{i = 1}^{|\Upsilon|} |\upsilon_i| \nu_i
+\end{equation}

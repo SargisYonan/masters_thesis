@@ -72,7 +72,7 @@ plot([0 range], [sill sill], '--k', 'LineWidth', 2)
 hold on
 plot([range range], [0 sill], '--r', 'LineWidth', 2)
 
-legend('Gaussian Model', 'Semi-Variogram', 'range', 'sill', 'northwest', 'FontSize', 17)
+legend('Gaussian Model', 'Semi-Variogram', 'sill', 'range', 'northwest', 'FontSize', 17)
 grid on;
 
 export_img_latex(gcf, '../figures/fit_kernel')

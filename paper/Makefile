@@ -136,6 +136,8 @@ pdf: $(PAPER).pdf
 #
 clean:
 	$(RM) -f *.aux *.bbl *.blg *.dvi *.lof *.log *.lot *.toc $(PAPER).out $(PAPER).pdf
+	$(RM) -f sections/*.aux sections/*.bbl sections/*.blg sections/*.dvi sections/*.lof sections/*.log sections/*.lot sections/*.toc
+	$(RM) -f sections/chapters/*.aux sections/chapters/*.bbl sections/chapters/*.blg sections/chapters/*.dvi sections/chapters/*.lof sections/chapters/*.log sections/chapters/*.lot sections/chapters/*.toc
 
 #
 # clean-all: all files PLUS pdf and ps files

@@ -1,0 +1,50 @@
+\chapter{Path Planning}
+A path-planning technique based on a shortest-path algorithm is run on the graph. The result will be a path that will guide a UAV into the direction of least confidence while traversing through other uncertain areas. This is because the edge weights are inversely proportional to uncertainty, and maximized in the traversal. 
+
+\section{Graph Path Finding}
+An edge weight on the graph represents the relative uncertainty of the adjacent vertices. A path finding algorithm which minimizes the edge weights of traversal will be used in an attempt to maximize traversal over uncertain regions. An algorithm based on Dijkstra's Algorithm is currently used to find the shortest path from the current position of the UAV to the next most uncertain region in the field. 
+
+\subsection{Disadvantages of Current Path Finding Method}
+The path finding algorithm based on Dijkstra's Algorithm does not currently take into account the realizability of the trajectory given, as some manuevers are not possible because of the aerial vehicle's turning radius. An assumption of a small turning radius will be made.
+
+\section{Algorithm For Path Planning Using The Kriging Method}
+The path-planning maneuver theoretically reduces the uncertainty of prediction of the target field as a whole as more observations are made. After every completed route from current position to the next most uncertain area of the field, the field is re-tessellated and a new graph is created and re-traversed in an attempt to reduce overall uncertainty to a specified threshold. An algorithm which describes the process in which data is collected, predictions are made, and paths are planned is presented in Algorithm \ref{alg:uncert}.
+
+\begin{algorithm}[thpb!]
+\caption{Uncertainty Suppressing Field Exploration}\label{alg:uncert}
+\begin{algorithmic}[2]
+\Procedure{TargetFieldPathPlan}{$Z$}
+    \BState \emph{Generate Kriging Prediction}:
+    \State $C, \hat{Z} = \textit{KrigingPredictField}(N,Z)$
+    \State \textit{Display} $\hat{Z}$\\
+    \BState \emph{Tessellate Field}:
+    \State $\Upsilon = \textit{Voronoi}(Z, N)$\\
+    \BState \emph{Calculate Neighborhood Confidences}:
+    \State $\forall \upsilon_i \in \Upsilon$:
+    \State \ \ \ \ $\forall \vec{p}_j \in \upsilon_i$:
+    \State \ \ \ \ \ \ \ \ $\vec{d}_{\vec{p}_j} = \begin{bmatrix} C_{1,\vec{p}_j} \dots C_{n,\vec{p}_j} \end{bmatrix}^T$
+    \State \ \ \ \ $\nu_i = \operatornamewithlimits{argmin}_{\| \vec{d}_{min} \|_2 \in \upsilon_i} \frac{1}{|\upsilon_i|} \large\sum_{i = 1}^{|\upsilon_i|} \frac{\| \vec{d}_{\vec{p}_i} \|_{2}^{-1}} {\| \vec{d}_{min} \|_2^{-1}}$\\
+    \BState \emph{Construct Graph Adjacency Matrix, $W$}:
+    \State $\forall \upsilon_i \in \Upsilon:$
+    \State \ \ \ \ $\forall \upsilon_j \in \Upsilon$:
+    \State \ \ \ \ \ \ \ \ \textbf{If} {$\upsilon_j \edge \upsilon{i}$}
+    \State \ \ \ \ \ \ \ \ \ \ \ \  $w_{i,j} = w_{j,i} = \nu_{\upsilon_i} + \nu_{\upsilon_j}$
+    \State \ \ \ \ \ \ \ \ \textbf{Else}
+    \State \ \ \ \ \ \ \ \ \ \ \ \  $w_{i,j} = 0$\\
+    \BState \emph{Construct Field Graph}:
+    \State $\Gamma = \textit{Graph}(W)$\\
+    \BState \emph{Run Path Finding Algorithm on $\Gamma$ To Get a Path $P$}:
+    \State $P = \textit{Graph}(W)$\\
+    \BState \emph{Explore Field With The Found Path}:
+    \State $\forall p_i \in P$:
+    \State \ \ \ \ \textit{NavigateTo}($p_i$)\\
+    \BState \emph{Calculate Overall Uncertainty}:
+    \State $\delta = \frac{1}{|Z|} \sum_{i = 1}^{|\Upsilon|} |\upsilon_i| \nu_i$\\
+    \BState{Check Overall Confidence}:
+    \State \textbf{If} $\delta < \delta_{max}$:
+    \State \ \ \ \ \textbf{goto:} \textit{Generate Kriging Prediction}
+    \State \textbf{Else}:
+    \State \ \ \ \ \textbf{return}
+\EndProcedure
+\end{algorithmic}
+\end{algorithm}
