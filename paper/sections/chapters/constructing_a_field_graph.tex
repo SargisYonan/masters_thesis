@@ -1,8 +1,13 @@
-\chapter{Constructing A Field Graph}
-A graph representing the average confidence of prediction for each neighborhood can be generated. The confidence of a neighborhood, inversely proportional to its uncertainty, will be calculated from a set of proximity vectors from the neighborhood using Equation \ref{equ:neigh_conf}. Neighbors adjacent in the tessellated field are placed in the graph representation as adjacent vertices. For two given vertices in the graph, $\upsilon_i$ and $\upsilon_j$, the corresponding edge weight is the sum of the confidences of the two associated neighborhoods:
+\chapter{Constructing A Field Graph} \label{ch:graph_construction}
+From the fit Variogram generated as a byproduct of the Kriging method, a metric for the confidence of a prediction can be extrapolated. This metric across the entirety of the target field will be the variable that will be minimized in the objective function of the path planning algorithm introduced.
+
+\section{Field Tessellation}
+A Voronoi diagram will be generated from a set of selected points on a target field to generate boundaries for natural neighbors. The Dirichlet cells, or Voronoi polygons, generated will be referred to as neighbors, where the $i^{th}$ neighbor in the diagram is referred to as $\upsilon_i \in \Upsilon$. The method and implementation in which these cells are generated will not be discussed in this work, but can be referred to in The Handbook of Discrete and Computational Geometry \cite{goodman:voronoi}. The points used to generate the neighborhood will be a handful of the coordinates associated with the highest variances of prediction on the target field. The objective of the path planning algorithm introduced will be to minimize the total uncertainty of the predictions on the entirety of a target field. If a variance drop occurs in a neighborhood when the cell is visited and observed, the variance associated with a field as a whole will be minimized.
+
+A graph representing the confidence of prediction for each neighborhood can be generated. The confidence of a neighborhood, inversely proportional to its uncertainty. Neighbors adjacent in the tessellated field are placed in the graph representation as adjacent vertices. For two given vertices in the graph, $\upsilon_i$ and $\upsilon_j$, the corresponding edge weight, $w_{ij}=2_{ji}$ is the sum of the proportional confidences of the two associated neighborhoods, where the uncertainty of neighborhood will be the maximum variance in the area.
 
 \begin{equation}
-    w_{ij} = w_{ji} = \nu_i + \nu_j
+    w_{ij} = w_{ji} = \frac{1}{var\{\upsilon_i\}} + \frac{1}{var\{\upsilon_j\}}
 \end{equation}
 
 \begin{figure}[thpb]
@@ -11,7 +16,7 @@ A graph representing the average confidence of prediction for each neighborhood 
         \centering
         \includegraphics[width=0.8\textwidth]{./figures/natural_neighborhood_selection.png}
         \captionsetup{skip=0.0\baselineskip,size=footnotesize}
-        \caption{Voronoi tessellations of the predicted field in Figure \ref{fig:krig_field}.}
+        \caption{Voronoi tessellations of the predicted field in Figure \ref{fig:krig_field}. In this figure, a cell is associated with each observation location.}
         \label{fig:nat_neigh}
     \end{subfigure}
     \\
@@ -65,3 +70,5 @@ A graph representing the average confidence of prediction for each neighborhood 
   \captionsetup{skip=0.5\baselineskip,size=small}
   \caption{The predicted field is tessellated based on the measured point locations in \ref{fig:nat_neigh}. An undirected graph is constructed from the tessellations in \ref{fig:neigh_graph}. The label in each neighborhood identifies the neighborhood name, $\upsilon_i$, and the associated confidence of prediction, $\nu_i$, for that neighborhood.}
 \end{figure}
+
+Typically, only $k$ neighbors will be generated from a set of the $k$ highest variances in the variance of the target field prediction. This is done in an effort to reduce the computational intensity of tessellating a field and constructing/traversing a graph as the number of total observations increases.

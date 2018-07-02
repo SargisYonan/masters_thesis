@@ -1,5 +1,30 @@
 \chapter{Simulation Framework}
+A simulation of the path planning algorithm was created to demonstrate the ability of the described method. The simulation includes a software in the loop vehicle with variable dynamics, a randomly generated variable autocorrelated field of variable size, and a path planning algorithm introduced in Algorithm \ref{alg:uncert}. The simulation also incorporates the ability to follow a preplanned route. The simulation will be used to demonstrate the abilities of the algorithm described, and comparisons to an algorithm with a preplanned trajectory. 
+
 \section{UAV Model Dynamics}
-dubins vehicle stuff
-\section{Simulating a Field and UAV Flying}
-\section{Simulating The Algorithm For Uncertainty Suppressing Field Exploration}
+The system dynamics of the UAV in the software in the loop simulation will be modeled after a Dubin's vehicle. This is done to demonstrate the versatility of the algorithm by using it on various vehicle types. The vehicle's system states will simply be the Cartesian coordinates, $[x_1\ x_2]$, of its position above the target field described in Section \ref{sec:sensor_measurements}. The third dimension of altitude above the field does not concern the path planning algorithm and will be omitted from the state vector. The heading angle, with respect to the positive $x_1$ axis, will be referred to as, $\theta$.
+
+\begin{equation}
+\label{equ:state_vector}
+\vect{X} = \begin{bmatrix} 
+			x_1 \\
+			x_2 \\
+			\theta
+			\end{bmatrix}
+\end{equation}
+
+For a constant velocity of $v$, from Dubin's vehicle, the state configuration transition equation is given by Equation \ref{equ:state_prop}.
+
+\begin{equation}
+\label{equ:state_prop}
+\dot{\vect{X}} = \begin{bmatrix} 
+			v \cos\theta \\
+			v \sin\theta \\
+			\dot{\theta}
+			\end{bmatrix}
+\end{equation}
+
+The system is ideally fully observable. The velocity, $v$, can be set at will in the software in the loop implementation. A real world implementation of the algorithm would cap $v$ to the maximum possible velocity the vehicle can travel at, or the maximum speed the vehicle can sample a vesicle on the target field at.
+
+\section{Simulating a Geospatially Autocorrelated Field}
+The target field in the simulation is generated from a normal distribution of a predefined expected value and variance. A Gaussian low-pass filter, with a preset value for its standard deviation, is then convolved with the normal randomly generated field to remove any \textit{high frequency} trends in the data. The result is a geospatially autocorrelated field, where similar features near each other blend together.

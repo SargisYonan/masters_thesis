@@ -49,7 +49,7 @@ ylabel('x_2');
 zlabel('u');
 
 if plot_sample_points
-   export_img_latex(gcf, 'sampled_generated_field')
+   export_img_latex(gcf, '../figures/sampled_generated_field')
 end
 
 save('sampled_points.mat', 'samples');

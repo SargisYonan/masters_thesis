@@ -1,12 +1,12 @@
 \chapter{Geostatistical Interpolation Techniques}
-Many of the methods introduced will rely on works developed in the fields of Geostatistics and Geography. Geo-statisticians have developed much of the work surrounding field predictions in the geospatial domain. In an effort to make the methods introduced be as presentable and contained as possible, a background on the required tools from the study geostatistics will be reviewed. The Kriging Method, a best linear unbiased predictor, and the heart of the method introduced, produces a prediction based on statistical data gathered from aerial observations, and performs a weighted least-squares using a covariance matrix created from the gathered field data.
+Many of the methods introduced will rely on works developed in the fields of Geostatistics and Geography. Geo-statisticians have developed much of the work surrounding field predictions in the geospatial domain. In an effort to make the methods introduced be as presentable and contained as possible, a background on the required tools from the field of geostatistics will be reviewed. The Kriging Method, a best linear unbiased predictor, and the heart of the method introduced, produces a prediction based on statistical data gathered from aerial observations, and performs a weighted linear combination of weights from a covariance matrix, and sampeld points to created a prediction of a point on a field. A variance of the prediction is also generated as a byproduct of the prediction, assuming the expected value of the point is from a normal distribution, which will be assumed. 
 
 Tobler's First Law of Geography \cite{tobler:first_law} states, "Everything is related to everything else, but near things are more related than distant things." Regarding geospatial data, we can say at the very least, there is a positive correlation between observations with a small difference in distance \cite{miller:on_toblers_first_law}. This implies the existence of geospatial autocorrelation in many target fields of interest. This implies a positive correlation between elements in the spatial series that are of interest to the introduced technique. Geospatial autocorrelation is the hypothesis that allows naive prediction techniques, like Inverse Distance Weighting (Section \ref{sec:idw_intro}), to work. 
 
-Furthermore, if the target fields are viewed as an unknown stochastic process, with a generally known underlying Gaussian statistical model, more weight in the Inverse Distance Weighting can be placed on the geospatial elements more related to the point to one desires to predict. A Best Linear Unbiased Predictor (BLUP), like The Kriging Method, does just that. The methods introduced in this chapter are intended to serve as an introduction to the Kriging Method, and aerial geospatial field interpolation in general.
+Furthermore, if the target fields are viewed as an unknown stochastic process, with a generally known underlying Gaussian statistical model, more weight in the Inverse Distance Weighting can be placed on the geospatial elements more related to the point that one desires to predict. A Best Linear Unbiased Predictor (BLUP), like The Kriging Method, does just that. The methods introduced in this chapter are intended to serve as an introduction to the Kriging Method, and aerial geospatial field interpolation in general.
 
 \subsection{Autocorrelation in a Field}
-Positively correlated geospatial autocorrelation in a field implies the existence of a cluster of similar observed values near one another. The opposite is true when the overall geospatial autocorrelation of a field is negative. We can assume, from Tobler's First Law of Geography, that the fields we will measure will contain positive autocorrelation. This degree of geospatial autocorrelation can be measured, and will be discussed in Section \ref{sec:vario} on Variography.
+Positively correlated geospatial autocorrelation in a field implies the existence of a cluster of similar observed values near one another. The opposite is true when the overall geospatial autocorrelation of a field is negative. We can assume, from Tobler's First Law of Geography, that the fields measured will contain positive autocorrelation. This degree of geospatial autocorrelation can be measured, and will be discussed in Section \ref{sec:vario} on Variography.
 
 \begin{figure}[ht!]
     \centering
@@ -51,7 +51,7 @@ where $p \in \mathbb{R}^{+}$ is the IDW "power parameter". The power parameter, 
     \label{fig:idw_field}
 \end{figure}
 
-This method can give us a prediction for all possible $\vect{s}_j$ points in a field where a set of observations at known locations were made, as done in Figure \ref{fig:idw_field}. Unfortunately, the method is limited in that it does not take advantage of the underlying stochastic model of the field, $Z$, being observed to make a more methodical weighted sum prediction.
+This method can yield a prediction for all possible $\vect{s}_j$ points in a field where a set of observations at known locations were made, as done in Figure \ref{fig:idw_field}. Unfortunately, the method is limited in that it does not take advantage of the underlying stochastic model of the field, $Z$, being observed to make a more methodical weighted sum prediction.
 
 \section{Variography} \label{sec:vario}
 Variography is a set of procedures for examining and interpreting spatial dependence and geospatial autocorrelation in observed data. In order to make a more intelligent weighted sum for a prediction, extracting the underlying geospatial autocorrelation function, the \textit{variogram}, of a field will be required. The variogram function will be factored into a classical Inverse Distance Weighting, yielding a Kriging Weighting.
@@ -248,10 +248,4 @@ In order to predict the entirety of a target field from a finite set of $N$ obse
 \end{algorithmic}
 \end{algorithm}
 
-When Algorithm \ref{alg:krig} is run on the target field from Figure \ref{fig:generated_field}, for the samples taken in Figure \ref{fig:sampled_field}, a prediction of the entire field can be generated, as seen in Figure \ref{fig:krig_field}.
-
-
-\section{Limitations of the Kriging Method}
-no trends in data\\
-its gotta have no obvious clustering \\
-assumption of semi/ergodic fields must be used
+When Algorithm \ref{alg:krig} is run on the target field from Figure \ref{fig:gen_field}, for the samples taken in Figure \ref{fig:sampled_field}, a prediction of the entire field can be generated, as seen in Figure \ref{fig:krig_field}.
