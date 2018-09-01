@@ -5,6 +5,72 @@
 % compared against the zig zag
 
 \subsection{Varying Target Field Sizes}
+The effectiveness of the method introduced varies based on the area of the target field being explored. For small fields, a naive zig-zag exploration may be more efficient and less computationally expensive. By modulating the dimensions of the target field, a comparison can be drawn demonstrating the effectiveness of the method versus a naive zig-zag approach.
+
+\begin{table}
+\centering
+	\begin{tabular}{ |p{3cm}||p{1.5cm}|p{1.5cm}|p{1.5cm}|p{1.5cm}|p{2cm}|  }
+		\hline
+		\multicolumn{6}{|c|}{Average Number of Waypoints Selected ($n=20$)} \\
+		\hline
+		Method & $50 \times 50$ & $100 \times 100$ & $250 \times 250$ & $500 \times 500$ & $1000 \times 1000$ \\
+		\hline
+		Kriging Explorer   	& 10 & 100 & 200 & 400 & 100 \\
+		Zig-Zag Explorer	& AX & ALA & 248 & 300 & 100 \\
+		\hline
+	\end{tabular}
+	\caption{Comparing the average number of waypoints selected between the two methods for varying field sizes.}
+    \label{tab:path_wps}
+\end{table}
+
+\begin{table}
+\centering
+	\begin{tabular}{ |p{3cm}||p{1.5cm}|p{1.5cm}|p{1.5cm}|p{1.5cm}|p{2cm}|  }
+		\hline
+		\multicolumn{6}{|c|}{Average Path Length ($n=20$)} \\
+		\hline
+		Method & $50 \times 50$ & $100 \times 100$ & $250 \times 250$ & $500 \times 500$ & $1000 \times 1000$ \\
+		\hline
+		Kriging Explorer   	& 10 & 100 & 200 & 400 & 100 \\
+		Zig-Zag Explorer	& AX & ALA & 248 & 300 & 100 \\
+		\hline
+	\end{tabular}
+	\caption{Comparing the average path lengths between the two methods for varying field sizes.}
+    \label{tab:path_lengths}
+\end{table}
+
+\begin{table}
+\centering
+	\begin{tabular}{ |p{3cm}||p{1.5cm}|p{1.5cm}|p{1.5cm}|p{1.5cm}|p{2cm}|  }
+		\hline
+		\multicolumn{6}{|c|}{Average Path Length ($n=20$)} \\
+		\hline
+		Method & $50 \times 50$ & $100 \times 100$ & $250 \times 250$ & $500 \times 500$ & $1000 \times 1000$ \\
+		\hline
+		Kriging Explorer   	& 10 & 100 & 200 & 400 & 100 \\
+		Zig-Zag Explorer	& AX & ALA & 248 & 300 & 100 \\
+		\hline
+	\end{tabular}
+	\caption{Comparing the average path lengths between the two methods for varying field sizes.}
+    \label{tab:path_lengths}
+\end{table}
+
+\begin{table}
+\centering
+	\begin{tabular}{ |p{3cm}||p{1.5cm}|p{1.5cm}|p{1.5cm}|p{1.5cm}|p{2cm}|  }
+		\hline
+		\multicolumn{6}{|c|}{Average Loss of Prediction Variance ($n=20$)} \\
+		\hline
+		Method & $50 \times 50$ & $100 \times 100$ & $250 \times 250$ & $500 \times 500$ & $1000 \times 1000$ \\
+		\hline
+		Kriging Explorer   	& 10 & 100 & 200 & 400 & 100 \\
+		Zig-Zag Explorer	& AX & ALA & 248 & 300 & 100 \\
+		\hline
+	\end{tabular}
+	\caption{Comparing the average loss of prediction variance between the two methods for varying field sizes.}
+    \label{tab:path_lengths}
+\end{table}
+
 
 % table :
 % zig zag w/o krig predictions - zig zag w/ krig predictions - chasing the dragon (going to the max variance) - my method
