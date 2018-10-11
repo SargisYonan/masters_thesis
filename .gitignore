@@ -1,3 +1,7 @@
+# Figures
+*.png
+*.eps
+
 # LaTeX
 *.aux
 *.spl

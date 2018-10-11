@@ -5,13 +5,13 @@ A path-planning technique based on a shortest-path algorithm is run on the graph
 An edge weight on the graph represents the relative uncertainty of the adjacent vertices. A path finding algorithm which minimizes the edge weights of traversal will be used in an attempt to maximize traversal over uncertain regions. An algorithm based on Dijkstra's Algorithm is currently used to find the shortest path from the current position of the UAV to the next most uncertain region in the field. 
 
 \subsection{Disadvantages of Current Path Finding Method}
-The path finding algorithm does not currently take into account the realizability of the trajectory given, as some manuevers are not possible because of the aerial vehicle's model dynamics (specifically the turning radius). An assumption of a small turning radius will be made
+The path finding algorithm does not currently take into account the realizability of the trajectory given, as some maneuvers are not possible because of the aerial vehicle's model dynamics (specifically the turning radius). An assumption of a small turning radius will be made
 
 \section{Algorithm For Path Planning Using The Kriging Method}
 The path-planning maneuver theoretically reduces the uncertainty of prediction of the target field as a whole as more observations are made. After completing a path yielded from the path finding algorithm, the field is re-predicted, re-tessellated, and a new graph is created and re-traversed in an attempt to reduce overall uncertainty. An algorithm which describes the process in which data is collected, predictions are made, and paths are planned is presented in Algorithm \ref{alg:uncert}.
 
 \subsection{Terminating The Path Planner}
-The exploration method completes its mission when no new knowledge of a field is gained in an iteration of exploring. A discrete derivative of the maximum variance with respect to two iterations is used as a metric of how much uncertainty (maximum variance of the target field) was suppressed in a path. Once the rate of change in maximum uncertainty, $\delta_{var}$ is below a preprogrammed threshold, $\Delta_{var}$, the field exploration mission terminates.
+The exploration method completes its mission when no new knowledge of a field is gained in an iteration of exploring. A difference in the maximum variances of the last two iterations, $\delta_{var}$, can be used as a metric of how much uncertainty (maximum variance of the target field) was suppressed in an exploration iteration. Once the rate of change in maximum uncertainty is below a preprogrammed threshold, ($\delta_{var} < \Delta_{var}$), the field exploration mission terminates. Another option of algorithm termination is to limit the numebr of exploration iterations executed in a single exploration.
 
 \begin{algorithm}[thpb!]
 \caption{Uncertainty Suppressing Field Exploration}\label{alg:uncert}

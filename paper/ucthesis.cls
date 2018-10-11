@@ -359,8 +359,7 @@
     \bigskip
     {\expandafter\uppercase\expandafter{\@field}} \par
     \bigskip
-    with an emphasis in \par
-    \bigskip
+    with an emphasis in
     {\expandafter\uppercase\expandafter{\@emphasis}} \par
     \bigskip
     by \par
