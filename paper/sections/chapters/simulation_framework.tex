@@ -1,30 +1,30 @@
 \chapter{Simulation Framework}
-Using \textit{MATLAB}, the method described in Algorithm \ref{alg:uncert} was implemented to provide a simulation environment to show the effectiveness of such a method. The target field in the simulation is a variable sized field with a single state of interest. The autocorrelation factor of the field in the simulation is an adjustable variable that determines the likeliness of each pair of neighboring points as a function of distance. 
+% Using \textit{MATLAB}, the method described in Algorithm \ref{alg:uncert} was implemented to provide a simulation environment to show the effectiveness of such a method. The target field in the simulation is a variable sized field with a single state of interest. The autocorrelation factor of the field in the simulation is an adjustable variable that determines the likeliness of each pair of neighboring points as a function of distance. 
 
-The simulation includes a software in the loop vehicle with variable dynamics and incorporates the ability to follow a preplanned route. The simulation will be used to demonstrate the abilities of the algorithm described, and comparisons to an algorithm with a preplanned trajectory. 
+% The simulation includes a software in the loop vehicle with variable dynamics and incorporates the ability to follow a preplanned route. The simulation will be used to demonstrate the abilities of the algorithm described, and comparisons to an algorithm with a preplanned trajectory. 
 
 \section{Simulated UAV Model Dynamics}
-The vehicle dynamics of the UAV in the simulation are modeled off of a Dubins' Vehicle. Assume a two dimensional field where the axes are labeled $x_1$ and $x_2$ respectively. The simulated UAV has constant vehicle velocity of $v$, and a heading angle, $\theta$ with a turning rate of $u$, where the turning radius is fixed. The kinematics of such a system is defined to be:
+% The vehicle dynamics of the UAV in the simulation are modeled off of a Dubins' Vehicle. Assume a two dimensional field where the axes are labeled $x_1$ and $x_2$ respectively. The simulated UAV has constant vehicle velocity of $v$, and a heading angle, $\theta$ with a turning rate of $u$, where the turning radius is fixed. The kinematics of such a system is defined to be:
 
-\begin{equation}
-	\begin{bmatrix}
-		\dot{x_1} \\
-		\dot{x_2} \\
-		\dot{\theta} \\
-	\end{bmatrix} = 
-	\begin{bmatrix}
-		v \cos \theta \\
-		v \sin \theta \\
-		u
-	\end{bmatrix}
-\end{equation}
+% \begin{equation}
+% 	\begin{bmatrix}
+% 		\dot{x_1} \\
+% 		\dot{x_2} \\
+% 		\dot{\theta} \\
+% 	\end{bmatrix} = 
+% 	\begin{bmatrix}
+% 		v \cos \theta \\
+% 		v \sin \theta \\
+% 		u
+% 	\end{bmatrix}
+% \end{equation}
 
 \section{Generating a Target Field}
-The simulation yields a target field that is of variable size. Each vesicle in the field is exactly the area of the sensor footprint of the simulated UAV. This is to make the sensor measurements as ideal as possible, so no samples are missed when a vesicle is flown over.
+% The simulation yields a target field that is of variable size. Each vesicle in the field is exactly the area of the sensor footprint of the simulated UAV. This is to make the sensor measurements as ideal as possible, so no samples are missed when a vesicle is flown over.
 
-The field is composed of a single feature which is geospatially autocorrelated. Initially, the points on the field are generated from a normal distribution with a standard deviation of $1$, and expected value of $0$. The field is then convolved with a two dimensional Gaussian filter with a variable standard deviation, $\sigma_{\text{field}}$. The final filter ``smooths" the field in order to simulate autocorrelation. The result is a randomly-generated, variably-sized, and autocorrelated field with a unit-less feature of interest.
+% The field is composed of a single feature which is geospatially autocorrelated. Initially, the points on the field are generated from a normal distribution with a standard deviation of $1$, and expected value of $0$. The field is then convolved with a two dimensional Gaussian filter with a variable standard deviation, $\sigma_{\text{field}}$. The final filter ``smooths" the field in order to simulate autocorrelation. The result is a randomly-generated, variably-sized, and autocorrelated field with a unit-less feature of interest.
 
 \section{Caveats of Simulation}
-Though the addition of these kinematics make the simulation more representative of real life aircraft dynamics, the UAV simulated will be mimicking the dynamics of a multi-rotor with a very small radius of turn (ROT) ($r < 0.1 [\text{m}]$). The simulation with this aircraft is not concerned with velocity because a sample is taken at every possible position the aircraft hovers above. Furthermore, the target field in the simulation is fully-ergodic, and the speed of flight does not change the quality of prediction.
+% Though the addition of these kinematics make the simulation more representative of real life aircraft dynamics, the UAV simulated will be mimicking the dynamics of a multi-rotor with a very small radius of turn (ROT) ($r < 0.1 [\text{m}]$). The simulation with this aircraft is not concerned with velocity because a sample is taken at every possible position the aircraft hovers above. Furthermore, the target field in the simulation is fully-ergodic, and the speed of flight does not change the quality of prediction.
 
 \section{Examples of Use}

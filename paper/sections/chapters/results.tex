@@ -1,101 +1,101 @@
 \chapter{Results}
 
 \section{Exploration Simulation}
-Though the simulation has the ability to terminate itself when a minimum derivative of confidence is achieved, the number of exploration iterations will be limited to $10$ to better demonstrate and compare the characteristics of the algorithm for varying field sizes.
+% Though the simulation has the ability to terminate itself when a minimum derivative of confidence is achieved, the number of exploration iterations will be limited to $10$ to better demonstrate and compare the characteristics of the algorithm for varying field sizes.
 
-\begin{table}
-\centering
-	\begin{tabular}{ |p{3cm}||p{2cm}|p{3cm}|p{3.5cm}|}
-		\hline
-		\multicolumn{4}{|c|}{}\\
-		\hline
-		Field Size          & Arc Length [m] & Final Error \\
-		\hline
-		$50 \times 50$      & 218.89      & 37.72 \\\hline
-		$100 \times 100$    & 395.24      & 31.68 \\\hline
-		$150 \times 150$    & 475.69      & 33.61 \\\hline
-		$200 \times 200$    & 705.91      & 33.97 \\\hline
-		$250 \times 250$    & 922.63      & 59.36 \\\hline
-		$500 \times 500$    & 1121.68     & 198.15 \\\hline
-		$1000 \times 1000$  & 1231.02     & 354.89 \\\hline
-		\hline
-	\end{tabular}
-	\caption{Comparing the Algorithm \ref{alg:uncert} with varying field sizes. The autocorrelation of the field is $\sigma_{\text{field}} = 48$. The values are generated from an average of $14$ runs of each size.}
-    \label{tab:krg_vs_krg}
-\end{table}
+% \begin{table}
+% \centering
+% 	\begin{tabular}{ |p{3cm}||p{2cm}|p{3cm}|p{3.5cm}|}
+% 		\hline
+% 		\multicolumn{4}{|c|}{}\\
+% 		\hline
+% 		Field Size          & Arc Length [m] & Final Error \\
+% 		\hline
+% 		$50 \times 50$      & 218.89      & 37.72 \\\hline
+% 		$100 \times 100$    & 395.24      & 31.68 \\\hline
+% 		$150 \times 150$    & 475.69      & 33.61 \\\hline
+% 		$200 \times 200$    & 705.91      & 33.97 \\\hline
+% 		$250 \times 250$    & 922.63      & 59.36 \\\hline
+% 		$500 \times 500$    & 1121.68     & 198.15 \\\hline
+% 		$1000 \times 1000$  & 1231.02     & 354.89 \\\hline
+% 		\hline
+% 	\end{tabular}
+% 	\caption{Comparing the Algorithm \ref{alg:uncert} with varying field sizes. The autocorrelation of the field is $\sigma_{\text{field}} = 48$. The values are generated from an average of $14$ runs of each size.}
+%     \label{tab:krg_vs_krg}
+% \end{table}
 
-The results in Table \ref{tab:krg_vs_krg} convey trends in the algorithm. For a fixed number of exploration iterations, the arc length (the total distance traveled) increases as the square size of the field increases. This result is expected, as more area must be covered to reduce the overall uncertainty of the area's prediction. The final error is calculated by taking the frobenius norm of matrix difference of the final predicted field and the generated target field for that exploration. The final error increases as the field size increases. The increase in error arises from limiting the exploration iterations. This result is shown in order to convey the need for the algorithm to run more iterations for larger field sizes.
+% The results in Table \ref{tab:krg_vs_krg} convey trends in the algorithm. For a fixed number of exploration iterations, the arc length (the total distance traveled) increases as the square size of the field increases. This result is expected, as more area must be covered to reduce the overall uncertainty of the area's prediction. The final error is calculated by taking the frobenius norm of matrix difference of the final predicted field and the generated target field for that exploration. The final error increases as the field size increases. The increase in error arises from limiting the exploration iterations. This result is shown in order to convey the need for the algorithm to run more iterations for larger field sizes.
 
 \section{Comparing The Method}
 % talk about the zig zag (w/ & wo/ kriging predictions)
 % compared against the zig zag
 
 \subsection{Varying Target Field Sizes}
-The effectiveness of the method introduced varies based on the area of the target field being explored. For small fields, a naive zig-zag exploration may be more efficient and less computationally expensive. By modulating the dimensions of the target field, a comparison can be drawn demonstrating the effectiveness of the method versus a naive zig-zag approach.
+% The effectiveness of the method introduced varies based on the area of the target field being explored. For small fields, a naive zig-zag exploration may be more efficient and less computationally expensive. By modulating the dimensions of the target field, a comparison can be drawn demonstrating the effectiveness of the method versus a naive zig-zag approach.
 
-\begin{table}
-\centering
-	\begin{tabular}{ |p{3cm}||p{1.5cm}|p{1.5cm}|p{1.5cm}|p{1.5cm}|p{2cm}|  }
-		\hline
-		\multicolumn{6}{|c|}{Average Number of Waypoints Selected ($n=20$)} \\
-		\hline
-		Method & $50 \times 50$ & $100 \times 100$ & $250 \times 250$ & $500 \times 500$ & $1000 \times 1000$ \\
-		\hline
-		Kriging Explorer   	& 10 & 100 & 200 & 400 & 100 \\
-		Zig-Zag Explorer	& AX & ALA & 248 & 300 & 100 \\
-		\hline
-	\end{tabular}
-	\caption{Comparing the average number of waypoints selected between the two methods for varying field sizes.}
-    \label{tab:path_wps}
-\end{table}
+% \begin{table}
+% \centering
+% 	\begin{tabular}{ |p{3cm}||p{1.5cm}|p{1.5cm}|p{1.5cm}|p{1.5cm}|p{2cm}|  }
+% 		\hline
+% 		\multicolumn{6}{|c|}{Average Number of Waypoints Selected ($n=20$)} \\
+% 		\hline
+% 		Method & $50 \times 50$ & $100 \times 100$ & $250 \times 250$ & $500 \times 500$ & $1000 \times 1000$ \\
+% 		\hline
+% 		Kriging Explorer   	& 10 & 100 & 200 & 400 & 100 \\
+% 		Zig-Zag Explorer	& AX & ALA & 248 & 300 & 100 \\
+% 		\hline
+% 	\end{tabular}
+% 	\caption{Comparing the average number of waypoints selected between the two methods for varying field sizes.}
+%     \label{tab:path_wps}
+% \end{table}
 
-\begin{table}
-\centering
-	\begin{tabular}{ |p{3cm}||p{1.5cm}|p{1.5cm}|p{1.5cm}|p{1.5cm}|p{2cm}|  }
-		\hline
-		\multicolumn{6}{|c|}{Average Path Length ($n=20$)} \\
-		\hline
-		Method & $50 \times 50$ & $100 \times 100$ & $250 \times 250$ & $500 \times 500$ & $1000 \times 1000$ \\
-		\hline
-		Kriging Explorer   	& 10 & 100 & 200 & 400 & 100 \\
-		Zig-Zag Explorer	& AX & ALA & 248 & 300 & 100 \\
-		\hline
-	\end{tabular}
-	\caption{Comparing the average path lengths between the two methods for varying field sizes.}
-    \label{tab:path_lengths}
-\end{table}
+% \begin{table}
+% \centering
+% 	\begin{tabular}{ |p{3cm}||p{1.5cm}|p{1.5cm}|p{1.5cm}|p{1.5cm}|p{2cm}|  }
+% 		\hline
+% 		\multicolumn{6}{|c|}{Average Path Length ($n=20$)} \\
+% 		\hline
+% 		Method & $50 \times 50$ & $100 \times 100$ & $250 \times 250$ & $500 \times 500$ & $1000 \times 1000$ \\
+% 		\hline
+% 		Kriging Explorer   	& 10 & 100 & 200 & 400 & 100 \\
+% 		Zig-Zag Explorer	& AX & ALA & 248 & 300 & 100 \\
+% 		\hline
+% 	\end{tabular}
+% 	\caption{Comparing the average path lengths between the two methods for varying field sizes.}
+%     \label{tab:path_lengths}
+% \end{table}
 
-\begin{table}
-\centering
-	\begin{tabular}{ |p{3cm}||p{1.5cm}|p{1.5cm}|p{1.5cm}|p{1.5cm}|p{2cm}|  }
-		\hline
-		\multicolumn{6}{|c|}{Average Path Length ($n=20$)} \\
-		\hline
-		Method & $50 \times 50$ & $100 \times 100$ & $250 \times 250$ & $500 \times 500$ & $1000 \times 1000$ \\
-		\hline
-		Kriging Explorer   	& 10 & 100 & 200 & 400 & 100 \\
-		Zig-Zag Explorer	& AX & ALA & 248 & 300 & 100 \\
-		\hline
-	\end{tabular}
-	\caption{Comparing the average path lengths between the two methods for varying field sizes.}
-    \label{tab:path_lengths}
-\end{table}
+% \begin{table}
+% \centering
+% 	\begin{tabular}{ |p{3cm}||p{1.5cm}|p{1.5cm}|p{1.5cm}|p{1.5cm}|p{2cm}|  }
+% 		\hline
+% 		\multicolumn{6}{|c|}{Average Path Length ($n=20$)} \\
+% 		\hline
+% 		Method & $50 \times 50$ & $100 \times 100$ & $250 \times 250$ & $500 \times 500$ & $1000 \times 1000$ \\
+% 		\hline
+% 		Kriging Explorer   	& 10 & 100 & 200 & 400 & 100 \\
+% 		Zig-Zag Explorer	& AX & ALA & 248 & 300 & 100 \\
+% 		\hline
+% 	\end{tabular}
+% 	\caption{Comparing the average path lengths between the two methods for varying field sizes.}
+%     \label{tab:path_lengths}
+% \end{table}
 
-\begin{table}
-\centering
-	\begin{tabular}{ |p{3cm}||p{1.5cm}|p{1.5cm}|p{1.5cm}|p{1.5cm}|p{2cm}|  }
-		\hline
-		\multicolumn{6}{|c|}{Average Loss of Prediction Variance ($n=20$)} \\
-		\hline
-		Method & $50 \times 50$ & $100 \times 100$ & $250 \times 250$ & $500 \times 500$ & $1000 \times 1000$ \\
-		\hline
-		Kriging Explorer   	& 10 & 100 & 200 & 400 & 100 \\
-		Zig-Zag Explorer	& AX & ALA & 248 & 300 & 100 \\
-		\hline
-	\end{tabular}
-	\caption{Comparing the average loss of prediction variance between the two methods for varying field sizes.}
-    \label{tab:path_lengths}
-\end{table}
+% \begin{table}
+% \centering
+% 	\begin{tabular}{ |p{3cm}||p{1.5cm}|p{1.5cm}|p{1.5cm}|p{1.5cm}|p{2cm}|  }
+% 		\hline
+% 		\multicolumn{6}{|c|}{Average Loss of Prediction Variance ($n=20$)} \\
+% 		\hline
+% 		Method & $50 \times 50$ & $100 \times 100$ & $250 \times 250$ & $500 \times 500$ & $1000 \times 1000$ \\
+% 		\hline
+% 		Kriging Explorer   	& 10 & 100 & 200 & 400 & 100 \\
+% 		Zig-Zag Explorer	& AX & ALA & 248 & 300 & 100 \\
+% 		\hline
+% 	\end{tabular}
+% 	\caption{Comparing the average loss of prediction variance between the two methods for varying field sizes.}
+%     \label{tab:path_lengths}
+% \end{table}
 
 
 % table :

@@ -1,50 +1,179 @@
 \chapter{Path Planning}
-A path-planning technique based on a shortest-path algorithm is run on the graph generated in Chapter \ref{ch:graph_construction}. The result of the graph path finding algorithm will be a path containing a list of vertices to visit that will guide a UAV into the direction of least confidence while traversing through other uncertain areas. This is because the edge weights are inversely proportional to uncertainty, and maximized in the traversal. 
+The goal of the planner introduced is to assist in the discovery of a field's features with a tunable level of speed and confidence of prediction. The user of such a system could choose to scan more area if fuel is not of high concern. Likewise, if the field is very large, or several fields need to be scanned in a limited amount of time, a quicker scan with a lower degree of prediction certainty can be performed.
 
-\section{Graph Path Finding}
-An edge weight on the graph represents the relative uncertainty of the adjacent vertices. A path finding algorithm which minimizes the edge weights of traversal will be used in an attempt to maximize traversal over uncertain regions. An algorithm based on Dijkstra's Algorithm is currently used to find the shortest path from the current position of the UAV to the next most uncertain region in the field. 
+\section{Finding Points of Highest Uncertainty} \label{sec:highestvars}
+After sampling an initial set of points, and then running a Kriging prediction on all points on a target, the variance of prediction of all points can be calculated.
 
-\subsection{Disadvantages of Current Path Finding Method}
-The path finding algorithm does not currently take into account the realizability of the trajectory given, as some maneuvers are not possible because of the aerial vehicle's model dynamics (specifically the turning radius). An assumption of a small turning radius will be made
+\begin{figure}
+	\centering
+	\caption{[PLACE A FIGURE OF THE VARIANCE FIELD AFTER A SWIPE]}
+\end{figure}
 
-\section{Algorithm For Path Planning Using The Kriging Method}
-The path-planning maneuver theoretically reduces the uncertainty of prediction of the target field as a whole as more observations are made. After completing a path yielded from the path finding algorithm, the field is re-predicted, re-tessellated, and a new graph is created and re-traversed in an attempt to reduce overall uncertainty. An algorithm which describes the process in which data is collected, predictions are made, and paths are planned is presented in Algorithm \ref{alg:uncert}.
+The motivation of the path finders introduced are to minimize the average uncertainty of a target field, by to sampling the points representing the highest prediction variance. A set of points where the highest uncertainties lay are found on the field using a simple search.
 
-\subsection{Terminating The Path Planner}
-The exploration method completes its mission when no new knowledge of a field is gained in an iteration of exploring. A difference in the maximum variances of the last two iterations, $\delta_{var}$, can be used as a metric of how much uncertainty (maximum variance of the target field) was suppressed in an exploration iteration. Once the rate of change in maximum uncertainty is below a preprogrammed threshold, ($\delta_{var} < \Delta_{var}$), the field exploration mission terminates. Another option of algorithm termination is to limit the numebr of exploration iterations executed in a single exploration.
+Let $S_k$ be a singleton set containing the point of highest variance on the $k^{th}$ iteration of the target field prediction variances, represented as the set $\text{var}\{\hat{Z}_k\}$, where $\text{var}\{\hat{Z}\} : \mathbb{R}^2 \to \mathbb{R}^+$.
 
-\begin{algorithm}[thpb!]
-\caption{Uncertainty Suppressing Field Exploration}\label{alg:uncert}
-\begin{algorithmic}[2]
-\Procedure{TargetFieldPathPlan}{$Z$}
-    \BState \emph{Generate Kriging Prediction}:
-    \State $C, \hat{Z} = \textit{KrigingPredictField}(N,Z)$
-    \State \textit{Display} $\hat{Z}$\\
-    \BState \emph{Tessellate field from a set of the $k$ maximum variances of prediction}:
-    \State $H = \{max(var\{\hat{Z}\}, k)\}$
-    \State $\Upsilon = \textit{Voronoi}(Z, H)$\\
-    \BState \emph{Construct graph adjacency matrix, $W$}:
-    \State $\forall \upsilon_i \in \Upsilon:$
-    \State \ \ \ \ $\forall \upsilon_j \in \Upsilon$:
-    \State \ \ \ \ \ \ \ \ \textbf{If} {$\upsilon_j \edge \upsilon{i}$}
-    \State \ \ \ \ \ \ \ \ \ \ \ \  $w_{ij} = w_{ji} = \frac{1}{var\{\upsilon_i\}} + \frac{1}{var\{\upsilon_j\}}$
-    \State \ \ \ \ \ \ \ \ \textbf{Else}
-    \State \ \ \ \ \ \ \ \ \ \ \ \  $w_{i,j} = 0$\\
-    \BState \emph{Construct Field Graph}:
-    \State $\Gamma = \textit{Graph}(W)$\\
-    \BState \emph{Run path finding algorithm on $\Gamma$ to get a path $P$}:
-    \State $G = \textit{Graph}(W)$
-    \State $P = $ \textit{ShortestPath}($G$)\\
-    \BState \emph{Explore Field With The Found Path}:
-    \State $\forall p_i \in P$:
-    \State \ \ \ \ \textit{NavigateTo}($p_i$)\\
-    \BState \emph{Calculate Overall Uncertainty}:
-    \State $\delta = \frac{1}{|Z|} \sum_{i = 1}^{|\Upsilon|} |\upsilon_i| \nu_i$\\
-    \BState{Check Overall Confidence}:
-    \State \textbf{If} $\delta_{var} \geq \Delta_{var}$:
-    \State \ \ \ \ \textbf{goto:} \textit{Generate Kriging Prediction}
-    \State \textbf{Else}:
-    \State \ \ \ \ \textbf{return}
+\begin{equation}
+	S_{k} = \argmax_{\vect{s}} \ \text{var}\{\hat{Z}_{k}(\vect{s})\}
+	\label{eq:highestvar}
+\end{equation}
+
+The cardinality of the set $S_k$ can be greater than one if there exist multiple instances of the same value of variance in the target field prediction variances. For the sake of simplicity, only the singleton case will be considered.
+
+Let $\text{var}\{\hat{Z}_{k+1}\}$ be the set of points, not including the point of highest variance found in the $k^{th}$ iteration of the set configuration (Equation \ref{eq:highestvar}), on a target field prediction.
+
+\begin{equation}
+	\text{var}\{\hat{Z}_{k+1}(\vect{s})\} = \text{var}\{\hat{Z}_k(\vect{s})\} - S_k \\
+	\label{eq:nextmaxvarsset}
+\end{equation}
+
+Let $S_{v}$ be the set of the $N$ points of highest uncertainty on the target field prediction variances, $\text{var}\{\hat{Z}\}$.
+
+\begin{equation}
+	\label{eq:highestvarsunion}
+	S_{v} = \bigcup_{k = 1}^{N} S_k = \bigcup_{k = 1}^{N} \text{var}\{\hat{Z}_k(\vect{s})\} - \text{var}\{\hat{Z}_{k+1}(\vect{s})\}
+\end{equation}
+
+\section{Next Highest Variance (NHV) Trajectory Finding} \label{sec:nhvtrajfind}
+Sampling the location of the next highest variance (NHV) is the simplest and most naive approach to path planning using the Kriging method. By finding the highest variance in the field using Equation \ref{eq:highestvar}, and setting $N=1$ in \ref{eq:highestvarsunion}, the next endpoint is found. Setting the destination, $\vect{s}_d$, to the found waypoint in $S_{v}$, and knowing the current location, $\vect{s}_{c}$, a set of waypoints that establish the route between the start and finish points can be defined as $T = \Big\{[x_{1}\ y_{1}\ \theta_{1}]^T,\ [x_{2}\ y_{2}\ \theta_{2}]^T, \dots [x_{{i_f}}\ y_{{i_f}}\ \theta_{{i_f}}]^T \Big\}$, $i_f = \Big\lceil \frac{\|\vect{s}_c - \vect{s}_d\|_2}{\alpha} \Big\rceil$, where, $\alpha \in \mathbb{R}^{+}$, is a scaling variable representing the step size between waypoints, $x$ and $y$ are field coordinates, and $\theta$ is the heading angle of the vehicle. 
+
+\begin{equation}
+	\label{eq:nhvtrajectory}
+	T_{{i + 1}} = T_{i} +
+	\begin{bmatrix}
+		\alpha \cos \theta_{i} \\
+		\alpha \sin \theta_{i} \\
+		\text{atan2}(s_{d_y} - T_{{{i+1}_y}}, s_{d_x} - T_{{{i+1}_x}}))
+	\end{bmatrix}
+\end{equation}
+
+The initial point, $T_{1}$, is defined explicitly.
+
+\begin{equation}
+	T_{1} = \begin{bmatrix}
+		s_{c_x} \\
+		s_{c_y} \\
+		\text{arctan2}(s_{d_y} - s_{c_y}, s_{d_x} - s_{c_x})
+	\end{bmatrix}
+\end{equation}
+
+\subsection{NHV Path Planning Algorithm}
+The exploration algorithm initializes by directing the vehicle to sweep across the forward diagonal of the target field to collect an initial set of samples. An initial variogram is fit, and a Kriging prediction of the field is then made. The variances of all points on the target field are then calculated. The point with the highest prediction variance is found (Section \ref{sec:highestvars}). The trajectory, $T$, is then calculated (Section \ref{sec:nhvtrajfind}), and set as the path to take. Once the vehicle completes the last path chosen, the field values and variances are predicted and calculated again. A new path is chosen in the same fashion. The algorithm terminates when it can no longer choose a path that can be accomplished with the amount of fuel that remains within the exploration vehicle. Another case of planner termination occurs When the average prediction variance of the field is zero, which ideally occurs when all locations have been sampled.
+
+\subsection{Inefficiency in NHV}
+The NHV algorithm does not account for repeating paths, or avoiding re-sampling points. The only knowledge used is a single criteria of variance. Although the ground covered by the algorithm may be sufficient for the most exploration cases, a path planner that considers the cost of trajectories would likely yield better results.
+
+\section{Monte Carlo Based Trajectory Finding}
+A path planner designed for autonomous field exploration using a Monte Carlo path selection technique will be introduced. By first selecting a set of locations with the highest uncertainty in current prediction, the path planner will find a suitable path that will in turn minimize the average variance of the target field predictions. The problem can be stated as a sensor placement problem, where a suitable placement of sensors is found via a Monte Carlo simulation of the environment, and a minimization of the Kriging prediction variances \cite{kriging:sensorplacement}.
+
+In the case of the path planner, because the exploration vehicle is dynamic, the sensors can be thought of as being placed along the trajectory of the vehicle (assuming reasonable ergodicity of the target field). The Monte Carlo approach to path finding via the Kriging Method introduced will first find the points of highest prediction uncertainty on the target field, and then generate a finite set of random trajectories along the originally found trajectories. The trajectory that is predicted to reduce overall field uncertainty will be chosen as the path the vehicle will take.
+
+\subsection{Finding Monte Carlo Trajectory Sets} \label{sec:mctrajsets}
+After a suitable set of destinations are selected from the set of points containing the $N^{th}$ coordinates of highest uncertainty, $S_{v}$, trajectories to each point are calculated. The trajectories calculated can be both deterministic or variably non-deterministic walks from the current location of the exploration vehicle, to the final location.
+
+For a given destination, $\vect{s}_d$ in $S_{v}$, and the current location of the vehicle, $\vect{s}_{c}$, a set of waypoints that establish the route between the start and finish points can be defined as $T_k = \Big\{[x_{k_1}\ y_{k_1}\ \theta_{k_1}]^T,\ [x_{k_2}\ y_{k_2}\ \theta_{k_2}]^T, \dots [x_{k_{i_f}}\ y_{k_{i_f}}\ \theta_{k_{i_f}}]^T \Big\}$, $i_f = \Big\lceil \frac{\|\vect{s}_c - \vect{s}_d\|_2}{\alpha} \Big\rceil$, where, $\alpha \in \mathbb{R}^{+}$, is a scaling variable representing the step size between waypoints, $x$ and $y$ are field coordinates, and $\theta$ is the heading angle of the vehicle. 
+
+\begin{equation}
+	T_{k_{i + 1}} = T_{k_i} +
+	\begin{bmatrix}
+		\alpha \cos \theta_{k_i} \\
+		\alpha \sin \theta_{k_i} \\
+		\text{atan2}(s_{d_y} - T_{k_{{i+1}_y}}, s_{d_x} - T_{k_{{i+1}_x}}))
+	\end{bmatrix} + \begin{bmatrix} 
+		\vect{w}_{k_{i+1}} \\
+		0
+	\end{bmatrix}
+\end{equation}
+
+Where $\vect{w}_k \in \mathbb{R}^2$ is a zero-mean Wiener Process with a tunable variance. Multiple Brownian walks from the current position to a given destination can be calculated to increase the pool of possible paths. For a zero variance Wiener process ($\text{var}\{\vect{w}\}=0$), the walk defined is deterministic, and equal to finding a set of NHV trajectories. The \textit{cord} of the walk is the line the connects the initial position to the destination position. The cord acts as the expected value in the distribution of trajectories calculated. The initial point, $T_{k_1}$, and the final point, $T_{k_f}$, are defined explicitly.
+
+\begin{equation}
+	T_{k_1} = \begin{bmatrix}
+		s_{c_x} \\
+		s_{c_y} \\
+		\text{arctan2}(s_{d_y} - s_{c_y}, s_{d_x} - s_{c_x})
+	\end{bmatrix},\ 
+	T_{k_f} = \begin{bmatrix}
+		s_{d_x} \\
+		s_{d_y} \\
+		\theta_{f-1}
+	\end{bmatrix}
+\end{equation}
+
+\begin{figure}
+	\centering
+	\caption{PLACE IMAGE WITH PATHS FROM A POINT TO ANOTHER -- BROWNIAN MOTION -- FOR A DETERMINISTIC WALK THE ARC LENGTH IS $\alpha |T_k|$}
+\end{figure}
+
+\subsection{Selecting An Optimal Monte Carlo Trajectory} \label{sec:mcselbesttraj}
+In Section \ref{sec:mctrajsets}, a set of possible trajectories, $T$ was defined. The trajectory that is ultimately chosen by the introduced path finder is the path that minimizes the average uncertainty of the predicted target field.
+Let $\hat{Z}(S)$ be a Kriging predicted field from a set of samples at known locations. Furthermore, let $\hat{Z}(S+\hat{T}_k)$ be the a Kriging predicted field from the set $S$ concatenated with a virtual set of samples $\hat{T}_k$. The values in the set $\hat{T}_k$ have not necessarily been sampled, but they contain, as samples, the previously predicted values, $\hat{Z}(T)$, at the known locations in $T_k$.
+
+\begin{equation}
+	samples(\hat{T}_k) = \hat{Z}(T_k)
+\end{equation}
+
+The variance of the field with real and virtual samples, $\text{var}\{\hat{Z}(S+\hat{T}_k)\}$, can then be calculated. Using the definition for $\Sigma_{\text{var}}(\cdot)$ from Section \ref{eq:fielduncert}, the path chosen is the trajectory that satisfies:
+
+\begin{equation}
+	\label{eq:mcfoundpath}
+	P = \argmin_{T_k}\ \Sigma_{\text{var}}(\text{var}\{\hat{Z}(S+\hat{T}_k)\})
+\end{equation}
+
+\subsection{Monte Carlo Path Planning Algorithm}
+The exploration algorithm initializes by directing the vehicle to sweep across the forward diagonal of the target field to collect an initial set of samples. An initial variogram is fit, and a Kriging prediction of the field is then made. The variances of all points on the target field are then calculated. The set, $S_{v}$, of points with the $N$ highest prediction variances are found (Section \ref{sec:highestvars}). A set of trajectories, $T$, is then calculated (Section \ref{sec:mctrajsets}). The trajectory that is predicted to minimize the total uncertainty of the target field is chosen as the next path of the exploration vehicle (Section \ref{sec:mcselbesttraj}). Once the vehicle completes the last path chosen, the field values and variances are predicted and calculated again. A new path is chosen in the same fashion. The algorithm terminates when it can no longer choose a path that can be accomplished with the amount of fuel that remains within the exploration vehicle. Another case of planner termination occurs When the average prediction variance of the field is zero, which ideally occurs when all locations have been sampled.
+
+An algorithm for Kriging Monte Carlo Path Planning (Kriging MCPP) for a target field, $Z$, of size ($h\times w$) is introduced in Algorithm \ref{alg:mcpp}. The initial location of the vehicle is set to $\vect{s}_{c} = [0\ 0]^T$. The vehicle starts the path planner with $F$ units of fuel.
+
+\begin{algorithm}[h!]
+\caption{Monte Carlo Path Planning (MCPP) with The Kriging Method}\label{alg:mcpp}
+\begin{algorithmic}[1]
+\Procedure{Kriging\_MCPP}{$Z$}
+	\BState \emph{Conduct Initial Sweep}:
+	\State SetWaypoint($[h\ w]^T$)
+	\BState \emph{Krig The Field}:
+	\State $\hat{Z}, \text{var}\{\hat{Z}\}$ = KrigingPredictField($Z$, $S$)
+
+	\BState \textbf{while} $F > 0$ \textbf{and} $\Sigma_{\text{var}} > 0$:
+	\State $P = []$
+	\State $\Sigma_{\text{min}} = \infty$ \\
+
+	\BState \ \ \ \ \emph{Find the highest field variances}:
+	\State \ \ \ \ \textbf{for}\ $k = 1 \text{:} N$
+	\State \ \ \ \  \ \ \ \ $S_{v}(k) = \argmax_{\vect{s}} \ \text{var}\{\hat{Z}_{k}(\vect{s})\}$
+	\State \ \ \ \ \ \ \ \ $\text{var}\{\hat{Z}_{k+1}(\vect{s})\} = \text{var}\{\hat{Z}_{k}(\vect{s})\} - S_{v}(k)$\\
+
+	\BState \ \ \ \  \emph{Calculate trajectories to all points found}:
+	\State \ \ \ \  $\forall s_k \in S_{v}(k)$:
+	\State \ \ \ \  \ \ \ \ $s_d = s_k$
+	\State \ \ \ \  \ \ \ \ $f = \Big\lceil \frac{\|\vect{s}_c - \vect{s}_d\|_2}{\alpha} \Big\rceil$
+	\State \ \ \ \  \ \ \ \ $T(1) = \begin{bmatrix} s_{c_x} \\ s_{c_y} \\ \text{arctan2}(s_{d_y} - s_{c_y}, s_{d_x} - s_{c_x}) \end{bmatrix}$
+	\State \ \ \ \  \ \ \ \ $\forall i \in (1, f - 1)$:
+	\State \ \ \ \  \ \ \ \  \ \ \ \ $T(i+1) = T(i) + \begin{bmatrix} \alpha \cos \theta(i) \\ \alpha \sin \theta(i) \\ \text{atan2}(s_{d_y} - T(i)_y, s_{d_x} - T(i)_x) \end{bmatrix} + \begin{bmatrix} \vect{w}(i) \\ 0 \end{bmatrix}$
+	\State \ \ \ \  \ \ \ \ $T(f) = \begin{bmatrix} s_{d_x} \\ s_{d_y} \\ \theta_{f-1} \end{bmatrix}$\\
+
+	\BState \ \ \ \  \ \ \ \  \emph{Calculate estimated field confidence for trajectory computed}:
+	\State \ \ \ \  \ \ \ \  $\forall i \in [1, f]$:
+	\State \ \ \ \  \ \ \ \  \ \ \ \ $\text{samples}(\hat{S}_T)$ += $\hat{Z}(T(i))$
+	\State \ \ \ \  \ \ \ \  \ \ \ \ $\text{locations}(\hat{S}_T)$ += $T(i)$
+	\State \ \ \ \  \ \ \ \  \ \ \ \ $\hat{Z}_T, \text{var}\{\hat{Z}\}_T$ = KrigingPredictField($Z$, $\hat{S}_T$)
+	\State \ \ \ \  \ \ \ \  \ \ \ \ $\Sigma_{\text{var}}(T) = \text{avg}(\text{var}\{\hat{Z}\}_T)$\\
+
+	\State \ \ \ \  \ \ \ \  \ \ \ \ \textbf{if} $\Sigma_{\text{var}}(T) < \Sigma_{\text{min}}$ \textbf{and} \text{length($T$)} $< F$:
+	\State \ \ \ \  \ \ \ \  \ \ \ \ \ \ \ \ $\Sigma_{\text{min}} = \Sigma_{\text{var}}(T)$
+	\State \ \ \ \  \ \ \ \  \ \ \ \ \ \ \ \ $P = T$\\
+
+	\BState \ \ \ \  \emph{Navigate through the chosen path}:
+	\State \ \ \ \  $\forall p \in P$:
+	\State \ \ \ \  \ \ \ \ SetWaypoint($p$) 
 \EndProcedure
 \end{algorithmic}
 \end{algorithm}
+
+In Algorithm \ref{alg:mcpp}, the function \texttt{SetWaypoint()} is an abstracted function which steers the vehicle in the direction of the waypoint specified, and blocks the code instruction until the waypoint has been met. The function \texttt{length(}$T$\texttt{)} finds the arc length of the path by connecting all points in the trajectory, $T$. For a deterministically calculated trajectory, $T$, the arc length is $\alpha |T|$.
+ 
+\subsection{Benefits in MCPP over NHV}
+The Monte Carlo based path planner takes into account a set of trajectories, and compares their estimated return on investment. The NHV simply takes the path to the high prediction uncertainty location. Though the MCPP algorithm, with a non-zero noise variance, does not deterministically calculate its trajectories, given enough trajectories, the algorithm could find a path that will reduce overall field uncertainty in a more methodical way over the NHV algorithm.
+
+\subsection{Disadvantages of The Monte Carlo Path Planner}
+The MCPP algorithm does not calculate the cost of each next move taken, but rather a set of waypoints taken. In other words, the algorithm only takes into account entire trajectories at a time. A more optimal approach to this planner would be to take into consideration the cost of each waypoint selected. A remedy to this problem using the MCPP would be to increase the number of random trajectories calculated for each cord.

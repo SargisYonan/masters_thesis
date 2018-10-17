@@ -69,6 +69,9 @@
 
 \newcommand{\vect}[1]{{\it{\boldsymbol{#1}}}}
 
+\DeclareMathOperator*{\argmax}{arg\,max}
+\DeclareMathOperator*{\argmin}{arg\,min}
+
 \begin{document}
 % Declarations for Front Matter
 
@@ -99,12 +102,13 @@
 \include{sections/chapters/geostatistics}
 
 \part{Autonomous Field Exploration Using The Kriging Method}
-\include{sections/chapters/constructing_a_field_graph}
+\include{sections/chapters/models}
 \include{sections/chapters/path_planning}
 
 \part{Simulation \& Results}
 \include{sections/chapters/simulation_framework}
 \include{sections/chapters/results}
+
 
 \phantomsection{}
 \addcontentsline{toc}{part}{End Matter}%
