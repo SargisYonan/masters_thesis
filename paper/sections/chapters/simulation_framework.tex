@@ -1,32 +1,44 @@
 \chapter{Simulation Framework}
-Using \textit{MATLAB}, the methods described in Chapter \ref{ch:pp} on Path Planning were implemented to provide a simulation environment to show the effectiveness of the introduced methods. The target fielda in the simulationa are of a variable size with a single state of interest that can be sampled. The autocorrelation factor of the field in the simulation is an adjustable variable that determines the likeliness of each pair of neighboring points as a function of distance. 
+Using \textit{MATLAB}, the methods described in Chapter \ref{ch:pp} on Path Planning were implemented to provide a simulation environment to show the effectiveness of the introduced methods. The target fields in the simulations are of a variable size with a single state of interest that can be sampled. The autocorrelation factor of the field in the simulation is an adjustable variable that determines the likeliness of each pair of neighboring points as a function of distance. 
 
 The simulation includes a software in the loop vehicle with variable dynamics and incorporates the ability to follow a preplanned route. The simulation will be used to demonstrate the abilities of the algorithms introduced, and comparisons to an algorithm with a preplanned trajectory. 
 
 \section{Simulated Exploration Vehicle Model Dynamics}
-The vehicle dynamics of the vehicle in the simulation are modeled off of a Dubins' Vehicle. Assume a two dimensional field where the axes are labeled $x$ and $y$ respectively. The simulated vehicle has constant vehicle velocity of $v$, and a heading angle, $\theta$ with a turning rate of $r$, where the turning radius is fixed. The kinematics of such a system is defined to be:
+The dynamics of the simulated exploration vehicle are modeled off of a Dubins' Vehicle with a variable turning radius, $r$. The simulated vehicle has constant vehicle velocity of $V$, and a heading angle, $\theta$.
 
 \begin{equation}
+\dot{\vect{X}} =
 	\begin{bmatrix}
 		\dot{x_1} \\
 		\dot{x_2} \\
 		\dot{\theta} \\
 	\end{bmatrix} = 
 	\begin{bmatrix}
-		v \cos \theta \\
-		v \sin \theta \\
-		u
+		V \cos \theta \\
+		V \sin \theta \\
+		\omega
 	\end{bmatrix}
 \end{equation}
 
+Where $\dot{\vect{X}}$ is the time derivative of the vehicle's state vector, and $\omega$ is the vehicle's turn rate control. The vehicle's state vector is discretized as $\vect{X}_{k+1}$.
+
+\begin{equation}
+\vect{X}_{k+1} = \vect{X}_k +
+	\begin{bmatrix}
+		V \Delta T \cos \theta_k \\
+		V \Delta T \sin \theta_k \\
+		\omega_k
+	\end{bmatrix}
+\end{equation}
+
+Where $\Delta T$ and $V$ are constants predefined in the simulation environment. For a given waypoint destination, a Dubin's path is calculated for the vehicle. A control angular velocity for each time step, $\omega_k$, is calculated for the trajectory. A trajectory (a set of waypoints), $T$, calculated in Chapter \ref{ch:pp}, is loaded into the Dubin's path trajectory finder for the vehicle from the current position of the vehicle to the first waypoint in the trajectory. After meeting the waypoint, the next path to the next waypoint is calculated. This process continues up to the last waypoint in the trajectory set, $T$. A new trajectory is then calculated by the path planner, and the process continues until the termination condition is satisfied.
+
+A sample is taken at every possible vesicle that the vehicle passes over. The location and value of each sample is stored in the vehicle object's memory for later use in the prediction procedures.
+
+\subsection{Caveats of Result Simulation}
+The simulated exploration vehicle will take on the dynamics of a vehicle with a very small radius of turn (ROT) ($r = 10^{-4}$). The ROT is made small to show the effectiveness of the path planners on their own, independent of the exploration vehicle's dynamics. The velocity of the vehicle is set to move a single unit of distance on the field per sample period. Furthermore, the target field in the simulation is fully-ergodic, and the speed of flight does not change the quality of prediction.
+
 \section{Generating a Target Field}
-% The simulation yields a target field that is of variable size. Each vesicle in the field is exactly the area of the sensor footprint of the simulated UAV. This is to make the sensor measurements as ideal as possible, so no samples are missed when a vesicle is flown over.
+The simulation yields a target field that is of variable height $h$, and width $w$. Each vesicle in the field is exactly the area of the sensor footprint of the simulated vehicle's sensor. This is to make the sensor measurements as ideal as possible, so no samples are missed when a vesicle is flown over.
 
-% The field is composed of a single feature which is geospatially autocorrelated. Initially, the points on the field are generated from a normal distribution with a standard deviation of $1$, and expected value of $0$. The field is then convolved with a two dimensional Gaussian filter with a variable standard deviation, $\sigma_{\text{field}}$. The final filter ``smooths" the field in order to simulate autocorrelation. The result is a randomly-generated, variably-sized, and autocorrelated field with a unit-less feature of interest.
-
-\section{Simulating A Path Planner}
-
-\section{Caveats of Simulation}
-% Though the addition of these kinematics make the simulation more representative of real life aircraft dynamics, the UAV simulated will be mimicking the dynamics of a multi-rotor with a very small radius of turn (ROT) ($r < 0.1 [\text{m}]$). The simulation with this aircraft is not concerned with velocity because a sample is taken at every possible position the aircraft hovers above. Furthermore, the target field in the simulation is fully-ergodic, and the speed of flight does not change the quality of prediction.
-
-\section{Examples of Use}
+The field is composed of a single feature which is geospatially autocorrelated. Initially, the points on the field are generated from a normal distribution with a standard deviation of $1$, and expected value of $0$. The field is then convolved with a two dimensional Gaussian filter with a variable standard deviation, $\sigma_{\text{field}}$. The final filter ``smooths" the field in order to simulate autocorrelation. The result is a randomly-generated, variably-sized, and autocorrelated field with a unit-less feature of interest. One such field can be observed in Figure \ref{fig:gen_field}.
