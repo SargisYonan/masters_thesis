@@ -1,0 +1,61 @@
+\chapter{Vehicle \& Information Gain Model}
+In an effort to formalize the dynamics of the exploration vehicle, and the information gain on the field, the models for vehicle dynamics and field variances will be introduced.
+
+\section{Exploration Vehicle Model Dynamics} \label{sec:vehicledynamics}
+The state vector of the vehicle will be defined as follows:
+\begin{equation}
+\vect{X} = \begin{bmatrix}
+	x \\
+	y \\
+	\theta \\
+	\omega \\
+	V
+\end{bmatrix}
+\label{eq:vehiclemodel}
+\end{equation}
+
+Where $x$ and $y$ are the vehicle's position on a field, $\theta$ is the vehicle's heading angle, $\omega$ is the vehicle's angular velocity, $\dot{\theta}$, and $V$ is the magnitude of the linear velocity of the vehicle. Both $\omega$ and $V$ are control inputs to the vehicle.
+
+The exploration vehicle dynamics will be modeled after a simple forward discrete kinematics model with a constant time step per iteration, $\Delta T$. An iteration of the propagation model will be the sum of the previous iteration, $\vect{X}_{k}$, the nonlinear vehicle dynamics, $\vect{f}(\vect{X}_k)$, and the control input, $\vect{u}_k$.
+
+\begin{equation}
+	\vect{X}_{k+1} = \vect{X}_k + \vect{f}(\vect{X}_{k+1}) + \vect{u}_k
+	\label{eq:vehicledynamicsform}
+\end{equation}
+
+\begin{equation}
+	\vect{X}_{k+1} = \vect{X}_k + \begin{bmatrix}
+		V_k \Delta T \cos \theta_k \\
+		V_k \Delta T \sin \theta_k \\
+		\omega \Delta T \\
+		0 \\
+		0
+	\end{bmatrix} + \begin{bmatrix}
+	0 \\
+	0 \\
+	0 \\
+	\omega_k \\
+	V_k
+	\end{bmatrix}
+	\label{eq:vehicledynamicsmodel}
+\end{equation}
+
+The speed, $V$, is assumed to be regulated at a constant value of $V = v \frac{\text{m}}{\text{s}}$ for all values of $k$.
+
+\section{Field Uncertainty Model} \label{sec:fielduncert}
+In Section \ref{sec:krigvar}, a method for calculating the variance of a prediction was defined as a function of the proximity vector and Kriging weights generated for the prediction point.
+
+\begin{equation}
+    \text{var}\{\hat{Z}(\vect{s}_0)\} = \vect{d}_0 \cdot \vect{\lambda}_0 = \vect{d}_0 \vect{\lambda}_0^T
+\end{equation}
+
+The variance defined represents the square of the standard deviation of the distribution the expected value of the prediction is sampled from. For points that have been directly measured, the variance is zero, assuming the field has a high level of ergodicity. The uncertainty of the prediction of a point in the target field is therefore directly proportional to the variance of its prediction. The goal of a path planner intending to suppress uncertainty of predictions in a target field would then be to reduced the overall variance of the target field being explored.
+
+A criteria for overall field uncertainty can be defined as the average variance, calculated from a prediction of a target field from a set $S$, $\hat{Z}(S)$, of every predictable point on a target field, $Z$.
+
+\begin{equation}
+	\Sigma_{\text{var}}(\hat{Z}(S)) = \text{avg}\{{\text{var}\{\hat{Z}(S)\}}\} = \sum_{\forall i \in Z} \vect{d}_i \vect{\lambda}_i^T = \sum_{\forall i \in Z} \vect{d}_i [P^{-1}\vect{d}_i]^T
+	\label{eq:fielduncert}
+\end{equation}
+
+Where $\vect{d}_i$ is the proximity vector of the $i^{th}$ point on the field $Z$ (Section \ref{sec:proxvect}), and $P$ is the covariance-variance matrix generated for the field via the fit variogram (Section \ref{sec:covmat}).

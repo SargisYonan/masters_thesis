@@ -1,0 +1,50 @@
+\chapter{Path Planning}
+A path-planning technique based on a shortest-path algorithm is run on the graph generated in Chapter \ref{ch:graph_construction}. The result of the graph path finding algorithm will be a path containing a list of vertices to visit that will guide a UAV into the direction of least confidence while traversing through other uncertain areas. This is because the edge weights are inversely proportional to uncertainty, and maximized in the traversal. 
+
+\section{Graph Path Finding}
+An edge weight on the graph represents the relative uncertainty of the adjacent vertices. A path finding algorithm which minimizes the edge weights of traversal will be used in an attempt to maximize traversal over uncertain regions. An algorithm based on Dijkstra's Algorithm is currently used to find the shortest path from the current position of the UAV to the next most uncertain region in the field. 
+
+\subsection{Disadvantages of Current Path Finding Method}
+The path finding algorithm does not currently take into account the realizability of the trajectory given, as some maneuvers are not possible because of the aerial vehicle's model dynamics (specifically the turning radius). An assumption of a small turning radius will be made
+
+\section{Algorithm For Path Planning Using The Kriging Method}
+The path-planning maneuver theoretically reduces the uncertainty of prediction of the target field as a whole as more observations are made. After completing a path yielded from the path finding algorithm, the field is re-predicted, re-tessellated, and a new graph is created and re-traversed in an attempt to reduce overall uncertainty. An algorithm which describes the process in which data is collected, predictions are made, and paths are planned is presented in Algorithm \ref{alg:uncert}.
+
+\subsection{Terminating The Path Planner}
+The exploration method completes its mission when no new knowledge of a field is gained in an iteration of exploring. A difference in the maximum variances of the last two iterations, $\delta_{var}$, can be used as a metric of how much uncertainty (maximum variance of the target field) was suppressed in an exploration iteration. Once the rate of change in maximum uncertainty is below a preprogrammed threshold, ($\delta_{var} < \Delta_{var}$), the field exploration mission terminates. Another option of algorithm termination is to limit the numebr of exploration iterations executed in a single exploration.
+
+\begin{algorithm}[thpb!]
+\caption{Uncertainty Suppressing Field Exploration}\label{alg:uncert}
+\begin{algorithmic}[2]
+\Procedure{TargetFieldPathPlan}{$Z$}
+    \BState \emph{Generate Kriging Prediction}:
+    \State $C, \hat{Z} = \textit{KrigingPredictField}(N,Z)$
+    \State \textit{Display} $\hat{Z}$\\
+    \BState \emph{Tessellate field from a set of the $k$ maximum variances of prediction}:
+    \State $H = \{max(var\{\hat{Z}\}, k)\}$
+    \State $\Upsilon = \textit{Voronoi}(Z, H)$\\
+    \BState \emph{Construct graph adjacency matrix, $W$}:
+    \State $\forall \upsilon_i \in \Upsilon:$
+    \State \ \ \ \ $\forall \upsilon_j \in \Upsilon$:
+    \State \ \ \ \ \ \ \ \ \textbf{If} {$\upsilon_j \edge \upsilon{i}$}
+    \State \ \ \ \ \ \ \ \ \ \ \ \  $w_{ij} = w_{ji} = \frac{1}{var\{\upsilon_i\}} + \frac{1}{var\{\upsilon_j\}}$
+    \State \ \ \ \ \ \ \ \ \textbf{Else}
+    \State \ \ \ \ \ \ \ \ \ \ \ \  $w_{i,j} = 0$\\
+    \BState \emph{Construct Field Graph}:
+    \State $\Gamma = \textit{Graph}(W)$\\
+    \BState \emph{Run path finding algorithm on $\Gamma$ to get a path $P$}:
+    \State $G = \textit{Graph}(W)$
+    \State $P = $ \textit{ShortestPath}($G$)\\
+    \BState \emph{Explore Field With The Found Path}:
+    \State $\forall p_i \in P$:
+    \State \ \ \ \ \textit{NavigateTo}($p_i$)\\
+    \BState \emph{Calculate Overall Uncertainty}:
+    \State $\delta = \frac{1}{|Z|} \sum_{i = 1}^{|\Upsilon|} |\upsilon_i| \nu_i$\\
+    \BState{Check Overall Confidence}:
+    \State \textbf{If} $\delta_{var} \geq \Delta_{var}$:
+    \State \ \ \ \ \textbf{goto:} \textit{Generate Kriging Prediction}
+    \State \textbf{Else}:
+    \State \ \ \ \ \textbf{return}
+\EndProcedure
+\end{algorithmic}
+\end{algorithm}
