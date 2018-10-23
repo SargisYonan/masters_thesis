@@ -42,3 +42,25 @@ The simulated exploration vehicle will take on the dynamics of a vehicle with a 
 The simulation yields a target field that is of variable height $h$, and width $w$. Each vesicle in the field is exactly the area of the sensor footprint of the simulated vehicle's sensor. This is to make the sensor measurements as ideal as possible, so no samples are missed when a vesicle is flown over.
 
 The field is composed of a single feature which is geospatially autocorrelated. Initially, the points on the field are generated from a normal distribution with a standard deviation of $1$, and expected value of $0$. The field is then convolved with a two dimensional Gaussian filter with a variable standard deviation, $\sigma_{\text{field}}$. The final filter ``smooths" the field in order to simulate autocorrelation. The result is a randomly-generated, variably-sized, and autocorrelated field with a unit-less feature of interest. One such field can be observed in Figure \ref{fig:gen_field}.
+
+\section{Simulation Environment}
+The simulation, once started, runs a single exploration method at a time. A generated field is unknown to a vehicle object, but samples are collected as it passes along the field. The variances of Kriging predictions, the currently predicted field, and the path traversed are plotted along with the actual field being explored.
+
+\begin{figure}[htb!]
+    \centering
+    \includegraphics[width=0.8\linewidth]{figures/nhv_200x200_10_percent.png}
+	\captionsetup{skip=0.25\baselineskip,size=footnotesize}
+	\caption{Next Highest Variance Path Planning. The actual field (top left), predicted field (with error) (top right), variance field (bottom left), and traversed path (bottom right). The path planner is conducted on the same field with an approximate 3\% scan area limit.}
+\end{figure}
+\begin{figure}[htb!]
+    \centering
+    \includegraphics[width=0.8\linewidth]{figures/mcpp_200x200_3_percent_mck_5_rands_20.png}
+	\captionsetup{skip=0.25\baselineskip,size=footnotesize}
+	\caption{Monte Carlo path planner run ($N=5$, $20$ trajectories per path). The actual field (top left), predicted field (with error) (top right), variance field (bottom left), and traversed path (bottom right). The path planner is conducted on the same field with an approximate 3\% scan area limit.}
+\end{figure}
+\begin{figure}[htb!]
+    \centering
+    \includegraphics[width=0.8\linewidth]{figures/nhv_200x200_10_percent.png}
+	\captionsetup{skip=0.25\baselineskip,size=footnotesize}
+	\caption{Zig-Zag method. The actual field (top left), predicted field (with error) (top right), variance field (bottom left), and traversed path (bottom right). The path planner is conducted on the same field with an approximate 3\% scan area limit.}
+\end{figure}

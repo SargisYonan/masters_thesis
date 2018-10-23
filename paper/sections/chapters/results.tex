@@ -24,6 +24,8 @@ The variance of every target field over each iteration will be the average predi
 % The effectiveness of the method introduced varies based on the area of the target field being explored. For small fields, a naive zig-zag exploration may be more efficient and less computationally expensive. By modulating the dimensions of the target field, a comparison can be drawn demonstrating the effectiveness of the method versus a naive zig-zag approach.
 The methods introduced will be compared to one another and the zig-zag method in terms of variance drop and prediction error on a set of $5$ randomly generated geospatially autocorrelated fields with $20\times20$ vesicles for a variety of area coverage limits.
 
+
+
 \begin{equation}
 	r = \frac{A_{scan}}{2}
 \end{equation}
@@ -38,13 +40,13 @@ Where $A_{scan}$ is the maximum area to scan. For a maximum fraction of the fiel
 		\hline
 		Coverage Limit ($A_{scan}$) & 20\% & 30\% & 40\% & 50\% & 75\% \\
 		\hline
-		Zig-Zag        & .. & .. & .. & 2.3060 & .. \\
-		NHV            & .. & .. & .. & 2.1858 & .. \\
-		N-NHV          & .. & .. & .. & 2.1765 & .. \\
-		MCPP           & .. & .. & .. & 2.1888 & .. \\
+		Zig-Zag        & 5.1672 & 4.2207 & 4.0158 & 2.3060 & 4.8467 \\
+		NHV            & 3.8790 & 4.2592 & 3.8460 & 2.1858 & 2.5332 \\
+		N-NHV ($N=5$)  & 3.8845 & 4.2072 & 3.8900 & 2.1765 & 2.5253 \\
+		MCPP  ($N=1$)  & 3.7645 & 4.2576 & 3.9061 & 2.1888 & 2.5485 \\
 		\hline
 	\end{tabular}
-	\caption{Comparing field prediction errors for varying coverage limitations on a $20 \times 20$ size field.}
+	\caption{Comparing field prediction errors for varying coverage limitations on a $20 \times 20$ size field. For the MCPP method runs, $20$ random paths were calculated for each trajectory.}
     \label{tab:20fieldprederr}
 \end{table}
 
@@ -63,10 +65,10 @@ Where $A_{scan}$ is the maximum area to scan. For a maximum fraction of the fiel
 		\hline
 		Coverage Limit & 20\% & 30\% & 40\% & 50\% & 75\% \\
 		\hline
-		Zig-Zag        & .. & .. & .. & 1.5046 & .. \\
-		NHV            & .. & .. & .. & 0.3822 & .. \\
-		N-NHV          & .. & .. & .. & 0.3819 & .. \\
-		MCPP           & .. & .. & .. & 0.3238 & .. \\
+		Zig-Zag        & 3.2313 & 1.2784 & 1.6893 & 1.5046 & 4.4644 \\
+		NHV            & 1.0212 & 0.8993 & 0.9472 & 0.3822 & 0.3381 \\
+		N-NHV          & 1.4860 & 0.9438 & 0.9027 & 0.3819 & 0.3398 \\
+		MCPP           & 1.2532 & 0.7021 & 0.6659 & 0.3238 & 0.2041 \\
 		\hline
 	\end{tabular}
 	\caption{Comparing field prediction errors for varying coverage limitations on a $20 \times 20$ size field.}
@@ -77,7 +79,7 @@ Where $A_{scan}$ is the maximum area to scan. For a maximum fraction of the fiel
 	\centering
 	\includegraphics[width=0.8\linewidth]{figures/vars_semilogy_20x20_50percent_5runs.png}
     \captionsetup{skip=0.20\baselineskip,size=footnotesize}
-	\caption{Logarithmic variance drops per replanning iteration averaged over exploring 5 randomly generated target fields of size $20 \times 20$ at a $50\%$ scan. The variance for the zig-zag method are recalculated at every turn.}
+	\caption{Normalized semi-logarithmic variance drops per replanning iteration averaged over exploring 5 randomly generated target fields of size $20 \times 20$ at a $50\%$ scan. The variance for the zig-zag method are recalculated at every turn.}
 \end{figure}
 
 % \subsubsection{$50 \times 50$ Target Field Size}
@@ -85,16 +87,16 @@ Where $A_{scan}$ is the maximum area to scan. For a maximum fraction of the fiel
 
 % % \begin{table}[htb!]
 % % \centering
-% % 	\begin{tabular}{ |p{3cm}||p{1cm}|p{1cm}|p{1cm}|p{1cm}|p{1cm}|  }
+% % 	\begin{tabular}{ |p{3cm}||p{1cm}|p{1cm}|p{1cm}|p{1cm}|  }
 % % 		\hline
 % % 		\multicolumn{6}{|c|}{$50 \times 50$ Size Final Field Prediction Error} \\
 % % 		\hline
-% % 		Coverage Limit & 1\% & 5\% & 10\% & 20\% & 50\% \\
+% % 		Coverage Limit & 10\% & 20\% & 50\% & 75\% \\
 % % 		\hline
-% % 		Zig-Zag        & .. & .. & .. & .. & .. \\
-% % 		NHV            & .. & .. & .. & .. & .. \\
-% % 		N-NHV          & .. & .. & .. & .. & .. \\
-% % 		MCPP           & .. & .. & .. & .. & .. \\
+% % 		Zig-Zag        & 1.2624 & 1.2236 & .. & .. \\
+% % 		NHV            & 1.2932 & 1.2228 & .. & .. \\
+% % 		N-NHV          & 1.2932 & 1.2214 & .. & .. \\
+% % 		MCPP           & 1.2938 & 1.2241 & .. & .. \\
 % % 		\hline
 % % 	\end{tabular}
 % % 	\caption{Comparing field prediction errors for varying coverage limitations on a $50 \times 50$ size field.}
@@ -103,21 +105,18 @@ Where $A_{scan}$ is the maximum area to scan. For a maximum fraction of the fiel
 
 % % \begin{table}[htb!]
 % % \centering
-% % 	\begin{tabular}{ |p{3cm}||p{1cm}|p{1cm}|p{1cm}|p{1cm}|p{1cm}|  }
+% % 	\begin{tabular}{ |p{3cm}||p{1cm}|p{1cm}|p{1cm}|p{1cm}|  }
 % % 		\hline
 % % 		\multicolumn{6}{|c|}{$50 \times 50$ Size Final Field Prediction Variance} \\
 % % 		\hline
-% % 		Coverage Limit & 10\% & 20\% & 25\% & 50\% & 75\% \\
+% % 		Coverage Limit & 10\% & 20\% & 50\% & 75\% \\
 % % 		\hline
-% % 		Zig-Zag        & .. & .. & .. & .. & .. \\
-% % 		NHV            & .. & .. & .. & .. & .. \\
-% % 		N-NHV          & .. & .. & .. & .. & .. \\
-% % 		MCPP           & .. & .. & .. & .. & .. \\
+% % 		Zig-Zag        & 0.2926 & 0.0835 & .. & .. \\
+% % 		NHV            & 0.1362 & 0.0932 & .. & .. \\
+% % 		N-NHV          & 0.1300 & 0.1004 & .. & .. \\
+% % 		MCPP           & 0.1226 & 0.0833 & .. & .. \\
 % % 		\hline
 % % 	\end{tabular}
 % % 	\caption{Comparing field prediction errors for varying coverage limitations on a $50 \times 50$ size field.}
 % %     \label{tab:50fieldvar}
 % % \end{table}
-
-\section{Result Conclusions}
-write this part.
