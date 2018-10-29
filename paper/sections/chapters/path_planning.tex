@@ -2,14 +2,14 @@
 The goal of the planner introduced is to assist in the discovery of a field's features with a tunable level of speed and confidence of prediction. The user of such a system could choose to scan more area if fuel is not of high concern. Likewise, if the field is very large, or several fields need to be scanned in a limited amount of time, a quicker scan with a lower degree of prediction certainty can be performed.
 
 \section{Uncertainty Loss Function} \label{sec:lossfunc}
-In Section \ref{sec:fielduncert}, a criteria for overall field uncertainty was introduced. Given a set of previously sampled points, $S$, and a new set of samples, $T$, a new field uncertainty can be calculated via $\Sigma_{\text{var}}(\hat{Z}(S + T))$, where $S + T$ is the union of the the two sets $S$ and $T$. Given a new set of samples, $T$, the loss in a target field's prediction uncertainty, $L(T)$, is a metric that should be maximized by a path planner aiming to improve prediction quality for exploration purposes.
+In Section \ref{sec:fielduncert}, a criteria for overall field uncertainty was introduced. Given a set of previously sampled points, $S$, and a new set of samples, $T$, a new field uncertainty can be calculated via $\Sigma_{\text{var}}(\hat{Z}(S + T))$, where $S + T$ is the union of the the two sets $S$ and $T$. Given a new set of samples, $T$, the estimated loss in a target field's prediction uncertainty, $L(T)$, is a metric that should be maximized by a path planner aiming to improve prediction quality for exploration purposes.
 
 \begin{equation}
 	L(T) = (\Sigma_{\text{var}}(\hat{Z}(S+T)) - \Sigma_{\text{var}}(\hat{Z}(S)))
 	\label{eq:lossfunc}
 \end{equation}
 
-The optimal path, $O$, subject to a limited scanning time constraint, is the path that simultaneously maximizes $L(O)$, and minimizes the length of of the path taken (using the assumption of a constant linear velocity from Section \ref{sec:vehicledynamics}), $l(S + O)$.
+The optimal path, $O$, subject to a limited scanning time constraint, is the path that simultaneously maximizes $L(O)$, and minimizes the length of of the path taken (using the assumption of a constant linear velocity from Section \ref{sec:vehicledynamics}), $l(S + O)$. A method for prediction feedback into a variance calculation, which aims to find an optimal path, is introduced in Section \ref{sec:mcselbesttraj}.
 
 \begin{equation}
 	O = \argmax_T\ \beta L(T) - (1-\beta)l(S + T)
@@ -127,7 +127,7 @@ Where $\vect{w}_k \in \mathbb{R}^2$ is a zero-mean Wiener Process with a tunable
 	\caption{Brownian non-deterministic walks (black) surrounding deterministic cords (red). The starting point is indicated in green. For a set of $N=2$ possible trajectories, $15$ random walks around each trajectory with a variance of $10$. All distance units in meters.}
 \end{figure}
 
-\subsection{Selecting An Optimal Monte Carlo Trajectory} \label{sec:mcselbesttraj}
+\subsection{Selecting An Optimal Trajectory (Prediction Feedback)} \label{sec:mcselbesttraj}
 In Section \ref{sec:mctrajsets}, a set of possible trajectories, $T$ was defined. The trajectory that is ultimately chosen by the introduced path finder is the path that minimizes the average uncertainty of the predicted target field, i.e. maximizes the loss function, $L(T)$.
 Let $\hat{Z}(S)$ be a Kriging predicted field from a set of samples at known locations. Furthermore, let $\hat{Z}(S+\hat{T}_k)$ be the a Kriging predicted field from the set $S$ concatenated with a virtual set of samples $\hat{T}_k$. The values in the set $\hat{T}_k$ have not necessarily been sampled, but they contain, as samples, the previously predicted values, $\hat{Z}(T_k)$, at the known locations in $T_k$.
 
