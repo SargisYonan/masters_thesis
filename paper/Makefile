@@ -11,7 +11,7 @@
 # ...and for output:
 # - a method for creating PDFs
 #
-# Lawrence You <you@cs.ucsc.edu>
+# Sargis S Yonan <sargis@yonan.org>
 #
 
 ##############################################################################
