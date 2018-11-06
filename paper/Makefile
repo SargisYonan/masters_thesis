@@ -76,7 +76,7 @@ PDFGRAPHICSFILES := $(patsubst %.eps,%.pdf,$(EPSGRAPHICSFILES))
 #
 
 TEX = pdflatex
-$(PAPER).pdf: $(PAPER).tex *.tex $(BIBS) $(PDFGRAPHICSFILES) sections/* sections/chapters/*
+$(PAPER).pdf: $(PAPER).tex *.tex $(BIBS) $(PDFGRAPHICSFILES) sections/* sections/chapters/* figures/* figures/hbresults/*
 	$(TEX) $(PAPER); ${BIBTEX} $(PAPER); $(TEX) $(PAPER); $(TEX) $(PAPER)
 endif # pdftex
 
