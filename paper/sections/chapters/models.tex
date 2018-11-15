@@ -14,12 +14,12 @@ The state vector of the vehicle will be defined as follows:
 \label{eq:vehiclemodel}
 \end{equation}
 
-Where $x$ and $y$ are the vehicle's position on a field, $\theta$ is the vehicle's heading angle, $\omega$ is the vehicle's angular velocity, $\dot{\theta}$, and $V$ is the magnitude of the linear velocity of the vehicle. Both $\omega$ and $V$ are control inputs to the vehicle.
+\noindent where $x$ and $y$ are the vehicle's position on a field, $\theta$ is the vehicle's heading angle, $\omega$ is the vehicle's angular velocity, $\dot{\theta}$, and $V$ is the magnitude of the linear velocity of the vehicle. Both $\omega$ and $V$ are control inputs to the vehicle.
 
 The exploration vehicle dynamics will be modeled after a simple forward discrete kinematics model with a constant time step per iteration, $\Delta T$. An iteration of the propagation model will be the sum of the previous iteration, $\vect{X}_{k}$, the nonlinear vehicle dynamics, $\vect{f}(\vect{X}_k)$, and the control input, $\vect{u}_k$.
 
 \begin{equation}
-	\vect{X}_{k+1} = \vect{X}_k + \vect{f}(\vect{X}_{k+1}) + \vect{u}_k
+	\vect{X}_{k+1} = \vect{X}_k + \vect{f}(\vect{X}_{k}) + \vect{u}_k
 	\label{eq:vehicledynamicsform}
 \end{equation}
 
@@ -40,7 +40,7 @@ The exploration vehicle dynamics will be modeled after a simple forward discrete
 	\label{eq:vehicledynamicsmodel}
 \end{equation}
 
-The speed, $V$, is assumed to be regulated at a constant value of $V = v \frac{\text{m}}{\text{s}}$ for all values of $k$.
+The speed, $V$, is assumed to be regulated at a constant value for all values of $k$.
 
 \section{Field Uncertainty Model} \label{sec:fielduncert}
 In Section \ref{sec:krigvar}, a method for calculating the variance of a prediction was defined as a function of the proximity vector and Kriging weights generated for the prediction point.
