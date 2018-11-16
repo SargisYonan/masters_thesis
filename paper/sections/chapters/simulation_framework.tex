@@ -59,6 +59,7 @@ The field is composed of a single feature which is geospatially autocorrelated. 
         \centering
         \includegraphics[width=\linewidth]{figures/autocorr_sigma_0.png}
         \captionsetup{skip=0.25\baselineskip,size=footnotesize}
+        \ssp
         \caption{$\sigma_{field} = 0$. The field exhibits no spatial autocorrelation.}
     \end{subfigure}%
     ~
@@ -66,6 +67,7 @@ The field is composed of a single feature which is geospatially autocorrelated. 
         \centering
         \includegraphics[width=\linewidth]{figures/autocorr_sigma_100.png}
         \captionsetup{skip=0.25\baselineskip,size=footnotesize}
+        \ssp
         \caption{$\sigma_{field} = \frac{w}{10} = 100$. The field appears to exhibit some degree of spatial autocorrelation.}
     \end{subfigure}%
     ~ 
@@ -73,8 +75,10 @@ The field is composed of a single feature which is geospatially autocorrelated. 
         \centering
         \includegraphics[width=\linewidth]{figures/autocorr_sigma_1000.png}
 		\captionsetup{skip=0.25\baselineskip,size=footnotesize}
-		\caption{$\sigma_{field} = w = 1000$. The field exhibits a high degree of spatial autocorrelation.}
+		\ssp
+        \caption{$\sigma_{field} = w = 1000$. The field exhibits a high degree of spatial autocorrelation.}
     \end{subfigure}
+    \ssp
     \caption{A field is generated using a zero mean normal distribution with variance $1$. Varying degrees of spatial autocorrelation are shown for different values of $\sigma_{field}$.}
 \end{figure}
 
@@ -84,18 +88,21 @@ The simulation, once started, runs a single exploration method at a time. A gene
 \begin{figure}[htb!]
     \centering
     \includegraphics[width=0.8\linewidth]{figures/nhv_200x200_10_percent.png}
-	\captionsetup{skip=0.25\baselineskip,size=footnotesize}
-	\caption{Next Highest Variance Path Planning. The actual field (top left), predicted field (with error) (top right), variance field (bottom left), and traversed path (bottom right). The path planner is conducted on the same field with an approximate 3\% scan area limit.}
+	\captionsetup{skip=0.25\baselineskip}
+	\ssp
+    \caption{Next Highest Variance Path Planning. The actual field (top left), predicted field (with error) (top right), variance field (bottom left), and traversed path (bottom right). The path planner is conducted on the same field with an approximate 3\% scan area limit.}
 \end{figure}
 \begin{figure}[htb!]
     \centering
     \includegraphics[width=0.8\linewidth]{figures/mcpp_200x200_3_percent_mck_5_rands_20.png}
-	\captionsetup{skip=0.25\baselineskip,size=footnotesize}
-	\caption{Monte Carlo path planner run ($N=5$, $20$ trajectories per path). The actual field (top left), predicted field (with error) (top right), variance field (bottom left), and traversed path (bottom right). The path planner is conducted on the same field with an approximate 3\% scan area limit.}
+	\captionsetup{skip=0.25\baselineskip}
+	\ssp
+    \caption{Monte Carlo path planner run ($N=5$, $20$ trajectories per path). The actual field (top left), predicted field (with error) (top right), variance field (bottom left), and traversed path (bottom right). The path planner is conducted on the same field with an approximate 3\% scan area limit.}
 \end{figure}
 \begin{figure}[htb!]
     \centering
     \includegraphics[width=0.8\linewidth]{figures/zz_200x200_3.png}
-	\captionsetup{skip=0.25\baselineskip,size=footnotesize}
-	\caption{Zig-Zag method. The actual field (top left), predicted field (with error) (top right), variance field (bottom left), and traversed path (bottom right). The path planner is conducted on the same field with an approximate 3\% scan area limit.}
+	\captionsetup{skip=0.25\baselineskip}
+	\ssp
+    \caption{Zig-Zag method. The actual field (top left), predicted field (with error) (top right), variance field (bottom left), and traversed path (bottom right). The path planner is conducted on the same field with an approximate 3\% scan area limit.}
 \end{figure}

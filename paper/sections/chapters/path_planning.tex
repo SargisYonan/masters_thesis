@@ -1,8 +1,8 @@
 \chapter{Path Planning} \label{ch:pp}
-The goal of the planner introduced is to assist in the discovery of a field's features with a tunable level of speed and confidence of prediction. The user of such a system could choose to scan more area if fuel is not of high concern. Likewise, if the field is very large, or several fields need to be scanned in a limited amount of time, a quicker scan with a lower degree of prediction certainty can be performed.
+The goal of the planner introduced is to assist in the discovery of a field's features with an adjustable trade off between speed and confidence of prediction. The user of such a system could choose to scan more area if fuel is not of high concern. Likewise, if the field is very large, or several fields need to be scanned in a limited amount of time, a quicker scan with a lower degree of prediction certainty can be performed.
 
 \section{Uncertainty Loss Function} \label{sec:lossfunc}
-In Section \ref{sec:fielduncert}, a criteria for overall field uncertainty was introduced. Given a set of previously sampled points, $S$, and a new set of samples, $T$, a new field uncertainty can be calculated via $\Sigma_{\text{var}}(\hat{Z}(S + T))$, where $S + T$ is the union of the the two sets $S$ and $T$. Given a new set of samples, $T$, the estimated loss in a target field's prediction uncertainty, $L(T)$, is a metric that should be maximized by a path planner aiming to improve prediction quality for exploration purposes.
+In Section \ref{sec:fielduncert}, a criterion for overall field uncertainty was introduced. Given a set of previously sampled points, $S$, and a new set of samples, $T$, a new field uncertainty can be calculated via $\Sigma_{\text{var}}(\hat{Z}(S + T))$, where $S + T$ is the union of the the two sets $S$ and $T$. Given a new set of samples, $T$, the estimated loss in a target field's prediction uncertainty, $L(T)$, is a metric that should be maximized by a path planner aiming to improve prediction quality for exploration purposes.
 
 \begin{equation}
 	L(T) = (\Sigma_{\text{var}}(\hat{Z}(S+T)) - \Sigma_{\text{var}}(\hat{Z}(S)))
@@ -15,14 +15,14 @@ The optimal path, $O$, subject to a limited scanning time constraint, is the pat
 	O = \argmax_T\ \beta L(T) - (1-\beta)l(S + T)
 \end{equation}
 
-Where $\beta \in [0,1]$ is a real number which puts more emphasis on exploration time over prediction quality. It is important to note that as more samples are taken, the overall field prediction variances change. It would be in the benefit of a path planner to batch process a set of points after meeting a predetermined waypoint, or after a threshold number of samples. 
+\noindent where $\beta \in [0,1]$ is a real number which puts more emphasis on exploration time over prediction quality. It is important to note that as more samples are taken, the overall field prediction variances change. It would be in the benefit of a path planner to batch process a set of points after meeting a predetermined waypoint, or after a threshold number of samples. 
 
 Given an endpoint in a single trajectory, in the limit, recalculating $O$ at every sample would optimally shape the trajectory of the exploration vehicle. With no endpoint selected, the exploration vehicle could be found in a repeating state due to being stuck in a global minimum in the variance field. In an effort to avoid the sticking minimum problem, the path planners introduced will be endpoint oriented (where the endpoint of any trajectory is predetermined), and the goal of each path taken is to make it to the endpoint. Furthermore, a new path will only be calculated as a batch process after sampling a trajectory. This is done in an attempt to reduce computation time as the Kriging predictions and variance calculations become more expensive as more samples are taken.
 
 \section{Finding Points of Highest Uncertainty} \label{sec:highestvars}
 Points on a target field with high prediction variances are points on a field that can be sampled first, in turn maximizing $L$ in Equation \ref{eq:lossfunc}. After sampling an initial set of points, and then running a Kriging prediction on all points on a target, the variance of prediction of all points can be calculated.
 
-The motivation of the path finders introduced are to minimize the average uncertainty of a target field, by to sampling the points representing the highest prediction variance. A set of points where the highest uncertainties lay are found on the field using a simple search.
+The motivation of the path finders introduced is to minimize the average uncertainty of a target field by sampling the points representing the highest prediction variances on the field. A set of points where the highest uncertainties lie are found on the field using a simple search.
 
 Let $S_k$ be a singleton set containing the point of highest variance on the $k^{th}$ iteration of the target field prediction variances, represented as the set $\text{var}\{\hat{Z}_k\}$, where $\text{var}\{\hat{Z}\} : \mathbb{R}^2 \to \mathbb{R}^+$.
 
@@ -31,7 +31,7 @@ Let $S_k$ be a singleton set containing the point of highest variance on the $k^
 	\label{eq:highestvar}
 \end{equation}
 
-The cardinality of the set $S_k$ can be greater than one if there exist multiple instances of the same value of variance in the target field prediction variances. For the sake of simplicity, only the singleton case will be considered.
+\noindent The cardinality of the set $S_k$ can be greater than one if there exist multiple instances of the same value of variance in the target field prediction variances. For the sake of simplicity, only the singleton case will be considered.
 
 Let $\text{var}\{\hat{Z}_{k+1}\}$ be the set of points, not including the point of highest variance found in the $k^{th}$ iteration of the set configuration (Equation \ref{eq:highestvar}), on a target field prediction.
 
@@ -40,7 +40,7 @@ Let $\text{var}\{\hat{Z}_{k+1}\}$ be the set of points, not including the point 
 	\label{eq:nextmaxvarsset}
 \end{equation}
 
-Let $S_{v}$ be the set of the $N$ points of highest uncertainty on the target field prediction variances, $\text{var}\{\hat{Z}\}$.
+\noindent Let $S_{v}$ be the set of the $N$ points of highest uncertainty on the target field prediction variances, $\text{var}\{\hat{Z}\}$.
 
 \begin{equation}
 	\label{eq:highestvarsunion}
@@ -60,7 +60,7 @@ Sampling the location of the next highest variance (NHV) is the simplest and mos
 	\end{bmatrix}
 \end{equation}
 
-The initial point, $T_{1}$, is defined explicitly.
+\noindent The initial point, $T_{1}$, is defined explicitly.
 
 \begin{equation}
 	T_{1} = \begin{bmatrix}
@@ -76,18 +76,19 @@ The exploration algorithm initializes by directing the vehicle to sweep across t
 \begin{figure}[hb!]
 	\centering
 	\includegraphics[width=0.95\linewidth]{figures/nhv_4panel.png}
-    \captionsetup{skip=0.20\baselineskip,size=footnotesize}
+    \captionsetup{skip=0.20\baselineskip}
+	\ssp
 	\caption{The Next Highest Variance (NHV) algorithm (Section \ref{sec:nvh_pp_alg} terminated after two iterations of the algorithm. The actual field that is being explored is shown in the upper left. The current prediction of the actual field is shown in the upper right. The variance of the current prediction of the field is shown in the lower left. The trace of the exploration vehicle's path taken to the point of termination (in red) is shown in the lower right panel. All distance units are in meters.}
 	\label{fig:nhv_pp}
 \end{figure}
 
 \subsection{Inefficiency in NHV}
-The NHV algorithm does not account for repeating paths, or avoiding re-sampling points. The only knowledge used is a single criteria of variance. Although the ground covered by the algorithm may be sufficient for the most exploration cases, a path planner that considers the cost of trajectories would likely yield better results.
+The NHV algorithm does not account for repeating paths, or avoiding re-sampling points. The only knowledge used is a single criterion of variance. Although the ground covered by the algorithm may be sufficient for the most exploration cases, a path planner that considers the cost of trajectories would likely yield better results.
 
 \section{Monte Carlo Based Trajectory Finding} \label{sec:mcpp}
 A path planner designed for autonomous field exploration using a Monte Carlo path selection technique will be introduced. By first selecting a set of locations with the highest uncertainty in current prediction, the path planner will find a suitable path that will in turn minimize the average variance of the target field predictions. The problem can be stated as a sensor placement problem, where a suitable placement of sensors is found via a Monte Carlo simulation of the environment, and a minimization of the Kriging prediction variances \cite{kriging:sensorplacement}.
 
-In the case of the path planner, because the exploration vehicle is dynamic, the sensors can be thought of as being placed along the trajectory of the vehicle (assuming reasonable ergodicity of the target field). The Monte Carlo approach to path finding via the Kriging Method introduced will first find the points of highest prediction uncertainty on the target field, and then generate a finite set of random trajectories along the originally found trajectories. The trajectory that is predicted to reduce overall field uncertainty will be chosen as the path the vehicle will take.
+In the case of the path planner, because the exploration vehicle is dynamic, the sensors can be thought of as being placed along the trajectory of the vehicle (assuming reasonable ergodicity of the target field). The Monte Carlo approach to path finding via the Kriging Method introduced will first find the points of highest prediction uncertainty on the target field, and then generate a finite set of random trajectories near the originally found trajectories. The trajectory that is predicted to reduce overall field uncertainty will be chosen as the path the vehicle will take.
 
 \subsection{Finding Monte Carlo Trajectory Sets} \label{sec:mctrajsets}
 After a suitable set of destinations are selected from the set of points containing the $N^{th}$ coordinates of highest uncertainty, $S_{v}$, trajectories to each point are calculated. The trajectories calculated can be both deterministic or variably non-deterministic walks from the current location of the exploration vehicle, to the final location.
@@ -106,7 +107,7 @@ For a given destination, $\vect{s}_d$ in $S_{v}$, and the current location of th
 	\end{bmatrix}
 \end{equation}
 
-Where $\vect{w}_k \in \mathbb{R}^2$ is a zero-mean Wiener Process with a tunable variance. Multiple Brownian walks from the current position to a given destination can be calculated to increase the pool of possible paths. For a zero variance Wiener process ($\text{var}\{\vect{w}\}=0$), the walk defined is deterministic, and equal to finding a set of N-NHV trajectories (Section \ref{sec:nnhv}. The \textit{cord} of the walk is the line the connects the initial position to the destination position. The cord acts as the expected value in the distribution of trajectories calculated. The initial point, $T_{k_1}$, and the final point, $T_{k_f}$, are defined explicitly.
+\noindent Where $\vect{w}_k \in \mathbb{R}^2$ is a zero-mean Wiener Process with a tunable variance. Multiple Brownian walks from the current position to a given destination can be calculated to increase the pool of possible paths. For a zero variance Wiener process ($\text{var}\{\vect{w}\}=0$), the walk defined is deterministic, and equal to finding a set of N-NHV trajectories (Section \ref{sec:nnhv}. The \textit{cord} of the walk is the line the connects the initial position to the destination position. The cord acts as the expected value in the distribution of trajectories calculated. The initial point, $T_{k_1}$, and the final point, $T_{k_f}$, are defined explicitly.
 
 \begin{equation}
 	T_{k_1} = \begin{bmatrix}
@@ -124,6 +125,7 @@ Where $\vect{w}_k \in \mathbb{R}^2$ is a zero-mean Wiener Process with a tunable
 \begin{figure}[h!]
 	\centering
 	\includegraphics[width=0.8\linewidth]{figures/brownian_motion_mc.png}
+	\ssp
 	\caption{Brownian non-deterministic walks (black) surrounding deterministic cords (red). The starting point is indicated in green. For a set of $N=2$ possible trajectories, $15$ random walks around each trajectory with a variance of $10$. All distance units in meters.}
 \end{figure}
 
@@ -135,7 +137,7 @@ Let $\hat{Z}(S)$ be a Kriging predicted field from a set of samples at known loc
 	samples(\hat{T}_k) = \hat{Z}(T_k)
 \end{equation}
 
-The variance of the field with real and virtual samples, $\text{var}\{\hat{Z}(S+\hat{T}_k)\}$, can then be calculated. Using the definition for $\Sigma_{\text{var}}(\cdot)$ from Section \ref{eq:fielduncert}, the path chosen is the trajectory that satisfies:
+\noindent The variance of the field with real and virtual samples, $\text{var}\{\hat{Z}(S+\hat{T}_k)\}$, can then be calculated. Using the definition for $\Sigma_{\text{var}}(\cdot)$ from Section \ref{eq:fielduncert}, the path chosen is the trajectory that satisfies:
 
 \begin{equation}
 	\label{eq:mcfoundpath}
@@ -197,7 +199,8 @@ In Algorithm \ref{alg:mcpp}, the function \texttt{SetWaypoint()} is an abstracte
 \begin{figure}[hb!]
 	\centering
 	\includegraphics[width=0.95\linewidth]{figures/mc_4panel.png}
-    \captionsetup{skip=0.20\baselineskip,size=footnotesize}
+    \captionsetup{skip=0.20\baselineskip}
+	\ssp
 	\caption{The Next Highest Variance (NHV) algorithm (Section \ref{sec:nvh_pp_alg} terminated after two iterations of the algorithm. The actual field that is being explored is shown in the upper left. The current prediction of the actual field is shown in the upper right. The variance of the current prediction of the field is shown in the lower left. The trace of the exploration vehicle's path taken to the point of termination (in red) is shown in the lower right panel. All distance units are in meters. Here, $N$, the number of endpoints selected is $3$, and the number of random paths per cord calculated is $15$.}
 	\label{fig:mcpp}
 \end{figure}

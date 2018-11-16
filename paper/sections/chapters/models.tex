@@ -8,7 +8,6 @@ The state vector of the vehicle will be defined as follows:
 	x \\
 	y \\
 	\theta \\
-	\omega \\
 	V
 \end{bmatrix}
 \label{eq:vehiclemodel}
@@ -27,14 +26,12 @@ The exploration vehicle dynamics will be modeled after a simple forward discrete
 	\vect{X}_{k+1} = \vect{X}_k + \begin{bmatrix}
 		V_k \Delta T \cos \theta_k \\
 		V_k \Delta T \sin \theta_k \\
-		\omega \Delta T \\
 		0 \\
 		0
 	\end{bmatrix} + \begin{bmatrix}
 	0 \\
 	0 \\
-	0 \\
-	\omega_k \\
+	\theta_k \\
 	V_k
 	\end{bmatrix}
 	\label{eq:vehicledynamicsmodel}
@@ -58,4 +55,4 @@ A criteria for overall field uncertainty can be defined as the average variance,
 	\label{eq:fielduncert}
 \end{equation}
 
-Where $\vect{d}_i$ is the proximity vector of the $i^{th}$ point on the field $Z$ (Section \ref{sec:proxvect}), and $\vect{\lambda}_i$ are the Kriging weights of the $i^{th}$ point in $Z$ (Section \ref{sec:krigweights}).
+\noindent where $\vect{d}_i$ is the proximity vector of the $i^{th}$ point on the field $Z$ (Section \ref{sec:proxvect}), and $\vect{\lambda}_i$ are the Kriging weights of the $i^{th}$ point in $Z$ (Section \ref{sec:krigweights}).

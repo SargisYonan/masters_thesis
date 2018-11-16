@@ -171,7 +171,7 @@
 % For some environments we switch back to single-spacing, also
 % provides \dsp in case you need double-spacing where single-spacing
 % is otherwise used.
-\def\ssp{\def\baselinestretch{1.0}\large\normalsize}
+\def\ssp{\def\baselinestretch{1.1}\large\normalsize} % used to be 1.0
 \def\dsp{\def\baselinestretch{1.37}\large\normalsize}
 
 % \smallssp is used to produce tabular environments in the small font.

@@ -12,6 +12,7 @@ Positively correlated geospatial autocorrelation in a field implies the existenc
         \centering
         \includegraphics[width=\linewidth]{figures/generated_field.png}
         \captionsetup{skip=0.5\baselineskip,size=footnotesize}
+        \ssp
         \caption{A randomly generated geospatially autocorrelated field.}
 		\label{fig:gen_field}
     \end{subfigure}%
@@ -20,9 +21,11 @@ Positively correlated geospatial autocorrelation in a field implies the existenc
         \centering
         \includegraphics[width=\linewidth]{figures/sampled_generated_field.png}
 		\captionsetup{skip=0.5\baselineskip,size=footnotesize}
-		\caption{Samples at marked locations were taken of the target field in \ref{fig:gen_field}.}
+		\ssp
+        \caption{Samples at marked locations were taken of the target field in \ref{fig:gen_field}.}
 		\label{fig:sampled_field}
     \end{subfigure}
+    \ssp
     \caption{A Gaussian distributed randomly generated spatially autocorrelated field.}
     \label{fig:generated_and_sampled_field}
 \end{figure}
@@ -48,6 +51,7 @@ An inverse distance weighting is a naive interpolation tool where a point is pre
 \begin{figure}[ht!]
     \centering
     \includegraphics[width=0.8\linewidth]{figures/idw_predicted_field.png}
+    \ssp
     \caption{An inverse distance weighting predicted field generated from the samples taken of Figure \ref{fig:gen_field} at the locations marked in Figure \ref{fig:sampled_field}.}
     \label{fig:idw_field}
 \end{figure}
@@ -103,6 +107,7 @@ The experimental variogram conveys the geospatial autocorrelation of a sampled f
 \begin{figure}[ht!]
     \centering    
     \includegraphics[width=0.8\linewidth]{figures/exp_variogram.png}
+    \ssp
     \caption{An empirical semivariogram.}
     \label{fig:emp_semiv}
 \end{figure}
@@ -145,6 +150,7 @@ The spherical model will reach an exactly zero slope at the sill and range.
 \begin{figure}[htb!]
     \centering    
     \includegraphics[width=0.8\linewidth]{figures/fit_kern_comp.png}
+    \ssp
     \caption{Examples of three different variogram models.}
     \label{fig:fit_kernel_cop}
 \end{figure}
@@ -156,8 +162,8 @@ The kernel function of the range, $a$, the sill, $s$, and lag, $h$ is chosen bas
 Using a version of the \textit{fminsearch} function in \textit{MATLAB}, a variogram can be fit to the desired objective function from a set of samples, and initial guesses for the range and sill. As the function is used over several iterations of sampling, the fit range and sill values found in the previous iteration can be used as the seed to the next iteration of the fit in an attempt to minimize computation time. The \textit{MATLAB} function, \textit{fminsearch}, is defined to ``find the minimum of an unconstrained multi-variable function using a derivative-free method", expressed in Equation \ref{eq:matlabfmin}.
 
 \begin{equation}
-\gamma(h) = \min\ [\gamma_{kernel}(h,s,a) - \hat{\gamma}(h)]^2
-\label{eq:matlabfmin}
+    \gamma(h) = \min\ [\gamma_{kernel}(h,s,a) - \hat{\gamma}(h)]^2
+    \label{eq:matlabfmin}
 \end{equation}
 
 The function is then modified by specifying bounds of minimization in an attempt to decrease iterations of the function fit, which can be computationally expensive as more samples are taken. This modified version of \textit{fminsearch}, named \textit{fminsearchcon}, can be downloaded from the MathWorks File Exchange.
@@ -165,6 +171,7 @@ The function is then modified by specifying bounds of minimization in an attempt
 \begin{figure}[ht!]
     \centering    
 	\includegraphics[width=0.8\linewidth]{figures/fit_kernel.png}
+    \ssp
 	\caption{An experimental variogram generated using Equation \ref{eq:exp_var} from the samples taken in Figure \ref{fig:sampled_field}. $\delta$ was chosen such that for $n$ observations, a total number of $\Big\lfloor \frac{n}{2} \Big\rfloor$ points were plotted. A Gaussian statistical model was fit to the experimental variogram. The variogram was fit using \textit{fminsearchcon} in \textit{MATLAB}.}
 	\label{fig:fit_kernel}
 \end{figure}
@@ -219,7 +226,7 @@ $$\vect{d}_0(k) = \text{cov}\{Z(\vect{s}_0), Z(\vect{s}_k)\} = \gamma(\| \vect{s
     \label{eq:proxvect}
 \end{equation}
 
-Furthermore, The Kriging Method can be \textit{bounded}. If a to-be-predicted point and a given sample is beyond the range value fit to the variogram model, the corresponding element in the proximity vector is set to the sill. This ensures that points outside of the range of autocorrelation are not weighted anymore than they should be. This method is suggested when the variogram model used is a \textit{bounded function}, e.g. the Spherical Model (Equation \ref{eq:sph_model}).
+\noindent Furthermore, The Kriging Method can be \textit{bounded}. If a to-be-predicted point and a given sample is beyond the range value fit to the variogram model, the corresponding element in the proximity vector is set to the sill. This ensures that points outside of the range of autocorrelation are not weighted anymore than they should be. This method is suggested when the variogram model used is a \textit{bounded function}, e.g. the Spherical Model (Equation \ref{eq:sph_model}).
 
 \section{The Kriging Weights} \label{sec:krigweights}
 Similarly to the Inverse Distance Weighting method, a set a weights will be computed for each vesicle in the target field. These weights will be referred to as the \textit{Kriging Weights}, or the \textit{error variance vector}. For a given prediction location, $\vect{s}_0$, the Kriging Weight vector, $\vect{\lambda}_0$, will be defined as the product of the inverse of the covariance matrix of the field and the proximity vector of the point to predict.
@@ -240,6 +247,7 @@ The Kriging equation will be used to predict the value, $\hat{Z}(\vect{s}_0)$ of
 \begin{figure}[!]
     \centering
     \includegraphics[width=0.8\linewidth]{figures/kriging_prediction.png}
+    \ssp
     \caption{A Kriging Method predicted field generated from the samples taken of Figure \ref{fig:gen_field} at the locations marked in Figure \ref{fig:sampled_field}.}
     \label{fig:krig_field}
 \end{figure}
@@ -260,7 +268,7 @@ From the method described in Equation \ref{eq:krigeq}, an error can be computed 
     \label{eq:krigerr}
 \end{equation}
 
-The Kriging Error value will be used to test the unbiasedness of the predictions made, and is factored into confidence of predictions made.
+\noindent The Kriging Error value will be used to test the unbiasedness of the predictions made, and is factored into confidence of predictions made.
 
 \section{Procedure For Field Prediction Using The Kriging Method}
 In order to predict the entirety of a target field from a finite set of $N$ observations and their respective locations, $O$, the Kriging Prediction is run at every possible unobserved vesicle in the target field, $Z$. For a single iteration of collecting observations and making predictions, a covariance matrix must first be constructed, and then a the proximity vector and Kriging Weights are computed for all unobserved vesicles. The Kriging prediction formula is then used to compute the predicted value of each vesicle to predict.
