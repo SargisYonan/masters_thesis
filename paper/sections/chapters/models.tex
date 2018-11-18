@@ -40,19 +40,11 @@ The exploration vehicle dynamics will be modeled after a simple forward discrete
 The speed, $V$, is assumed to be regulated at a constant value for all values of $k$.
 
 \section{Field Uncertainty Model} \label{sec:fielduncert}
-In Section \ref{sec:krigvar}, a method for calculating the variance of a prediction was defined as a function of the proximity vector and Kriging weights generated for the prediction point.
+In Section \ref{sec:krigvar}, a method for calculating the variance of a prediction was defined as a function of the proximity vector and Kriging weights generated for the prediction point. The variance defined represents the square of the standard deviation of the distribution the expected value of the prediction is sampled from. For points that have been directly measured, the variance is zero, assuming the field has a high level of ergodicity (no drift in the field). The uncertainty of the prediction of a point in the target field is therefore directly proportional to the variance of its prediction. The goal of a path planner intending to suppress uncertainty of predictions in a target field would then be to reduced the overall variance of the target field being explored.
+
+A criterion for overall field uncertainty can be defined as the average variance, calculated from a prediction of a target field from a set $S$ points sampled for all $N$ predictable points on a target field.
 
 \begin{equation}
-    \text{var}\{\hat{Z}(\vect{s}_0)\} = \vect{d}_0 \cdot \vect{\lambda}_0 = \vect{d}_0 \vect{\lambda}_0^T
-\end{equation}
-
-The variance defined represents the square of the standard deviation of the distribution the expected value of the prediction is sampled from. For points that have been directly measured, the variance is zero, assuming the field has a high level of ergodicity. The uncertainty of the prediction of a point in the target field is therefore directly proportional to the variance of its prediction. The goal of a path planner intending to suppress uncertainty of predictions in a target field would then be to reduced the overall variance of the target field being explored.
-
-A criteria for overall field uncertainty can be defined as the average variance, calculated from a prediction of a target field from a set $S$, $\hat{Z}(S)$, for all $N$ predictable points on a target field, $Z$.
-
-\begin{equation}
-	\Sigma_{\text{var}}(\hat{Z}(S)) = \text{avg}\{{\text{var}\{\hat{Z}(S)\}}\} = \frac{1}{N}\sum_{\forall i \in Z} \vect{d}_i \vect{\lambda}_i^T
+	\Sigma_{\text{var}}(\hat{Z}_{S}) = \frac{1}{N}\sum_{i = 1}^N \text{var}\{\hat{Z}(\vect{p}_i)\}
 	\label{eq:fielduncert}
 \end{equation}
-
-\noindent where $\vect{d}_i$ is the proximity vector of the $i^{th}$ point on the field $Z$ (Section \ref{sec:proxvect}), and $\vect{\lambda}_i$ are the Kriging weights of the $i^{th}$ point in $Z$ (Section \ref{sec:krigweights}).
