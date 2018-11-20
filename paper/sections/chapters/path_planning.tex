@@ -1,7 +1,58 @@
 \chapter{Path Planning} \label{ch:pp}
 The goal of each of the planners introduced is to assist in the discovery of a field's features with an adjustable trade off between speed and confidence of prediction. The user of such a system could choose to scan more area if fuel is not of high concern. Likewise, if the field is very large, or several fields need to be scanned in a limited amount of time, a quicker scan with a lower degree of prediction certainty can be performed.
 
-\section{Uncertainty Loss Function} \label{sec:lossfunc}
+\section{Vehicle \& Information Gain Model}
+In an effort to formalize the dynamics of the exploration vehicle, and the information gain on the field, the models for vehicle dynamics and field variances will be introduced.
+
+\subsection{Exploration Vehicle Model Dynamics} \label{sec:vehicledynamics}
+The state vector of the vehicle will be defined as follows:
+\begin{equation}
+\vect{X} = \begin{bmatrix}
+	x \\
+	y \\
+	\theta \\
+	V
+\end{bmatrix}
+\label{eq:vehiclemodel}
+\end{equation}
+
+\noindent where $x$ and $y$ are the vehicle's position on a field, $\theta$ is the vehicle's heading angle, $\omega$ is the vehicle's angular velocity, $\dot{\theta}$, and $V$ is the magnitude of the linear velocity of the vehicle. Both $\omega$ and $V$ are control inputs to the vehicle.
+
+The exploration vehicle dynamics will be modeled after a simple forward discrete kinematics model with a constant time step per iteration, $\Delta T$. An iteration of the propagation model will be the sum of the previous iteration, $\vect{X}_{k}$, the nonlinear vehicle dynamics, $\vect{f}(\vect{X}_k)$, and the control input, $\vect{u}_k$.
+
+\begin{equation}
+	\vect{X}_{k+1} = \vect{X}_k + \vect{f}(\vect{X}_{k}) + \vect{u}_k
+	\label{eq:vehicledynamicsform}
+\end{equation}
+
+\begin{equation}
+	\vect{X}_{k+1} = \vect{X}_k + \begin{bmatrix}
+		V_k \Delta T \cos \theta_k \\
+		V_k \Delta T \sin \theta_k \\
+		0 \\
+		0
+	\end{bmatrix} + \begin{bmatrix}
+	0 \\
+	0 \\
+	\theta_k \\
+	V_k
+	\end{bmatrix}
+	\label{eq:vehicledynamicsmodel}
+\end{equation}
+
+The speed, $V$, is assumed to be regulated at a constant value for all values of $k$.
+
+\subsection{Field Uncertainty Model} \label{sec:fielduncert}
+In Section \ref{sec:krigvar}, a method for calculating the variance of a prediction was defined as a function of the proximity vector and Kriging weights generated for the prediction point. For points that have been directly measured, the variance is ideally zero (for fields with no drift or dynamics). The uncertainty of the prediction of a point in the target field is directly proportional to the variance of its prediction. The goal of a path planner intending to suppress uncertainty of predictions in a target field would be to reduced the overall variance of the target field being explored.
+
+A criterion for overall field uncertainty can be defined as the average variance, calculated from a prediction of a target field from a set $S$ points sampled for all $h\times w$ predictable points on a target field.
+
+\begin{equation}
+	\Sigma(\hat{Z}_{S}) = \frac{1}{hw}\sum_{i = 1}^{hw} \text{var}\{\hat{Z}(\vect{p}_i)\}
+	\label{eq:fielduncert}
+\end{equation}
+
+\subsection{Uncertainty Loss Function} \label{sec:lossfunc}
 In Section \ref{sec:fielduncert}, a criterion for overall field uncertainty was introduced. Given a set of sampled points, $S$ on a field, the overall field uncertainty is the mean variance of all points on the field, $\Sigma(\hat{Z}_{S})$. For an additional set of samples, $T$, taken on the field, a new field uncertainty, $\Sigma(\hat{Z}_{S \cup T})$, is the field uncertainty criterion of the fields prediction from the union of the sample sets $S$ and $T$. The difference in overall field uncertainty, $L(T)$, will be defined as the uncertainty lost by taking the additional samples in the set $T$ on the field.
 
 \begin{equation}
@@ -68,8 +119,8 @@ By simply setting the next endpoint of the path to $\vect{p}$, the point of high
 \subsection{Inefficiency in NHV}
 The NHV algorithm does not account for repeating paths, or avoiding the re-sampling of points on the field. The only knowledge used is the variance of the endpoint of a path. Although the ground covered by the algorithm may be sufficient for uncertainty suppression, a path planner that considers the cost of trajectories would likely yield better results.
 
-\subsection{$N$ Next Highest Variances Path Planner} \label{sec:nnhv}
-A modification to the NHV algorithm can be made to consider more trajectories, and therefore compare the loss of taking a path from a set of possible paths. Let $K_N$ be the set of the $N \in \mathbb{N}$ points of highest uncertainty on the field. Let $T_i$ be the trajectory connecting the current position of the exploration vehicle to the $i^{th}$ point in the set $K_N$. The endpoint that is ultimately chosen by the $N$ Next Highest Variance (N-NHV) Path Planner is the one that maximizes the loss function, $L(T_i)$. The points along a trajectory, $T_i$, have likely not been sampled, as they represent points of high uncertainty. The loss in uncertainty for taking the path, $T_i$, is therefore not known. An estimate of the loss in overall field uncertainty, $\hat{L}(T_i)$, after taking the path, $T_i$, is calculated by using the previous Kriging predictions of the points along the path. The predictions of those points are used as actual samples taken on the field in a new Kriging prediction variance calculation of the field. An initial forward diagonal sweep of samples are taken across the field to generate an initial variogram, initial Kriging predictions, and initial Kriging prediction variances before the path planner chooses its first endpoint.
+\section{$N$ Next Highest Variances Path Planner} \label{sec:nnhv}
+A modification to the NHV algorithm can be made to consider more trajectories, and therefore compare the loss of taking a path from a set of possible paths. Let $K_N$ be the set of the $N \in \mathbb{N}$ points of highest uncertainty on the field. Let $T_i$ be a candidate trajectory connecting the current position of the exploration vehicle to the $i^{th}$ point in the set $K_N$. The endpoint that is ultimately chosen by the $N$ Next Highest Variance (N-NHV) Path Planner is the one that maximizes the loss function, $L(T_i)$. The points along a trajectory, $T_i$, have likely not been sampled, as they represent points of high uncertainty. The loss in uncertainty for taking the path, $T_i$, is therefore not known. An estimate of the loss in overall field uncertainty, $\hat{L}(T_i)$, after taking the path, $T_i$, is calculated by using the previous Kriging predictions of the points along the path. The predictions of those points are used as actual samples taken on the field in a new Kriging prediction variance calculation of the field. An initial forward diagonal sweep of samples are taken across the field to generate an initial variogram, initial Kriging predictions, and initial Kriging prediction variances before the path planner chooses its first endpoint.
 
 % \begin{figure}[hb!]
 % 	\centering
@@ -80,13 +131,12 @@ A modification to the NHV algorithm can be made to consider more trajectories, a
 % 	\label{fig:nnhv}
 % \end{figure}
 
-\subsection{Monte Carlo Path Planner} \label{sec:mcpp}
-By introducing noise into each of the trajectories found in the N-NHV path planner, a more optimal path can be found. Similarly to the N-NHV method, the Monte Carlo path that maximizes the loss of the overall field uncertainty is chosen as the next vehicle path. Let $K_N$ be the set of the $N$ points of highest prediction variances on the field. Let $T_i$ be the trajectory from the current position of the exploration vehicle to the $i^{th}$ endpoint in $K_N$. Each point in the trajectory is a waypoint the exploration vehicle will visit on its way to the last point in the sequence, a point from the set $K_N$. The trajectory is a set of state vectors representing the field horizontal position, $x$, the field vertical position, $y$, and the vehicle heading angle, $theta$. The $k^{th}$ vector in the state trajectory set, $T_i$, denoted as $T_{i}(k)$, will be the state the exploration vehicle will take on at that position on the field, i.e.
+\section{Monte Carlo Path Planner} \label{sec:mcpp}
+By introducing noise into each of the trajectories found in the N-NHV path planner, a more optimal path can be found. Similarly to the N-NHV method, the Monte Carlo path that maximizes the loss of the overall field uncertainty is chosen as the next vehicle path. Let $K_N$ be the set of the $N$ points of highest prediction variances on the field. Let $T_i$ be a candidate trajectory from the current position of the exploration vehicle to the $i^{th}$ endpoint in $K_N$. Each point in the candidate trajectory is a waypoint the exploration vehicle will visit on its way to the last point in the sequence. The trajectory is a set of state vectors representing the field horizontal position, $x$, the field vertical position, $y$, and the vehicle heading angle, $theta$. The $k^{th}$ vector in the state candidate trajectory set, $T_i$, denoted as $T_{i}(k)$, will be the state the exploration vehicle will take on at that position on the field, i.e.
 
 \begin{equation}
 T_{i}(k) = \begin{bmatrix} x_i(k) \\ y_i(k) \\ \theta_i(k) \end{bmatrix}
 \end{equation}
-
 
 Let $\alpha \in \mathbb{R}$ be the step size of the vehicle from one point to the next within the trajectory, $T_i$. Let $\vect{w}_i \in \mathbb{R}^2$ be a vector of two zero-mean Wiener processes with a tunable process standard deviation which is less than the step size, $\alpha$. Furthermore, the step size of the vehicle, $\alpha$, can not be a value less than the distance the exploration vehicle can travel in one time-step, $\Delta T$, given a constant vehicle velocity of $V$.
 
@@ -194,11 +244,11 @@ As introduced in the N-NHV path planner, the trajectory that maximizes the loss 
 \begin{figure}[hb!]
 	\centering
 	\includegraphics[width=0.95\linewidth]{figures/mc_4panel.png}
-    \captionsetup{skip=0.20\baselineskip}
+	\captionsetup{skip=0.20\baselineskip}
 	\ssp
 	\caption{The Monte Carlo Path Planner (MCPP) algorithm (Section \ref{sec:mcpp} terminated after two iterations of the algorithm. The actual field that is being explored is shown in the upper left. The current prediction of the actual field is shown in the upper right. The variance of the current prediction of the field is shown in the lower left. The trace of the exploration vehicle's path taken to the point of termination (in red) is shown in the lower right panel. All distance units are in meters. Here, $N$, the number of endpoints selected is $N=3$, and the number of random paths per cord calculated is $15$.}
 	\label{fig:mcpp}
 \end{figure}
 
-\subsection{Planner Comparison}
+\section{Planner Comparison}
 The Monte Carlo based path planner (MCPP) takes into account a set of trajectories, and compares their estimated return on investment. The NHV simply takes the path to the high prediction uncertainty location. Though the MCPP algorithm, with a non-zero noise variance, does not deterministically calculate its trajectories, given enough trajectories, the algorithm could find a path that will reduce overall field uncertainty in a more brute-force way over the NHV algorithm. The disadvantages of The Monte Carlo Path Planner lay in the fact that the cost of each next move taken, are not considered directly. Rather, an entire trajectory is considered all at once. A more optimal approach to this planner would be to take into consideration the cost of each waypoint selected.

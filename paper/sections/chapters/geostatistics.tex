@@ -1,4 +1,4 @@
-\chapter{Introduction to Spatial Analysis}
+\chapter{Spatial Analysis}
 Many of the methods introduced in this thesis will rely on works developed in the fields of Spatial Statistics, Geostatistics, and Geography. Geo-statisticians have developed much of the work surrounding field predictions in the geospatial domain. In an effort to make the methods introduced be as presentable and contained as possible, a background on the required tools from the field of geostatistics will be reviewed. The Kriging Method, a best linear unbiased predictor (BLUP) produces a prediction based on statistical data gathered from samples taken on a field. The method performs a weighted least squares on weights from a covariance matrix created from points sampled on a field. A variance for each prediction computed can also generated as a byproduct of the Kriging prediction, and will be used to calculate information gain in a path finder introduced in this paper. It is assumed that the expected value of each point is from a normal distribution, where the variance and expected value of the distribution is a function of spatial autocorrelation factor of the field.
 
 Tobler's First Law of Geography \cite{tobler:first_law} states,``Everything is related to everything else, but near things are more related than distant things." Regarding geospatial data, there is a positive correlation between observations with a small difference in distance \cite{miller:on_toblers_first_law}. This implies the existence of geospatial autocorrelation in many target fields of interest. This implies a positive correlation between elements in the spatial series that are of interest to the introduced technique. Geospatial autocorrelation is the hypothesis that allows naive prediction techniques, like Inverse Distance Weighting (IDW) (Section \ref{sec:idw_intro}), to work. The Kriging Method first finds the underlying spatial autocorrelation of a target field from a set of samples, and then predicts the state of a given vesicle by emphasizing values of statistically similar samples in a weighted sum. The methods introduced in this chapter are intended to serve as an introduction and background into the Kriging Method.
@@ -176,13 +176,13 @@ The function is then modified by specifying bounds of minimization in an attempt
 	\label{fig:fit_kernel}
 \end{figure}
 
-\chapter{The Kriging Method}
+\section{The Kriging Method}
 The Kriging Method conducts a weighted sum using the continuous variogram model that was fit to the physical observations made. The method can yield a prediction for each vesicle in a target space similar to the Inverse Distance Weighting method described in Section \ref{sec:idw_intro}, but with more statistical robustness.
 
-\section{Forms of the Kriging Method}
+\subsection{Forms of the Kriging Method}
 There exist three major forms of the Kriging Method. All of which differ primarily in the handling of the mean gathered from observations of a target field. The \textit{Simple Kriging Method} makes the assumption that the mean is known and constant throughout the entirety of an observed field. This is of course not the case for fields that are very large as it does not follow Tobler's First Law. The \textit{Ordinary Kriging Method} can deduce the local mean of a neighborhood from a smaller subset of observations in a larger target field. This is done by classifying the larger field into smaller neighborhoods where the mean is only constant within those neighborhoods. Ordinary Kriging has the advantage that the mean is not required to be known before running a prediction. The \textit{Universal Kriging Method} can perform similar local mean calculations as the Ordinary Kriging Method, but does so by fitting a polynomial representing a mean trend model and not from a constant mean value representing that neighborhood \cite{vandergraaf:nnkrig} as seen in Section \ref{sec:varfit} on fitting a variogram.
 
-\section{Covariance Matrix From A Variogram} \label{sec:covmat}
+\subsection{Covariance Matrix From A Variogram} \label{sec:covmat}
 From the fit variogram which represents the spatial statistics of a field from a set of samples, a variance-covariance matrix for $N$ observations, $P \in \mathbb{R}^{N+1 \times N+1}$, will be constructed. The value of the element $P_{i,j}$, will represent the covariance of the lag between the $i^{th}$ and $j^{th}$ observations on the field \cite{goov:97}, \cite{matheron:geostat}. If $i=j$, the value of the element, $P_{i,j}$ is the variance of the $i^{th}$ observation. 
 
 \begin{equation}
@@ -205,7 +205,7 @@ From the fit variogram which represents the spatial statistics of a field from a
     \label{eq:covvarmat}
 \end{equation}
 
-\section{The Proximity Vector} \label{sec:proxvect}
+\subsection{The Proximity Vector} \label{sec:proxvect}
 For any given point on a field, we can construct a \textit{proximity vector}, $\vect{d}_0 \in \mathbb{R}^{N+1}$, which contains the covariance of a given point, $\vect{s}_0$ on the field with the $N$ observations made. The $k^{th}$ element of $\vect{d}_N$, would therefore contain the covariance for the lag between point $\vect{s}_0$ and the $k^{th}$ observation made, $\vect{s}_k$ \cite{matheron:geostat}.
 
 $$\vect{d}_0(k) = \gamma(\| \vect{s}_0 - \vect{s}_k \|_2)$$
@@ -223,7 +223,7 @@ $$\vect{d}_0(k) = \gamma(\| \vect{s}_0 - \vect{s}_k \|_2)$$
 
 \noindent Furthermore, The Kriging Method can be bounded. If a to-be-predicted point and a given sample is beyond the range value fit to the variogram model, the corresponding element in the proximity vector is set to the sill. This ensures that points outside of the range of autocorrelation are not weighted anymore than they should be. This method is suggested when the variogram model used is a bounded function, e.g. the Spherical Model (Equation \ref{eq:sph_model}).
 
-\section{The Kriging Weights} \label{sec:krigweights}
+\subsection{The Kriging Weights} \label{sec:krigweights}
 Similarly to the Inverse Distance Weighting method, a set a weights will be computed for each vesicle in the target field. These weights will be referred to as the \textit{Kriging Weights}. For a given prediction location, $\vect{s}_0$, the Kriging Weight vector, $\vect{\lambda}_0$, will be defined as the product of the inverse of the covariance matrix of the field and the proximity vector of the point to predict \cite{felus:srn}.
 
 \begin{equation}
@@ -241,7 +241,7 @@ Similarly to the Inverse Distance Weighting method, a set a weights will be comp
 
 \noindent where $\mu_0$ is the Lagrangian multiplier that is used to assist in maintaining the unbiasedness condition of the Kriging method \cite{felus:srn}. 
 
-\section{The Kriging Prediction Equation}
+\subsection{The Kriging Prediction Equation}
 The Kriging equation will be used to predict the value, $\hat{Z}(\vect{s}_0)$ of an unobserved location, $\vect{s}_0$. The prediction is a function of the Kriging Weights and a vector of $N$ observations \cite{felus:srn}. 
 
 \begin{equation}
@@ -257,14 +257,14 @@ The Kriging equation will be used to predict the value, $\hat{Z}(\vect{s}_0)$ of
     \label{fig:krig_field}
 \end{figure}
 
-\section{Variance of A Kriging Prediction} \label{sec:krigvar}
+\subsection{Variance of A Kriging Prediction} \label{sec:krigvar}
 The variance of a point predicted on a target field can be calculated using byproduct terms generated along the way of calculating a Kriging prediction \cite{felus:srn}. For a predicted point $\hat{Z}(\vect{s}_0)$, using the proximity vector, $\vect{d}_0$, defined in Section \ref{sec:proxvect}, and the Kriging Weights, $\vect{\lambda}_0$ defined in Section \ref{sec:krigweights} for the predicted point, the variance of the prediction for that point is defined as:
 
 \begin{equation}
     \text{var}\{\hat{Z}(\vect{s}_0)\} = \begin{bmatrix}\vect{d}_0 \\ 1\end{bmatrix} \begin{bmatrix}\vect{\lambda}_0^T & \mu_0 \end{bmatrix}
 \end{equation}
 
-\section{Procedure For Field Prediction Using The Kriging Method}
+\subsection{Procedure For Field Prediction Using The Kriging Method}
 In order to predict the entirety of a target field from a finite set of $N$ observations and their respective locations, $O$, the Kriging Prediction is run at every possible unobserved vesicle in the target field. For a single iteration of collecting observations and making predictions, a covariance matrix must first be constructed, and then a the proximity vector and Kriging Weights are computed for all unobserved vesicles. The Kriging prediction formula is then used to compute the predicted value of each vesicle to predict.
 
 \begin{algorithm}[thpb!]
