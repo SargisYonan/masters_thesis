@@ -221,10 +221,10 @@ $$\vect{d}_0(k) = \gamma(\| \vect{s}_0 - \vect{s}_k \|_2)$$
     \label{eq:proxvect}
 \end{equation}
 
-\noindent Furthermore, The Kriging Method can be \textit{bounded}. If a to-be-predicted point and a given sample is beyond the range value fit to the variogram model, the corresponding element in the proximity vector is set to the sill. This ensures that points outside of the range of autocorrelation are not weighted anymore than they should be. This method is suggested when the variogram model used is a \textit{bounded function}, e.g. the Spherical Model (Equation \ref{eq:sph_model}).
+\noindent Furthermore, The Kriging Method can be bounded. If a to-be-predicted point and a given sample is beyond the range value fit to the variogram model, the corresponding element in the proximity vector is set to the sill. This ensures that points outside of the range of autocorrelation are not weighted anymore than they should be. This method is suggested when the variogram model used is a bounded function, e.g. the Spherical Model (Equation \ref{eq:sph_model}).
 
 \section{The Kriging Weights} \label{sec:krigweights}
-Similarly to the Inverse Distance Weighting method, a set a weights will be computed for each vesicle in the target field. These weights will be referred to as the \textit{Kriging Weights}, or the \textit{error variance vector}. For a given prediction location, $\vect{s}_0$, the Kriging Weight vector, $\vect{\lambda}_0$, will be defined as the product of the inverse of the covariance matrix of the field and the proximity vector of the point to predict \cite{felus:srn}.
+Similarly to the Inverse Distance Weighting method, a set a weights will be computed for each vesicle in the target field. These weights will be referred to as the \textit{Kriging Weights}. For a given prediction location, $\vect{s}_0$, the Kriging Weight vector, $\vect{\lambda}_0$, will be defined as the product of the inverse of the covariance matrix of the field and the proximity vector of the point to predict \cite{felus:srn}.
 
 \begin{equation}
     \begin{bmatrix}
