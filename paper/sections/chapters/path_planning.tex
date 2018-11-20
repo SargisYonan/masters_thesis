@@ -159,15 +159,14 @@ Let $\alpha \in \mathbb{R}$ be the step size of the vehicle from one point to th
 A Monte Carlo path is one where at each step in each of the trajectories in the set, $K_N$, a random movement is made in the path. The path has an expected value which is equal to the original, non-stochastic, N-NHV version of the path generated for the equivalent point in $K_N$. The corresponding Monte Carlo path, or sequence of way-points the exploration vehicle will make on its way to the final endpoint, $\vect{p}_i = [p_x\ p_y]^T$. The initial point in the trajectory is set to the current position, $\vect{s}=[x_0\ y_0]^T$ from the state vector of the exploration vehicle.
 
 \begin{equation}
-	T_{i}(1) = \begin{bmatrix}
+\label{eq:mcpp}
+T_{i}(k) = \begin{cases}
+	\begin{bmatrix}
 		x_0 \\
 		y_0\\
 		\text{atan2}(p_y - y_0, p_x - x_0)
-	\end{bmatrix}
-\end{equation}
+	\end{bmatrix} & k=1 \\
 
-\begin{equation}
-	T_{i}(k) = T_{i}(k-1) +
 	\begin{bmatrix}
 		\alpha \cos \theta_i(k) \\
 		\alpha \sin \theta_i(k) \\
@@ -175,14 +174,15 @@ A Monte Carlo path is one where at each step in each of the trajectories in the 
 	\end{bmatrix} + \begin{bmatrix} 
 		\vect{w}_i(k) \\
 		0
-	\end{bmatrix}
+	\end{bmatrix} & 1 < k < \Big\lceil \frac{\|\vect{p} - \vect{s}\|_2}{\alpha} \Big\rceil \\
+
+
+	\begin{bmatrix} p_x \\ p_y \\ 0\end{bmatrix} & k = \Big\lceil \frac{\|\vect{p} - \vect{s}\|_2}{\alpha} \Big\rceil \\
+
+\end{cases}
 \end{equation}
 
-Due to the uncertainty in length of the random trajectory generated, the number of waypoints in the trajectory $T_i$ is fixed, such that $k \in [1, \Big\lceil \frac{\|\vect{p}- \vect{s}\|_2}{\alpha} \Big\rceil]$, and the last point is in the trajectory set is set to the endpoint from the set $K_N$:
-
-\begin{equation}
-	T(\Big\lceil \frac{\|\vect{p} - \vect{s}\|_2}{\alpha} \Big\rceil) = \begin{bmatrix} p_x \\ p_y \\ 0\end{bmatrix}
-\end{equation}
+Due to the uncertainty in length of the random trajectory generated, the number of waypoints in the trajectory $T_i$ is fixed, such that $k \in [1, \Big\lceil \frac{\|\vect{p}- \vect{s}\|_2}{\alpha} \Big\rceil]$ (the number of points in the trajectory for a step size, $\alpha$, given zero variance noise added to the process), and the last point is in the trajectory set is set to the corresponding endpoint from the set $K_N$.
 
 As introduced in the N-NHV path planner, the trajectory that maximizes the loss function, $L(T)$, is the path that is ultimately selected as the next vehicle trajectory. In an effort to find a more optimal trajectory, more than one random walk can be generated for each endpoint in the set $K_N$. The variable $M_{mc} \in \mathbb{N}$ will denote the number of random walks taken per endpoint in the set $K_N$.
 
@@ -241,7 +241,7 @@ As introduced in the N-NHV path planner, the trajectory that maximizes the loss 
 
 % In Algorithm \ref{alg:mcpp}, the function \texttt{SetWaypoint()} is an abstracted function which steers the vehicle in the direction of the waypoint specified, and blocks the code instruction until the waypoint has been met. The function \texttt{length(}$T$\texttt{)} finds the arc length of the path by connecting all points in the trajectory, $T$. For a deterministically calculated trajectory, $T$, the arc length is $\alpha |T|$.
 
-\begin{figure}[hb!]
+\begin{figure}[htb!]
 	\centering
 	\includegraphics[width=0.95\linewidth]{figures/mc_4panel.png}
 	\captionsetup{skip=0.20\baselineskip}

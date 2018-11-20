@@ -373,7 +373,7 @@
 \vfill
 \begin{center}
 \fmfont
-\hfill \parbox{3in}{The Dissertation of {\@author}\\ is approved:} \\
+\hfill \parbox{3in}{The Thesis of {\@author}\\ is approved:} \\
 \bigskip \bigskip
 \hfill\rule{2.6in}{0.5pt}\\
 \hfill\makebox[2.6in][l]{\@chair, Chair }\\
