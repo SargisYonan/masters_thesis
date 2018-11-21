@@ -132,7 +132,7 @@ A modification to the NHV algorithm can be made to consider more trajectories, a
 % \end{figure}
 
 \section{Monte Carlo Path Planner} \label{sec:mcpp}
-By introducing noise into each of the trajectories found in the N-NHV path planner, a more optimal path can be found. Similarly to the N-NHV method, the Monte Carlo path that maximizes the loss of the overall field uncertainty is chosen as the next vehicle path. Let $K_N$ be the set of the $N$ points of highest prediction variances on the field. Let $T_i$ be a candidate trajectory from the current position of the exploration vehicle to the $i^{th}$ endpoint in $K_N$. Each point in the candidate trajectory is a waypoint the exploration vehicle will visit on its way to the last point in the sequence. The trajectory is a set of state vectors representing the field horizontal position, $x$, the field vertical position, $y$, and the vehicle heading angle, $theta$. The $k^{th}$ vector in the state candidate trajectory set, $T_i$, denoted as $T_{i}(k)$, will be the state the exploration vehicle will take on at that position on the field, i.e.
+A Monte Carlo path is one where at each step in each of the candidate trajectories generated from the set of candidate endpoints, $K_N$, a random movement is made. The path has an expected value which is equal to the original, non-stochastic, N-NHV version of the path generated for the equivalent point in $K_N$. By introducing noise into each of the trajectories found in the N-NHV path planner, a more optimal path can be found. Similarly to the N-NHV method, the Monte Carlo path that maximizes the loss of the overall field uncertainty is chosen as the next vehicle path. Let $K_N$ be the set of the $N$ points of highest prediction variances on the field. Let $T_i$ be a candidate trajectory from the current position of the exploration vehicle to the $i^{th}$ endpoint in the candidate endpoint set, $K_N$. Each point in the candidate trajectory is a waypoint the exploration vehicle will visit on its way to the last point in the sequence. The trajectory is a set of states representing the field horizontal position, $x$, the field vertical position, $y$, and the vehicle heading angle, $theta$. The $k^{th}$ vector in the state candidate trajectory set, $T_i$, denoted as $T_{i}(k)$, will be the state the exploration vehicle will take on at that position on the field, i.e.
 
 \begin{equation}
 T_{i}(k) = \begin{bmatrix} x_i(k) \\ y_i(k) \\ \theta_i(k) \end{bmatrix}
@@ -156,7 +156,7 @@ Let $\alpha \in \mathbb{R}$ be the step size of the vehicle from one point to th
 \alpha \geq V \Delta T
 \end{equation}
 
-A Monte Carlo path is one where at each step in each of the trajectories in the set, $K_N$, a random movement is made in the path. The path has an expected value which is equal to the original, non-stochastic, N-NHV version of the path generated for the equivalent point in $K_N$. The corresponding Monte Carlo path, or sequence of way-points the exploration vehicle will make on its way to the final endpoint, $\vect{p}_i = [p_x\ p_y]^T$. The initial point in the trajectory is set to the current position, $\vect{s}=[x_0\ y_0]^T$ from the state vector of the exploration vehicle.
+The corresponding Monte Carlo path, or sequence of way-points the exploration vehicle will make on its way to the candidate endpoint, $\vect{p}_i = [p_x\ p_y]^T$.
 
 \begin{equation}
 \label{eq:mcpp}
@@ -165,7 +165,7 @@ T_{i}(k) = \begin{cases}
 		x_0 \\
 		y_0\\
 		\text{atan2}(p_y - y_0, p_x - x_0)
-	\end{bmatrix} & k=1 \\
+	\end{bmatrix} & : k = 1 \\
 
 	\begin{bmatrix}
 		\alpha \cos \theta_i(k) \\
@@ -174,17 +174,17 @@ T_{i}(k) = \begin{cases}
 	\end{bmatrix} + \begin{bmatrix} 
 		\vect{w}_i(k) \\
 		0
-	\end{bmatrix} & 1 < k < \Big\lceil \frac{\|\vect{p} - \vect{s}\|_2}{\alpha} \Big\rceil \\
+	\end{bmatrix} & : 1 < k < \Big\lceil \frac{\|\vect{p} - \vect{s}\|_2}{\alpha} \Big\rceil \\
 
 
-	\begin{bmatrix} p_x \\ p_y \\ 0\end{bmatrix} & k = \Big\lceil \frac{\|\vect{p} - \vect{s}\|_2}{\alpha} \Big\rceil \\
+	\begin{bmatrix} p_x \\ p_y \\ 0\end{bmatrix} & : k = \Big\lceil \frac{\|\vect{p} - \vect{s}\|_2}{\alpha} \Big\rceil \\
 
 \end{cases}
 \end{equation}
 
-Due to the uncertainty in length of the random trajectory generated, the number of waypoints in the trajectory $T_i$ is fixed, such that $k \in [1, \Big\lceil \frac{\|\vect{p}- \vect{s}\|_2}{\alpha} \Big\rceil]$ (the number of points in the trajectory for a step size, $\alpha$, given zero variance noise added to the process), and the last point is in the trajectory set is set to the corresponding endpoint from the set $K_N$.
+\noindent where the initial point in the candidate trajectory is set to the current position, $\vect{s}=[x_0\ y_0]^T$ from the state vector of the exploration vehicle. Due to the uncertainty in length of the random trajectory generated, the number of waypoints in the candidate trajectory $T_i$ is fixed, such that $k \in [1, \Big\lceil \frac{\|\vect{p}- \vect{s}\|_2}{\alpha} \Big\rceil]$ (the number of points in the trajectory for a step size, $\alpha$, given zero variance noise added to the process). The last point in the candidate trajectory set is set to the corresponding endpoint from the set $K_N$.
 
-As introduced in the N-NHV path planner, the trajectory that maximizes the loss function, $L(T)$, is the path that is ultimately selected as the next vehicle trajectory. In an effort to find a more optimal trajectory, more than one random walk can be generated for each endpoint in the set $K_N$. The variable $M_{mc} \in \mathbb{N}$ will denote the number of random walks taken per endpoint in the set $K_N$.
+As introduced in the N-NHV path planner, a candidate trajectory is generated for each of the candidate endpoints in the set, $K_N$. The candidate trajectory that maximizes the loss function, $L(T)$, is the path that is ultimately selected as the next vehicle trajectory. In an effort to find a more optimal trajectory, more than one random walk can be generated for each endpoint in the set $K_N$. The variable $M_{mc} \in \mathbb{N}$ will denote the number of random walks taken per endpoint in the set $K_N$. An initial forward diagonal sweep of samples are taken across the field to generate an initial variogram, initial Kriging predictions, and initial Kriging prediction variances before the path planner chooses its first endpoint.
 
 \begin{figure}[h!]
 	\centering
@@ -250,5 +250,5 @@ As introduced in the N-NHV path planner, the trajectory that maximizes the loss 
 	\label{fig:mcpp}
 \end{figure}
 
-\section{Planner Comparison}
-The Monte Carlo based path planner (MCPP) takes into account a set of trajectories, and compares their estimated return on investment. The NHV simply takes the path to the high prediction uncertainty location. Though the MCPP algorithm, with a non-zero noise variance, does not deterministically calculate its trajectories, given enough trajectories, the algorithm could find a path that will reduce overall field uncertainty in a more brute-force way over the NHV algorithm. The disadvantages of The Monte Carlo Path Planner lay in the fact that the cost of each next move taken, are not considered directly. Rather, an entire trajectory is considered all at once. A more optimal approach to this planner would be to take into consideration the cost of each waypoint selected.
+\section{Discussion on the Planners Introduced}
+The Monte Carlo based path planner (MCPP) takes into account a set of noisy trajectories, and compares their estimated return on investment. The NHV simply takes the path to the highest prediction uncertainty location. Given enough trajectories (as $N$ and $M_{mc}$ get larger), the algorithm could find a path that will reduce overall field uncertainty in a more brute-force way over the NHV algorithm. The disadvantages of The Monte Carlo Path Planner lay in the fact that the cost of each next move taken, are not considered directly. Rather, an entire trajectory is considered all at once. A more optimal approach to this planner would be to take into consideration the cost of each waypoint selected. Furthermore, the MCPP approach is the most expensive method introduced because of the need to re-predict the field for each candidate trajectory calculated. The NHV planner is the simplest to compute because it only requires one run of the Kriging field predictions and variance calculations, followed by a simple search for the highest field variances.
