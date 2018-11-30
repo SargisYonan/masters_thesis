@@ -47,6 +47,7 @@ ix = linspace(0, max(VAR.distance));
 
 kernels = {'gaussian'};
 
+%%
 figure()
 plots = zeros(1, max(size(kernels)) + 1);
 
@@ -61,18 +62,18 @@ end
 plot(VAR.distance, VAR.val, 'ro', 'LineWidth', 2);
 
 title('Gaussian Variogram Fit To A Semi-Variogram', 'Interpreter', 'latex', 'FontSize', 20)
-xlabel('Distance $h$', 'Interpreter', 'latex', 'FontSize', 20)
-ylabel('$\gamma(h)$', 'Interpreter', 'latex', 'FontSize', 20)
+xlabel('Lag $h$', 'Interpreter', 'latex', 'FontSize', 18)
+ylabel('$\hat{\gamma}(h)$', 'Interpreter', 'latex', 'FontSize', 18)
 
 axis([0, max(VAR.distance), 0, max(VAR.val)])
 
 
 hold on
-plot([0 range], [sill sill], '--k', 'LineWidth', 2)
+plot([0 range], [sill sill], ':k', 'LineWidth', 2)
 hold on
 plot([range range], [0 sill], '--r', 'LineWidth', 2)
 
-legend('Gaussian Model', 'Semi-Variogram', 'sill', 'range', 'northwest', 'FontSize', 17)
+legend('Gaussian Model', 'Empirical Semivariogram', 'sill', 'range', 'northwest', 'FontSize', 17)
 grid on;
 
 export_img_latex(gcf, '../figures/fit_kernel')
@@ -140,15 +141,15 @@ for i = 1:length(field)
         
         pred_field(i,j) = Z' * (C\d);
         
-        idx = knnsearch(X, [i, j], 'k', 1);
-        neighbor_conf(idx, 1) = sum(d);
-        neighbor_conf(idx, 2) = neighbor_conf(idx, 2) + 1;
+%         idx = knnsearch(X, [i, j], 'k', 1);
+%         neighbor_conf(idx, 1) = sum(d);
+%         neighbor_conf(idx, 2) = neighbor_conf(idx, 2) + 1;
     end
 end
-
-for i = 1:length(neighbor_conf)
-    neighbor_conf(i, 1) = neighbor_conf(i, 1) / neighbor_conf(i, 2); % calculate average uncertainty of each neighbor
-end
+% 
+% for i = 1:length(neighbor_conf)
+%     neighbor_conf(i, 1) = neighbor_conf(i, 1) / neighbor_conf(i, 2); % calculate average uncertainty of each neighbor
+% end
 
 
 figure()
@@ -161,58 +162,58 @@ ylabel('$s_2$', 'Interpreter', 'latex', 'FontSize', 20);
 zlabel('\hat{Z}');
 
 export_img_latex(gcf, '../figures/kriging_prediction');
-%%
-hold on
-
-[vx,vy] = voronoi(X(:,1),X(:,2));
-
-% Assign labels to the points.
-nump = length(X);
-plabels = arrayfun(@(n) {sprintf('N_{%d}\nv_{%d}=%.2f', n,n,100*neighbor_conf(n,1))}, (1:nump)');
-Hpl = text(X(:,1), X(:,2), plabels, 'FontWeight', ...
-      'bold', 'HorizontalAlignment','center');
-
-%plot(X(:,1),X(:,2),'k+')
-%hold on;
-
-title('Voronoi Tessellated Predicted Field', 'Interpreter', 'latex', 'FontSize', 20);
-plot(vx, vy, 'k-', 'LineWidth', 1.1)
-
-export_img_latex(gcf, '../figures/natural_neighborhood_selection');
-
-%%
-nn = 3;
-
-edges = [];
-weights = [];
-for curr_n = 1:length(X)
-
-    ix = knnsearch(X,X(curr_n,:),'k', nn + 1);
-    for j = 2:length(ix)
-
-        if (length(edges) > 0)
-            if ( (sum(ismember(edges, [curr_n, ix(j)], 'rows')) == 0) && (sum(ismember(edges, [ix(j), curr_n], 'rows')) == 0) )
-                edges = [edges; [curr_n, ix(j)]];
-                weights = [weights ; 1/(abs(neighbor_conf(curr_n,1)) + abs(neighbor_conf(ix(j),1))) ];
-            end
-        else
-            edges = [edges; [curr_n, ix(j)]];
-            weights = [weights ; 1/(abs(neighbor_conf(curr_n,1)) + abs(neighbor_conf(ix(j),1))) ];
-        end
-    end
-end
-
-vertex_names = arrayfun(@(n) {sprintf('N-%d', n)}, (1:length(X))');
-G = graph(edges(:,1)', edges(:,2)', weights', vertex_names);
-figure()
-
-Gp = plot(G,'ko', 'LineWidth', 2)%, 'EdgeLabel', G.Edges.Weight)
-Gp.Marker = 'o';
-Gp.NodeColor = 'r';
-Gp.MarkerSize = 9;
-% turn off graph axes
-set(gca,'xtick',[])
-set(gca,'ytick',[])
-title('Graph Representation of Voronoi Tessellated Field', 'Interpreter', 'latex', 'FontSize', 20)
-export_img_latex(gcf, '../figures/undir_graph')
-
+% %%
+% hold on
+% 
+% [vx,vy] = voronoi(X(:,1),X(:,2));
+% 
+% % Assign labels to the points.
+% nump = length(X);
+% plabels = arrayfun(@(n) {sprintf('N_{%d}\nv_{%d}=%.2f', n,n,100*neighbor_conf(n,1))}, (1:nump)');
+% Hpl = text(X(:,1), X(:,2), plabels, 'FontWeight', ...
+%       'bold', 'HorizontalAlignment','center');
+% 
+% %plot(X(:,1),X(:,2),'k+')
+% %hold on;
+% 
+% title('Voronoi Tessellated Predicted Field', 'Interpreter', 'latex', 'FontSize', 20);
+% plot(vx, vy, 'k-', 'LineWidth', 1.1)
+% 
+% export_img_latex(gcf, '../figures/natural_neighborhood_selection');
+% 
+% %%
+% nn = 3;
+% 
+% edges = [];
+% weights = [];
+% for curr_n = 1:length(X)
+% 
+%     ix = knnsearch(X,X(curr_n,:),'k', nn + 1);
+%     for j = 2:length(ix)
+% 
+%         if (length(edges) > 0)
+%             if ( (sum(ismember(edges, [curr_n, ix(j)], 'rows')) == 0) && (sum(ismember(edges, [ix(j), curr_n], 'rows')) == 0) )
+%                 edges = [edges; [curr_n, ix(j)]];
+%                 weights = [weights ; 1/(abs(neighbor_conf(curr_n,1)) + abs(neighbor_conf(ix(j),1))) ];
+%             end
+%         else
+%             edges = [edges; [curr_n, ix(j)]];
+%             weights = [weights ; 1/(abs(neighbor_conf(curr_n,1)) + abs(neighbor_conf(ix(j),1))) ];
+%         end
+%     end
+% end
+% 
+% vertex_names = arrayfun(@(n) {sprintf('N-%d', n)}, (1:length(X))');
+% G = graph(edges(:,1)', edges(:,2)', weights', vertex_names);
+% figure()
+% 
+% Gp = plot(G,'ko', 'LineWidth', 2)%, 'EdgeLabel', G.Edges.Weight)
+% Gp.Marker = 'o';
+% Gp.NodeColor = 'r';
+% Gp.MarkerSize = 9;
+% % turn off graph axes
+% set(gca,'xtick',[])
+% set(gca,'ytick',[])
+% title('Graph Representation of Voronoi Tessellated Field', 'Interpreter', 'latex', 'FontSize', 20)
+% export_img_latex(gcf, '../figures/undir_graph')
+% 

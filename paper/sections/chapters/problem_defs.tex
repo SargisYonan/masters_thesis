@@ -1,5 +1,8 @@
 \section{Problem Definitions} \label{ch:defs}
-In an effort to be consistent in naming conventions and parameter definitions throughout this work, the problem space will be defined. The conventions described in Section \ref{ch:defs} will be used throughout the rest of the work.
+The problem space will be defined in an effort to be consistent in naming conventions and parameter definitions throughout this work. The conventions described in Section \ref{ch:defs} will be used throughout the rest of the work.
+
+\subsection{Notation}
+A boldface lowercase letter, for example, $\vect{v}$, will denote a column vector of real numbers. An non-boldface uppercase letter, for example, $M$, will denote a two-dimensional matrix of real numbers.
 
 \subsection{The Field}
 The initially unknown field, referred to as the \textit{target field}, is a rectangular field of height $h$, and width $w$, i.e. $Z \in \mathbb{R}^{h \times w}$. The field is made up of square pixel cells, referred to as \textit{vesicles}. Each vesicle can be ``visited'', or sampled, in order to yield a single state of interest in the set of real numbers. Throughout this thesis, a square target field (i.e. $h = w$) will be used.
@@ -7,7 +10,7 @@ The initially unknown field, referred to as the \textit{target field}, is a rect
 \subsection{The Sensor} \label{sec:sensor_measurements}
 The observations of interest made on the field will be using ideal sensors with no measurement noise. The sensors will measure a subset of the area of the entire target field. This area will be referred to as the \textit{sensor footprint}, and will be equal to the size of a single vesicle of the target field.
 
-For the methods developed, the locations of the sensor measurements must be known. The locations will be represented as Cartesian coordinates on the field. For an arbitrary observation of the field, the location of the measurement will be at ccorrespondingoordinates $\vect{s} \in \mathbb{R}^2$, and the  sensor measurement would be $Z(\vect{s})$. The value of $Z$ at $\vect{s}$ is quantized to the vessicle in which the point $\vect{s}$ falls within.
+The locations of the sensor measurements must be known for the methods developed. The locations of the measurements will be represented as Cartesian coordinates on the field. For an arbitrary observation of the field, the location of the measurement will be at corresponding coordinates $\vect{s} \in \mathbb{R}^2$, and the  sensor measurement would be $Z(\vect{s})$. The value of $Z$ at $\vect{s}$ is quantized to the vesicle in which the point $\vect{s}$ falls within.
 
 \subsubsection{Real World Sensing Examples}
-A Global Positioning System (GPS) sensor would likely be used to estimate localized position of a sensor measurement on Earth. In the case of predicting the boundaries of a glacier, for example, an infrared sensor would likely be used to measure the state of interest, thermal output of the field in this case. In the case of terrain mapping, for example, a LiDAR sensor could be used to sample terrain altitudes of the terrain below, at marked locations using GPS, on a UAV.
+A Global Positioning System (GPS) sensor would likely be used to estimate localized position of a sensor measurement on Earth. In the case of predicting the boundaries of a glacier, for example, an infrared sensor would likely be used to measure the state of interest, thermal output of the field in this case. In the case of terrain mapping a LiDAR sensor could be used to sample terrain altitudes of the terrain below, at marked locations using GPS, on a UAV.

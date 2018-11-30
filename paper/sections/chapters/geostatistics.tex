@@ -1,5 +1,5 @@
 \chapter{Spatial Analysis}
-Many of the methods introduced in this thesis will rely on works developed in the fields of Spatial Statistics, Geostatistics, and Geography. Geo-statisticians have developed much of the work surrounding field predictions in the geospatial domain. In an effort to make the methods introduced be as presentable and contained as possible, a background on the required tools from the field of geostatistics will be reviewed. The Kriging Method, a best linear unbiased predictor (BLUP) produces a prediction based on statistical data gathered from samples taken on a field. The method performs a weighted sum generated from a covariance matrix created from points sampled on a field. A variance for each prediction computed can also generated as a byproduct of the Kriging prediction, and will be used to calculate information gain in a path finder introduced in this paper. It is assumed that the expected value of each point is from a normal distribution, where the variance and expected value of the distribution is a function of the neighboring samples and spatial autocorrelation factor of the field.
+Many of the methods introduced in this thesis will rely on works developed in the fields of Spatial Statistics, Geostatistics, and Geography. Geo-statisticians have developed much of the work surrounding field predictions in the geospatial domain. The Kriging Method, a best linear unbiased predictor (BLUP) produces a prediction based on statistical data gathered from samples taken on a field. The Kriging Method predicts the state of a point on a field from weights generated from a covariance matrix created from samples on the field. A variance for each computed prediction can also be generated as a byproduct of the Kriging prediction, and this will be used to calculate information gain in the path finders introduced in this paper. It is assumed that the expected value of each point is from a normal distribution, where the variance and expected value of the distribution is a function of the neighboring samples and spatial autocorrelation factor of the field.
 
 Tobler's First Law of Geography \cite{tobler:first_law} states,``Everything is related to everything else, but near things are more related than distant things." Regarding geospatial data, there is a positive correlation between observations with a small difference in distance \cite{miller:on_toblers_first_law}. This implies the existence of geospatial autocorrelation in many target fields of interest, where there exists a positive correlation between elements in a field. Geospatial autocorrelation is the hypothesis that allows naive prediction techniques, like Inverse Distance Weighting (IDW) (Section \ref{sec:idw_intro}), to work. The Kriging Method first finds the underlying spatial autocorrelation of a target field from a set of samples, and then predicts the state of a given vesicle by emphasizing values of statistically similar samples in a weighted sum. The methods introduced in this chapter are intended to serve as an introduction and background into the Kriging Method.
 
@@ -56,10 +56,10 @@ An inverse distance weighting is a naive interpolation tool where a point is pre
     \label{fig:idw_field}
 \end{figure}
 
-This method can yield a prediction for all possible $\vect{s}_j$ points in a field where a set of observations at known locations are made, as done in Figure \ref{fig:idw_field}. Unfortunately, the method is limited in that it does not take advantage of the underlying stochastic model, and spatial pattern, of the target field being observed to make a more methodical weighted sum prediction. A field that exhibits properties of spatial autocorrelation would be more statistically exploitable because the distribution of the states of interest on the field can be learned.
+This method can yield a prediction for all possible points in a field where a set of observations at known locations are made, as done in Figure \ref{fig:idw_field}. Unfortunately, the method is limited in that it assumes a spherical distribution of correlation of points in a field, and does not take advantage of the underlying spatial correlation patterns of the target field being observed to make a more methodical weighted sum prediction. A field that exhibits properties of spatial autocorrelation would be more statistically exploitable because the distribution of the states of interest on the field can be learned.
 
 \section{Variography} \label{sec:vario}
-Variography is a set of procedures for examining and interpreting spatial dependence and spatial autocorrelation in a field of observed data. In order to make a more intelligent weighted sum for a prediction, extracting the underlying spatial autocorrelation function, the \textit{variogram}, of a field will be introduced. The variogram function will be factored into a classical prediction via weighting, yielding a Kriging Weighting.
+Variography is a set of procedures for examining and interpreting spatial dependence and spatial autocorrelation in a field of observed data. The \textit{variogram} of a field will be introduced to assist in extracting the underlying spatial autocorrelation function of a target field. The variogram function will be factored into a classical prediction via weighting, yielding a Kriging Weighting.
 
 \subsection{The Variogram}
 A variogram quantifies dependence for two disjoint observations separated by some distance, or \textit{lag}, away. The function, in essence, yields a value directly proportional to the covariance between two given points in a stochastic field.
@@ -78,10 +78,10 @@ Using the assumption on what a point's value on a field is constructed of is mad
     \label{eq:matheron:assum}
 \end{equation}
 
-\noindent where $\theta(\cdot)$ is a zero-mean intrinsically stationary stochastic Wiener process. An assumption that the mean $\mu(\cdot) = \bar{Z}$ is only constant in a reasonably small neighborhood of $Z$. This becomes relevant when the sample sizes of the field increase where more reliable means will be derived from local neighborhoods. The size of the local neighborhoods to consider a constant field mean within will later be defined to be a function of the maximum autocorrelation lag, but no cut-off is required by definition.
+\noindent where $\theta(\cdot)$ is a zero-mean intrinsically stationary stochastic Wiener process, and $\mu(\cdot) = \bar{Z}$ is the mean value of the state of interest in the field.
 
 \subsection{The Semivariogram}
-The Semivariogram is defined to be the average squared difference between two points separated by some distance apart. Matheron, 1963 formally defines a variogram in \cite{matheron:geostat} in three-dimensional space. Using the notation used in this paper for a two-dimensional field, the Semivariogram will be defined as:
+The Semivariogram is defined to be the average squared difference between two points separated by some distance apart. Matheron, 1963 defines a semivariogram in \cite{matheron:geostat} in three-dimensional space as:
 
 \begin{equation}
     \gamma(h) = \frac{1}{2A} \iint_A [ Z(\vect{s} + h) - Z(\vect{s}) ]^2 dA
@@ -102,7 +102,7 @@ An Empirical Semivariogram, or Experimental Semivariogram, is a discrete functio
 
 \noindent where $N(h)$ is the cardinality of the set of all pairs of observed points that are a Euclidean distance, or lag, $h$, apart.
 
-The experimental variogram conveys the spatial autocorrelation of a sampled field. As the lag between two given points increases, the covariance also increases when the field is spatially autocorrelated. The covariance levels out to a steady value (the \textit{sill}) at some distance in the domain (the \textit{range}). This position in the function marks where the loss of reliable spatial autocorrelation between two points that are a distance $h$ apart lays.
+The experimental variogram conveys the spatial autocorrelation of a sampled field. As the lag between two given points increases, the covariance also increases when the field is spatially autocorrelated. The covariance levels out to a steady value (the \textit{sill}) at some distance in the domain (the \textit{range}). The range marks the point where the loss of reliable spatial autocorrelation between two points ceases.
 
 \begin{figure}[ht!]
     \centering    

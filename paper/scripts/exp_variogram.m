@@ -88,6 +88,7 @@ VAR = variogram([sampled_locations(:,1), sampled_locations(:,2)], samples, 'plot
 semivar = VAR.val;
 distance = VAR.distance;
 
+%%
 % plot the semivariogram 
 figure()
 semi_v_plot = plot(distance, semivar, ...
@@ -97,10 +98,11 @@ semi_v_plot = plot(distance, semivar, ...
     'MarkerSize', 2);
 hold on;
 
-ylabel('\gamma');
-xlabel('Distance');
+ylabel('$\hat{\gamma}(h)$', 'Interpreter', 'Latex', 'Fontsize', 18);
+xlabel('Lag $h$', 'Interpreter', 'Latex', 'Fontsize', 18);
+title('Empirical Semivariogram', 'Interpreter', 'Latex', 'Fontsize', 18)
 axis([0 max(distance) 0 max(semivar)])
-export_img_latex(gcf, 'exp_variogram.png');
+export_img_latex(gcf, '../figures/exp_variogram');
 
 %% pack it up
 save('kernel_params.mat', 'semivar', 'distance', 'VAR');

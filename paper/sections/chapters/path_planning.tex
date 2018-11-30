@@ -1,10 +1,7 @@
 \chapter{Path Planning} \label{ch:pp}
 The goal of each of the planners introduced is to assist in the discovery of a field's features with an adjustable trade off between speed and confidence of prediction. The user of such a system could choose to scan more area if fuel is not of high concern. Likewise, if the field is very large, or several fields need to be scanned in a limited amount of time, a quicker scan with a lower degree of prediction certainty can be performed.
 
-\section{Vehicle \& Information Gain Model}
-In an effort to formalize the dynamics of the exploration vehicle, and the information gain on the field, the models for vehicle dynamics and field variances will be introduced.
-
-\subsection{Exploration Vehicle Model Dynamics} \label{sec:vehicledynamics}
+\section{Exploration Vehicle Model Dynamics} \label{sec:vehicledynamics}
 The state vector of the vehicle will be defined as follows:
 \begin{equation}
 \vect{X} = \begin{bmatrix}
@@ -16,7 +13,7 @@ The state vector of the vehicle will be defined as follows:
 \label{eq:vehiclemodel}
 \end{equation}
 
-\noindent where $x$ and $y$ are the vehicle's position on a field, $\theta$ is the vehicle's heading angle, $\omega$ is the vehicle's angular velocity, $\dot{\theta}$, and $V$ is the magnitude of the linear velocity of the vehicle. Both $\omega$ and $V$ are control inputs to the vehicle.
+\noindent where $x$ and $y$ are the vehicle's horizontal and vertical positions on a field respectively, $\theta$ is the vehicle's heading angle. $V$ is the magnitude of the velocity of the vehicle.
 
 The exploration vehicle dynamics will be modeled after a simple forward discrete kinematics model with a constant time step per iteration, $\Delta T$. An iteration of the propagation model will be the sum of the previous iteration, $\vect{X}_{k}$, the nonlinear vehicle dynamics, $\vect{f}(\vect{X}_k)$, and the control input, $\vect{u}_k$.
 
@@ -40,10 +37,10 @@ The exploration vehicle dynamics will be modeled after a simple forward discrete
 	\label{eq:vehicledynamicsmodel}
 \end{equation}
 
-The speed, $V$, is assumed to be regulated at a constant value for all values of $k$.
+The speed, $V$, is assumed to be regulated at a constant value for each value of $k$.
 
-\subsection{Field Uncertainty Model} \label{sec:fielduncert}
-In Section \ref{sec:krigvar}, a method for calculating the variance of a prediction was defined as a function of the proximity vector and Kriging weights generated for the prediction point. For points that have been directly measured, the variance is ideally zero (for fields with no drift or dynamics). The uncertainty of the prediction of a point in the target field is directly proportional to the variance of its prediction. The goal of a path planner intending to suppress uncertainty of predictions in a target field would be to reduced the overall variance of the target field being explored.
+\section{Field Uncertainty Model} \label{sec:fielduncert}
+In Section \ref{sec:krigvar}, a method for calculating the variance of a prediction was defined as a function of the proximity vector and Kriging weights generated for the prediction point. For points that have been directly measured, the variance is ideally zero (for fields with no drift or dynamics). The uncertainty of the prediction of a point in the target field is the variance of its prediction. The goal of a path planner intending to suppress uncertainty of all predictions in a target field would be to reduce the overall variance of the target field being explored.
 
 A criterion for overall field uncertainty can be defined as the average variance, calculated from a prediction of a target field from a set $S$ points sampled for all $h\times w$ predictable points on a target field.
 
