@@ -11,7 +11,7 @@ plot_sample_points = true;
 field_struct = load('generated_field.mat');
 field = field_struct.field;
 field_size = max(size(field));
-number_of_samples = 250;
+number_of_samples = 50;
 
 sample_locations = zeros(number_of_samples, 2);
 samples = zeros(number_of_samples, 1);

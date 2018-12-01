@@ -115,10 +115,7 @@ The experimental variogram conveys the spatial autocorrelation of a sampled fiel
 \subsection{Converting a Semivariogram to a Variogram} \label{sec:semitovar}
 The intent of fitting a statistical model to an experimental variogram is to approximate the continuous covariance for any two points, that have not necessarily been observed, on $Z$ that are at some known lag apart.
 
-\subsection{Variogram Models} \label{sec:variomodels}
-The Empirical Semivariogram will be fit to a statistical model, or \textit{kernel}, known as a Variogram Model. There exist some well known models, further discussed in this section. Each model is a scalar function of lag, $h$, \text{sill}, $s$, and \text{range}, $a$. The term \textit{sill} refers to the point on the co-domain where two points at the lag specified are no longer autocorrelated. The sill is therefore the largest value of covariance for two disjoint points on a field that are still considered to be autocorrelated. The corresponding point on the domain for the sill is referred to as the \textit{range} on the variogram. Two points that have a lag larger than the range are not considered to be autocorrelated.
-
-The \textit{nugget} of the variogram is defined to be the variance at zero separation, or $\gamma(0)$ \cite{matheron:geostat}. This value is exactly zero for ideal measurements, but is generally not for real-life measurements. The value found for the nugget is typically summed with the value yielded by $\gamma$, to get the final variogram value for a given lag \cite{goov:97}.
+The Empirical Semivariogram will be fit to a statistical model, or \textit{kernel}, known as a Variogram Model. There exist some well known models, further discussed in this section. Each model is a scalar function of lag, $h$, \text{sill}, $s$, and \text{range}, $a$. The term \textit{sill} refers to the point on the co-domain where two points at the lag specified are no longer autocorrelated. The sill is therefore the largest value of covariance for two disjoint points on a field that are still considered to be autocorrelated. The corresponding point on the domain for the sill is referred to as the \textit{range} on the variogram. Two points that have a lag larger than the range are not considered to be autocorrelated. The \textit{nugget} of the variogram is defined to be the variance at zero lag, or $\gamma(0)$ \cite{matheron:geostat}. This value is exactly zero for ideal measurements. For non-ideal situations, the nugget is typically non-zero. This can be attributed to drift in the the field states between sampling periods, or from measurement noise. The value found for the nugget is summed with the value yielded by $\gamma$, to get the final variogram value for a given lag \cite{goov:97}.
 
 \subsubsection{The Gaussian Model}
 
@@ -158,7 +155,6 @@ The spherical model will reach an exactly zero slope at the sill and range \cite
 \subsection{Fitting A Semi-Variogram} \label{sec:varfit}
 The kernel function of the range, $a$, the sill, $s$, and lag, $h$ is chosen based on the statistical properties of the field being examined. Although there exist no closed form solution for finding an appropriate variogram model for a given field, one can compare a variety of different models against one another. Conducting cross-validation tests and comparing root-mean squared prediction errors for different models are common approaches for finding appropriate variogram models.
 
-\subsubsection{Fitting a Variogram Using MATLAB}
 Using a version of the \textit{fminsearch} function in \textit{MATLAB}, a variogram can be fit to the desired objective function from a set of samples and initial guesses for the range and sill using a simplex search method. As the function is used over several iterations of sampling, the fit range and sill values found in the previous iteration can be used as the seed to the next iteration of the fit in an attempt to minimize computation time. The \textit{MATLAB} function, \textit{fminsearch}, is defined to ``find the minimum of an unconstrained multi-variable function using a derivative-free method" \cite{mathworks:fminsearch}, expressed in Equation \ref{eq:matlabfmin}.
 
 \begin{equation}
@@ -166,7 +162,7 @@ Using a version of the \textit{fminsearch} function in \textit{MATLAB}, a variog
     \label{eq:matlabfmin}
 \end{equation}
 
-The function is then modified by specifying bounds of minimization in an attempt to decrease iterations of the function fit, which can be computationally expensive as more samples are taken. This modified version of \textit{fminsearch}, named \textit{fminsearchcon}, can be downloaded from the MathWorks File Exchange.
+\noindent The function is then modified by specifying bounds of minimization in an attempt to decrease iterations of the function fit, which can be computationally expensive as more samples are taken. This modified version of \textit{fminsearch}, named \textit{fminsearchcon}, can be downloaded from the MathWorks File Exchange.
 
 \begin{figure}[ht!]
     \centering    
@@ -180,10 +176,10 @@ The function is then modified by specifying bounds of minimization in an attempt
 The Kriging Method conducts a weighted sum using the continuous variogram model that was fit to the physical observations made. The method can yield a prediction for each vesicle in a target space similar to the Inverse Distance Weighting method described in Section \ref{sec:idw_intro}, but with more statistical robustness.
 
 \subsection{Forms of the Kriging Method}
-There exist three major forms of the Kriging Method. All of which differ primarily in the handling of the mean gathered from observations of a target field. The \textit{Simple Kriging Method} makes the assumption that the mean is known and constant throughout the entirety of an observed field. This is of course not the case for fields that are very large as it does not follow Tobler's First Law. The \textit{Ordinary Kriging Method} can deduce the local mean of a neighborhood from a smaller subset of observations in a larger target field. This is done by classifying the larger field into smaller neighborhoods where the mean is only constant within those neighborhoods. Ordinary Kriging has the advantage that the mean is not required to be known before running a prediction. The \textit{Universal Kriging Method} can perform similar local mean calculations as the Ordinary Kriging Method, but does so by fitting a polynomial representing a mean trend model and not from a constant mean value representing that neighborhood \cite{vandergraaf:nnkrig} as seen in Section \ref{sec:varfit} on fitting a variogram.
+There exist three major forms of the Kriging Method. All of which differ primarily in the handling of the mean gathered from observations of a target field. The \textit{Simple Kriging Method} makes the assumption that the mean is known and constant throughout the entirety of an observed field. This is not the case for fields that are very large as it does not follow Tobler's First Law. The \textit{Ordinary Kriging Method} can deduce the local mean of a neighborhood from a smaller subset of observations in a larger target field. This is done by classifying the larger field into smaller neighborhoods where the mean is only constant within those neighborhoods. Ordinary Kriging has the advantage that the mean is not required to be known before running a prediction. The \textit{Universal Kriging Method} can perform similar local mean calculations as the Ordinary Kriging Method, but does so by fitting a polynomial representing a mean trend model and not from a constant mean value representing that neighborhood \cite{vandergraaf:nnkrig} as seen in Section \ref{sec:varfit} on fitting a variogram. The Ordinary Kriging method will be used throughout the rest of this thesis because of its lack of requirement for the expected value of the field, and its computational simplicity when compared to the Universal Kriging Method.
 
 \subsection{Covariance Matrix From A Variogram} \label{sec:covmat}
-From the fit variogram which represents the spatial statistics of a field from a set of samples, a variance-covariance matrix for $N$ observations, $P \in \mathbb{R}^{N+1 \times N+1}$, will be constructed. The value of the element $P_{i,j}$, will represent the covariance of the lag between the $i^{th}$ and $j^{th}$ observations on the field \cite{goov:97}, \cite{matheron:geostat}. If $i=j$, the value of the element, $P_{i,j}$ is the variance of the $i^{th}$ observation. 
+From the fit variogram which represents the spatial statistics of a field from a set of samples, a variance-covariance matrix for $N$ observations, $P \in \mathbb{R}^{N \times N}$, will be constructed. The value of the element $P_{i,j}$, will represent the covariance of the lag between the $i^{th}$ and $j^{th}$ observations on the field \cite{goov:97}, \cite{matheron:geostat}. If $i=j$, the value of the element, $P_{i,j}$ is the variance of the $i^{th}$ observation. 
 
 \begin{equation}
     P_{i,j} = \text{cov}\{Z(\vect{s}_{i}), Z(\vect{s}_{j})\} = \gamma(\| \vect{s}_i - \vect{s}_j \|_2)
@@ -205,8 +201,8 @@ From the fit variogram which represents the spatial statistics of a field from a
     \label{eq:covvarmat}
 \end{equation}
 
-\subsection{The Proximity Vector} \label{sec:proxvect}
-For any given point on a field, we can construct a \textit{proximity vector}, $\vect{d}_0 \in \mathbb{R}^{N+1}$, which contains the covariance of a given point, $\vect{s}_0$ on the field with the $N$ observations made. The $k^{th}$ element of $\vect{d}_N$, would therefore contain the covariance for the lag between point $\vect{s}_0$ and the $k^{th}$ observation made, $\vect{s}_k$ \cite{matheron:geostat}.
+\subsection{Mean \& Variance of a Point Prediction}
+For any given point on a field, we can construct a \textit{proximity vector}, $\vect{d}_0 \in \mathbb{R}^{N}$, which contains the covariance of a given point, $\vect{s}_0$ on the field with the $N$ observations made. The $k^{th}$ element of $\vect{d}_N$, would therefore contain the covariance for the lag between point $\vect{s}_0$ and the $k^{th}$ observation made, $\vect{s}_k$ \cite{matheron:geostat}.
 
 $$\vect{d}_0(k) = \gamma(\| \vect{s}_0 - \vect{s}_k \|_2)$$
 
@@ -223,13 +219,12 @@ $$\vect{d}_0(k) = \gamma(\| \vect{s}_0 - \vect{s}_k \|_2)$$
 
 \noindent Furthermore, The Kriging Method can be bounded. If a to-be-predicted point and a given sample is beyond the range value fit to the variogram model, the corresponding element in the proximity vector is set to the sill. This ensures that points outside of the range of autocorrelation are not weighted anymore than they should be. This method is suggested when the variogram model used is a bounded function, e.g. the Spherical Model (Equation \ref{eq:sph_model}).
 
-\subsection{The Kriging Weights} \label{sec:krigweights}
-Similarly to the Inverse Distance Weighting method, a set a weights will be computed for each vesicle in the target field. These weights will be referred to as the \textit{Kriging Weights}. For a given prediction location, $\vect{s}_0$, the Kriging Weight vector, $\vect{\lambda}_0$, will be defined as the product of the inverse of the covariance matrix of the field and the proximity vector of the point to predict \cite{felus:srn}.
+A set a weights will be computed for each vesicle in the target field similarly to the Inverse Distance Weighting method. These weights will be referred to as the \textit{Ordinary Kriging Weights}. For a given prediction location, $\vect{s}_0$, the Ordinary Kriging Weight vector, $\vect{\lambda}_0$, will be defined as the product of the inverse of the covariance matrix of the field and the proximity vector of the point to predict \cite{felus:srn}.
 
 \begin{equation}
     \begin{bmatrix}
     \vect{\lambda}_{0} \\
-    \mu_0
+    \eta_0
     \end{bmatrix} = \begin{bmatrix} P^{-1} & \vect{1} \\
                                     \vect{1}^T & 0 \end{bmatrix}
                                     \begin{bmatrix} 
@@ -239,10 +234,10 @@ Similarly to the Inverse Distance Weighting method, a set a weights will be comp
     \label{eq:krigweights}
 \end{equation}
 
-\noindent where $\mu_0$ is the Lagrangian multiplier that is used to assist in maintaining the unbiasedness condition of the Kriging method \cite{felus:srn}. 
+\noindent where $\eta_0$ is a Lagrangian multiplier and $\vect{1} \in \mathbb{R}^{N}$ is a vector of $1$s. These terms assist the Ordinary Kriging system in maintaining unbiasedness in predictions by forcing the sum of the Kriging Weights, $\lambda_0$, to zero \cite{felus:srn}. 
 
 \subsection{The Kriging Prediction Equation}
-The Kriging equation will be used to predict the value, $\hat{Z}(\vect{s}_0)$ of an unobserved location, $\vect{s}_0$. The prediction is a function of the Kriging Weights and a vector of $N$ observations \cite{felus:srn}. 
+The Ordinary Kriging equation will be used to predict the value, $\hat{Z}(\vect{s}_0)$ of an unobserved location, $\vect{s}_0$. The prediction is a function of the Kriging Weights and a vector of $N$ observations \cite{felus:srn}. 
 
 \begin{equation}
     \hat{Z}(\vect{s}_0) = \begin{bmatrix} Z(\vect{s}_1) & Z(\vect{s}_2) & \dots & Z(\vect{s}_N) \end{bmatrix}\vect{\lambda}_{0}
@@ -258,14 +253,14 @@ The Kriging equation will be used to predict the value, $\hat{Z}(\vect{s}_0)$ of
 \end{figure}
 
 \subsection{Variance of A Kriging Prediction} \label{sec:krigvar}
-The variance of a point predicted on a target field can be calculated using byproduct terms generated along the way of calculating a Kriging prediction \cite{felus:srn}. For a predicted point $\hat{Z}(\vect{s}_0)$, using the proximity vector, $\vect{d}_0$, defined in Section \ref{sec:proxvect}, and the Kriging Weights, $\vect{\lambda}_0$ defined in Section \ref{sec:krigweights} for the predicted point, the variance of the prediction for that point is defined as:
+The variance of a point predicted on a target field can be calculated using byproduct terms generated along the way of calculating a Kriging prediction \cite{felus:srn}. For a predicted point $\hat{Z}(\vect{s}_0)$, using the proximity vector, $\vect{d}_0$, defined in Equation \ref{eq:proxvect}, and the Kriging Weights, $\vect{\lambda}_0$ defined in Equation \ref{eq:krigweights} for the predicted point, the variance of the prediction for that point is defined as:
 
 \begin{equation}
-    \text{var}\{\hat{Z}(\vect{s}_0)\} = \begin{bmatrix}\vect{d}_0 \\ 1\end{bmatrix} \begin{bmatrix}\vect{\lambda}_0^T & \mu_0 \end{bmatrix}
+    \text{var}\{\hat{Z}(\vect{s}_0)\} = \begin{bmatrix}\vect{d}_0 \\ 1\end{bmatrix} \begin{bmatrix}\vect{\lambda}_0^T & \eta_0 \end{bmatrix}
 \end{equation}
 
 \subsection{Procedure For Field Prediction Using The Kriging Method}
-In order to predict the entirety of a target field from a finite set of $N$ observations and their respective locations, $O$, the Kriging Prediction is run at every possible unobserved vesicle in the target field. For a single iteration of collecting observations and making predictions, a covariance matrix must first be constructed, and then a the proximity vector and Kriging Weights are computed for all unobserved vesicles. The Kriging prediction formula is then used to compute the predicted value of each vesicle to predict.
+The Kriging Prediction is run at every possible unobserved vesicle in the target field in order to predict the entirety of a target field from a finite set of $N$ observations and their respective locations, $O$.
 
 \begin{algorithm}[thpb!]
 \caption{Kriging Prediction of Target Field}\label{alg:krig}
@@ -289,7 +284,7 @@ In order to predict the entirety of a target field from a finite set of $N$ obse
 \State \ \ \ \ $\vect{d}_{i} = \begin{bmatrix} \gamma(\| \vect{s}_1 - \vect{p}_i \|_2) \dots \gamma(\| \vect{s}_N - \vect{p}_i \|_2) & 1\end{bmatrix}^T$
 \State \ \ \ \ $\begin{bmatrix}
                 \vect{\lambda}_{\vect{p}_i} \\
-                \mu_{\vect{p}_i}
+                \eta_{\vect{p}_i}
                 \end{bmatrix} = \begin{bmatrix} P^{-1} & \vect{1} \\
                                     \vect{1}^T & 0 \end{bmatrix}
                                     \begin{bmatrix} 
@@ -297,7 +292,7 @@ In order to predict the entirety of a target field from a finite set of $N$ obse
                                     1
                                     \end{bmatrix}$
 \State \ \ \ \ $\hat{Z}(\vect{p}_i) = \begin{bmatrix} Z(\vect{s}_1) \dots Z(\vect{s}_N) \end{bmatrix} \lambda_{\vect{p}_i}$
-\State \ \ \ \ $\text{var}\{\hat{Z}(\vect{p}_i)\} = \begin{bmatrix}\vect{d}_i \\ 1\end{bmatrix} \begin{bmatrix}\vect{\lambda}_{\vect{p}_i}^T & \mu_{\vect{p}_i} \end{bmatrix}$
+\State \ \ \ \ $\text{var}\{\hat{Z}(\vect{p}_i)\} = \begin{bmatrix}\vect{d}_i \\ 1\end{bmatrix} \begin{bmatrix}\vect{\lambda}_{\vect{p}_i}^T & \eta_{\vect{p}_i} \end{bmatrix}$
 \EndProcedure
 \end{algorithmic}
 \end{algorithm}
