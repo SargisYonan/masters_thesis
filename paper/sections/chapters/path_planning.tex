@@ -40,17 +40,19 @@ The exploration vehicle dynamics will be modeled after a simple forward discrete
 The speed, $V$, is assumed to be regulated at a constant value for each value of $k$.
 
 \section{Field Uncertainty Model} \label{sec:fielduncert}
-In Section \ref{sec:krigvar}, a method for calculating the variance of a prediction was defined as a function of the proximity vector and Kriging weights generated for the prediction point. For points that have been directly measured, the variance is ideally zero (for fields with no drift or dynamics). The uncertainty of the prediction of a point in the target field is the variance of its prediction. The goal of a path planner intending to suppress uncertainty of all predictions in a target field would be to reduce the overall variance of the target field being explored.
+In Equation \ref{eq:krigvar}, a method for calculating the variance of a prediction was defined as a function of the proximity vector and Kriging weights generated for the prediction point. For points that have been directly measured, the variance is ideally zero (for fields with no drift or dynamics). The uncertainty of the prediction of a point in the target field is the variance of its prediction. The goal of a path planner intending to suppress uncertainty of all predictions in a target field would be to reduce the overall variance of the target field being explored.
 
-A criterion for overall field uncertainty can be defined as the average variance, calculated from a prediction of a target field from a set $S$ points sampled for all $h\times w$ predictable points on a target field.
+Let $\Sigma(\cdot)$ be a criterion for overall predicted field uncertainty. The function can be defined as the average variance calculated from a prediction of all $h\times w$ predictable points on a target field from a set of observations, $S$.
 
 \begin{equation}
-	\Sigma(\hat{Z}_{S}) = \frac{1}{hw}\sum_{i = 1}^{hw} \text{var}\{\hat{Z}(\vect{p}_i)\}
+	\Sigma(\hat{Z}_{S}) = \frac{1}{hw}\sum_{i = 1}^{hw} \text{var}\{\hat{Z}_{S}(\vect{p}_i)\}
 	\label{eq:fielduncert}
 \end{equation}
 
+\noindent where $\Sigma(\hat{Z}_{S}) \in \mathbb{R}_{\geq 0}$ and $\text{var}\{\hat{Z}_{S}(\vect{p}_i)\} \in \mathbb{R}_{\geq 0}$ is the variance of the prediction of the $i^{th}$ point, $\vect{p}_i$, when the field is predicted from a set of samples, $S$.
+
 \subsection{Uncertainty Loss Function} \label{sec:lossfunc}
-In Section \ref{sec:fielduncert}, a criterion for overall field uncertainty was introduced. Given a set of sampled points, $S$ on a field, the overall field uncertainty is the mean variance of all points on the field, $\Sigma(\hat{Z}_{S})$. For an additional set of samples, $T$, taken on the field, a new field uncertainty, $\Sigma(\hat{Z}_{S \cup T})$, is the field uncertainty criterion of the fields prediction from the union of the sample sets $S$ and $T$. The difference in overall field uncertainty, $L(T)$, will be defined as the uncertainty lost by taking the additional samples in the set $T$ on the field.
+A criterion for overall field uncertainty was introduced in Section \ref{sec:fielduncert}. Given a set of sampled points, $S$ on a field, the overall field uncertainty is the mean variance of all points on the field, $\Sigma(\hat{Z}_{S})$. For an additional set of samples, $T$, taken on the field, a new field uncertainty, $\Sigma(\hat{Z}_{S \cup T})$, is the field uncertainty criterion of the fields prediction from the union of the sample sets $S$ and $T$. The difference in overall field uncertainty, $L(T)$, will be defined as the uncertainty lost by taking the additional samples in the set $T$ on the field.
 
 \begin{equation}
 	L(T) = \Sigma(\hat{Z}_{S}) - \Sigma(\hat{Z}_{S \cup T})
@@ -95,6 +97,15 @@ In Section \ref{sec:fielduncert}, a criterion for overall field uncertainty was 
 % 	S_{v} = \bigcup_{k = 1}^{N} S_k = \bigcup_{k = 1}^{N} \text{var}\{\hat{Z}_k(\vect{s})\} - \text{var}\{\hat{Z}_{k+1}(\vect{s})\}
 % \end{equation}
 
+\section{Path Planning Overview}
+Three variance suppressing path planners are introduced in this thesis. Each of three path planners attempts to reduces Kriging prediction variance by steering an exploration vehicle through a target field in a fashion that is predicted to reduce overall field uncertainty. All three of the path planners introduced will need an initial set of samples to make an initial path decision. Each of the three path planners begin by conducting an initial sweep on the main diagonal of the field. The initial set of samples taken from the sweep will then be used to make an initial decision.
+
+The \textit{Next Highest Variance} (NHV) Path Planner attempts to reduce field prediction uncertainty by setting the exploration vehicle's destination to the point of highest prediction variance on the field. After meeting the point of highest variance, the field prediction and variances are recalculated from the samples the vehicle took on its path to the previously selected destination point. The next destination, or \textit{decision point}, is then set to the new point of highest prediction uncertainty.
+
+The \textit{$N$ Next Highest Variances} (NNHV) Path Planner sets its decision point to a point from a set of the $N$ points of highest prediction variances. A \textit{leg}, or trajectory between the current position of the exploration vehicle and a potential decision point is calculated for all points in the set. The leg that is predicted to reduce the overall field uncertainty is set as the next decision point of the vehicle. When the decision point is met, the set of legs to the $N$ highest variances is recalculated. The next decision point is set to the point that yields the leg that is expected to maximize loss in field uncertainty.
+
+The Monte Carlo Path Planner (MCPP) calculates a set of legs to the $N$ highest points of variance on the field, similarly to the NNHV planner, except that for each leg, a separate set of $M_{mc}$ random trajectories are calculated around the leg. The exploration vehicle trajectory, or set of waypoints to a decision point, that is selected, is the random trajectory that maximizes loss in field uncertainty. The samples taken along the last trajectory selected are stored and used to recompute field variances when the final point in the trajectory (decision point) is met. New possible trajectories are then recalculated, and the planner repeats until a predefined maximum exploration distance has been met by the vehicle. This method compares a total of $N M_{mc}$ noisy trajectories per decision point met. 
+
 \section{Next Highest Variance Path Planner} \label{sec:nhvpp}
 Sampling the location of the next highest variance (NHV) is the simplest and most naive approach to path planning using the Kriging method. The highest point of uncertainty on the field is the point, $\vect{p}$, is defined as:
 
@@ -102,7 +113,7 @@ Sampling the location of the next highest variance (NHV) is the simplest and mos
 \argmax_{\vect{p}} \ \text{var}\{\hat{Z}(\vect{p})\}
 \end{equation}
 
-By simply setting the next endpoint of the path to $\vect{p}$, the point of highest uncertainty will be sampled at the end of the path. Once the point is met at the end of the path, a new set of samples gathered from the path to the endpoint will be used to recalculate the statistical patterns of the field to higher degree of quality. A Kriging prediction, variances of those predictions are then run on the field. The path planner continues by setting the next endpoint to the next point of highest uncertainty after recalculating the variances of the field. The planner terminates exploration once a preset maximum scan area limit has been met by the exploration vehicle. An initial forward diagonal sweep of samples are taken across the field to generate an initial variogram and Kriging prediction variances before the path planner chooses its first endpoint.
+By simply setting the next decision point of the path to $\vect{p}$, the point of highest uncertainty will be sampled at the end of the path. Once the point is met at the end of the path, a new set of samples gathered from the path to the endpoint will be used to recalculate the statistical patterns of the field to higher degree of quality. A Kriging prediction, variances of those predictions are then run on the field. The path planner continues by setting the next decision point to the point of highest uncertainty after recalculating the variances of the field. The planner terminates exploration once a preset maximum scan area limit has been met by the exploration vehicle.
 
 \begin{figure}[hb!]
 	\centering
@@ -117,7 +128,7 @@ By simply setting the next endpoint of the path to $\vect{p}$, the point of high
 The NHV algorithm does not account for repeating paths, or avoiding the re-sampling of points on the field. The only knowledge used is the variance of the endpoint of a path. Although the ground covered by the algorithm may be sufficient for uncertainty suppression, a path planner that considers the cost of trajectories would likely yield better results.
 
 \section{$N$ Next Highest Variances Path Planner} \label{sec:nnhv}
-A modification to the NHV algorithm can be made to consider more trajectories, and therefore compare the loss of taking a path from a set of possible paths. Let $K_N$ be the set of the $N \in \mathbb{N}$ points of highest uncertainty on the field. Let $T_i$ be a candidate trajectory connecting the current position of the exploration vehicle to the $i^{th}$ point in the set $K_N$. The endpoint that is ultimately chosen by the $N$ Next Highest Variance (N-NHV) Path Planner is the one that maximizes the loss function, $L(T_i)$. The points along a trajectory, $T_i$, have likely not been sampled, as they represent points of high uncertainty. The loss in uncertainty for taking the path, $T_i$, is therefore not known. An estimate of the loss in overall field uncertainty, $\hat{L}(T_i)$, after taking the path, $T_i$, is calculated by using the previous Kriging predictions of the points along the path. The predictions of those points are used as actual samples taken on the field in a new Kriging prediction variance calculation of the field. An initial forward diagonal sweep of samples are taken across the field to generate an initial variogram, initial Kriging predictions, and initial Kriging prediction variances before the path planner chooses its first endpoint.
+A modification to the NHV algorithm can be made to consider more trajectories, and therefore compare the loss of taking a path from a set of possible paths. Let $K_N$ be the set of the $N \in \mathbb{N}$ points of highest uncertainty on the field. Let $T_i$ be a candidate trajectory connecting the current position of the exploration vehicle to the $i^{th}$ point in the set $K_N$. The endpoint that is ultimately chosen by the $N$ Next Highest Variance (N-NHV) Path Planner is the one that maximizes the loss function, $L(T_i)$. The points along a trajectory, $T_i$, have likely not been sampled, as they represent points of high uncertainty. The loss in uncertainty for taking the path, $T_i$, is therefore not known. An estimate of the loss in overall field uncertainty, $\hat{L}(T_i)$, after taking the path, $T_i$, is calculated by using the previous Kriging predictions of the points along the path. The predictions of those points are used as actual samples taken on the field in a new Kriging prediction variance calculation of the field.
 
 % \begin{figure}[hb!]
 % 	\centering
@@ -153,7 +164,7 @@ Let $\alpha \in \mathbb{R}$ be the step size of the vehicle from one point to th
 \alpha \geq V \Delta T
 \end{equation}
 
-The corresponding Monte Carlo path, or sequence of way-points the exploration vehicle will make on its way to the candidate endpoint, $\vect{p}_i = [p_x\ p_y]^T$.
+The corresponding Monte Carlo path, or sequence of waypoints the exploration vehicle will make on its way to the candidate endpoint, $\vect{p}_i = [p_x\ p_y]^T$.
 
 \begin{equation}
 \label{eq:mcpp}
@@ -181,7 +192,7 @@ T_{i}(k) = \begin{cases}
 
 \noindent where the initial point in the candidate trajectory is set to the current position, $\vect{s}=[x_0\ y_0]^T$ from the state vector of the exploration vehicle. Due to the uncertainty in length of the random trajectory generated, the number of waypoints in the candidate trajectory $T_i$ is fixed, such that $k \in [1, \Big\lceil \frac{\|\vect{p}- \vect{s}\|_2}{\alpha} \Big\rceil]$ (the number of points in the trajectory for a step size, $\alpha$, given zero variance noise added to the process). The last point in the candidate trajectory set is set to the corresponding endpoint from the set $K_N$.
 
-As introduced in the N-NHV path planner, a candidate trajectory is generated for each of the candidate endpoints in the set, $K_N$. The candidate trajectory that maximizes the loss function, $L(T)$, is the path that is ultimately selected as the next vehicle trajectory. In an effort to find a more optimal trajectory, more than one random walk can be generated for each endpoint in the set $K_N$. The variable $M_{mc} \in \mathbb{N}$ will denote the number of random walks taken per endpoint in the set $K_N$. An initial forward diagonal sweep of samples are taken across the field to generate an initial variogram, initial Kriging predictions, and initial Kriging prediction variances before the path planner chooses its first endpoint.
+As introduced in the N-NHV path planner, a candidate trajectory is generated for each of the candidate endpoints in the set, $K_N$. The candidate trajectory that maximizes the loss function, $L(T)$, is the path that is ultimately selected as the next vehicle trajectory. In an effort to find a more optimal trajectory, more than one random walk can be generated for each endpoint in the set $K_N$. The variable $M_{mc} \in \mathbb{N}$ will denote the number of random walks taken per endpoint in the set $K_N$.
 
 \begin{figure}[h!]
 	\centering
@@ -247,5 +258,31 @@ As introduced in the N-NHV path planner, a candidate trajectory is generated for
 	\label{fig:mcpp}
 \end{figure}
 
+\section{Other Planners}
+The three planners introduced will be compared to two planners discussed in the Section \ref{sec:prev_works} on Previous Works. The first method, the zig-zag (ZZ) method, directs the exploration vehicle through a predetermined path which spirals through the entirety of the field. The second method, the Greedy Next-Best-View (NBV), which attempts to reduce Kriging variance by redirecting an exploration vehicle to the point of highest prediction variance after each sample taken.
+
+\subsection{Zig-Zag Method}
+A common approach to exploration and patrolling problems is the use of a zig-zag pattern. The methods introduced will be compared to a zig-zagging approach demonstrated in Nikhil Nigam, et al. \textit{Control and Design of Multiple Unmanned Air Vehicles for a Persistent Surveillance Task} (Part II.C.3, Figure 6, \cite{nigam:zigzag}). The method will run a Kriging prediction and variance calculation on the samples taken using the zig-zag explorer, even though a prediction is not specified in the original work. This is to generate measurable and comparable metrics against the path planners introduced. The path planners introduced will be compared against the zig-zag exploration method shown in Figure \ref{fig:zigzag4}.
+
+\begin{figure}[hbt!]
+    \centering
+    \includegraphics[width=0.9\linewidth]{figures/hbresults/zz_10p_100x100_sf_25_seed_2.png}
+    \captionsetup{skip=0.20\baselineskip}
+    \ssp
+    \caption{Zig-Zag exploration method set to scan a fixed percentage of a target field. A Kriging prediction and variance calculation is computed after completing the maneuver. The actual field that is being explored is shown in the upper left. The current prediction of the actual field is shown in the upper right. The variance of the current prediction of the field is shown in the lower left. The trace of the exploration vehicle's path taken to the point of termination (in red) is shown in the lower right panel. All distance units are in meters.}
+    \label{fig:zigzag4}
+\end{figure}
+
+The zig-zag exploration method will stop the field exploration process when the exploration vehicle traverses a predefined area to scan, $A_{scan}$. If the maximum scan area of a field is $w \times h$, and the percent of the field to scan is $p\%$, then the method will stop exploring when the area $A_{scan} = \frac{p}{100}wh$ of the field has been sampled. In an effort to allow the zig-zag method to cover as much of the field as possible, the spacing between each spiral bound, $r$, will be pre-calculated.
+
+\begin{equation}
+    r = \frac{100}{p}
+\end{equation}
+
+\subsection{Greedy Next-Best-View}
+The Greedy NBV method ....write this TODO
+
 \section{Discussion on the Planners Introduced}
 The Monte Carlo based path planner (MCPP) takes into account a set of noisy trajectories, and compares their estimated return on investment. The NHV simply takes the path to the highest prediction uncertainty location. Given enough trajectories (as $N$ and $M_{mc}$ get larger), the algorithm could find a path that will reduce overall field uncertainty in a more brute-force way over the NHV algorithm. The disadvantages of The Monte Carlo Path Planner lay in the fact that the cost of each next move taken, are not considered directly. Rather, an entire trajectory is considered all at once. A more optimal approach to this planner would be to take into consideration the cost of each waypoint selected. Furthermore, the MCPP approach is the most expensive method introduced because of the need to re-predict the field for each candidate trajectory calculated. The NHV planner is the simplest to compute because it only requires one run of the Kriging field predictions and variance calculations, followed by a simple search for the highest field variances.
+
+TODO: write about the greedy and zz here too

@@ -236,7 +236,6 @@ A set a weights will be computed for each vesicle in the target field similarly 
 
 \noindent where $\eta_0$ is a Lagrangian multiplier and $\vect{1} \in \mathbb{R}^{N}$ is a vector of $1$s. These terms assist the Ordinary Kriging system in maintaining unbiasedness in predictions by forcing the sum of the Kriging Weights, $\lambda_0$, to zero \cite{felus:srn}. 
 
-\subsection{The Kriging Prediction Equation}
 The Ordinary Kriging equation will be used to predict the value, $\hat{Z}(\vect{s}_0)$ of an unobserved location, $\vect{s}_0$. The prediction is a function of the Kriging Weights and a vector of $N$ observations \cite{felus:srn}. 
 
 \begin{equation}
@@ -252,10 +251,10 @@ The Ordinary Kriging equation will be used to predict the value, $\hat{Z}(\vect{
     \label{fig:krig_field}
 \end{figure}
 
-\subsection{Variance of A Kriging Prediction} \label{sec:krigvar}
 The variance of a point predicted on a target field can be calculated using byproduct terms generated along the way of calculating a Kriging prediction \cite{felus:srn}. For a predicted point $\hat{Z}(\vect{s}_0)$, using the proximity vector, $\vect{d}_0$, defined in Equation \ref{eq:proxvect}, and the Kriging Weights, $\vect{\lambda}_0$ defined in Equation \ref{eq:krigweights} for the predicted point, the variance of the prediction for that point is defined as:
 
 \begin{equation}
+    \label{eq:krigvar}
     \text{var}\{\hat{Z}(\vect{s}_0)\} = \begin{bmatrix}\vect{d}_0 \\ 1\end{bmatrix} \begin{bmatrix}\vect{\lambda}_0^T & \eta_0 \end{bmatrix}
 \end{equation}
 

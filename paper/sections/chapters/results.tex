@@ -1,28 +1,7 @@
 \chapter{Results}
 The three path planners (NHV, N-NHV, and MCPP) introduced in Chapter \ref{ch:pp} all aim to reduce the overall prediction uncertainty of a field given a limited amount of flight time. They accomplish the task by calculating variances of a target field's predictions and attempting to choose a trajectory that reduces overall uncertainty. 
 
-\section{Zig-Zag Path}
-A common approach to exploration and patrolling problems is the use of a zig-zag pattern. The methods introduced will be compared to a zig-zagging approach demonstrated in Nikhil Nigam, et al. \textit{Control and Design of Multiple Unmanned Air Vehicles for a Persistent Surveillance Task} (Part II.C.3, Figure 6, \cite{nigam:zigzag}). The method will run a Kriging prediction and variance calculation on the samples taken using the zig-zag explorer, even though a prediction is not specified in the original work. This is to generate measurable and comparable metrics against the path planners introduced. The path planners introduced will be compared against the zig-zag exploration method shown in Figure \ref{fig:zigzag4}.
-
-\begin{figure}[hbt!]
-    \centering
-    \includegraphics[width=0.9\linewidth]{figures/hbresults/zz_10p_100x100_sf_25_seed_2.png}
-    \captionsetup{skip=0.20\baselineskip}
-    \ssp
-    \caption{Zig-Zag exploration method set to scan a fixed percentage of a target field. A Kriging prediction and variance calculation is computed after completing the maneuver. The actual field that is being explored is shown in the upper left. The current prediction of the actual field is shown in the upper right. The variance of the current prediction of the field is shown in the lower left. The trace of the exploration vehicle's path taken to the point of termination (in red) is shown in the lower right panel. All distance units are in meters.}
-    \label{fig:zigzag4}
-\end{figure}
-
-\subsection{Simulation Results}
-% The effectiveness of the method introduced varies based on the area of the target field being explored. For small fields, a naive zig-zag exploration may be more efficient and less computationally expensive. By modulating the dimensions of the target field, a comparison can be drawn demonstrating the effectiveness of the method versus a naive zig-zag approach.
-The methods introduced will be compared to one another and the zig-zag method for the same termination condition. Each method will stop the field exploration process when the exploration vehicle traverses a fixed path length expressed in terms of the area percentage scanned, $A_{scan}$. For example, if the maximum scan percentage of a size $w \times h$ size field is $p\%$, then the method will stop exploring when $A_{scan} = \frac{p}{100}wh$ number of vesicles have been sampled. In an effort to allow the zig-zag method to cover as much of the field as possible, the spacing between each spiral bound, $r$, will be pre-calculated.
-
-\begin{equation}
-    r = \frac{100}{p}
-\end{equation}
-
-\subsection{Simulation Result Parameters}
-The number of trajectories compared in both the NNHV and MCPP methods is $N=5$. For the MCPP method, an additional $M_{mc}=20$ Monte Carlo trajectories are calculated for each of the $N$ trajectories. The target field size of the fields compared in the simulation have unit-less vesicle dimensions of $100\times 100$. Two random number generator seeds ($2$, $3$) are used to generate two sets of runs in an effort to show the methods for a variety of random fields. The autocorrelation factors of the field will be varied in an effort to show the effectiveness of the methods for different field statistics. When the prediction variances of the methods are compared, the values are normalized to an a priori mean variance, which is equal to the mean variance of the field generated from running a Kriging prediction on the equivalent field from a set of samples taken from the first five forward diagonal vesicles on the target field.
+The number of trajectories compared in both the NNHV and MCPP methods is $N=5$. For the MCPP method, an additional $M_{mc}=20$ Monte Carlo trajectories are calculated for each of the $N$ trajectories. The target field size of the fields compared in the simulation have unit-less vesicle dimensions of $100\times 100$. Two random number generator seeds ($2$, $3$) are used to generate two sets of runs in an effort to show the methods for a variety of random fields. The autocorrelation factors of the field will be varied in an effort to show the effectiveness of the methods for different field statistics. When the prediction variances of the methods are compared, the values are normalized to an a priori mean variance, which is equal to the mean variance of the field generated from running a Kriging prediction on the equivalent field from a set of five samples taken from the main diagonal vesicles of the target field.
 
 \subsection{Prediction Error Calculation}
 The quality of each path planner will be judged by its ability to explore a field in a fixed amount of time. The prediction error of each method will be used as a metric of path planning quality. The actual values of the fields scanned are known in simulation, and for each rerouting iteration, the predictions and prediction errors will be recalculated.
