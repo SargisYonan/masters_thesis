@@ -4,12 +4,12 @@ The three path planners (NHV, N-NHV, and MCPP) introduced in Chapter \ref{ch:pp}
 The number of trajectories compared in both the NNHV and MCPP methods is $N=5$. For the MCPP method, an additional $M_{mc}=20$ Monte Carlo trajectories are calculated for each of the $N$ trajectories. The target field size of the fields compared in the simulation have unit-less vesicle dimensions of $100\times 100$. Two random number generator seeds ($2$, $3$) are used to generate two sets of runs in an effort to show the methods for a variety of random fields. The autocorrelation factors of the field will be varied in an effort to show the effectiveness of the methods for different field statistics. When the prediction variances of the methods are compared, the values are normalized to an a priori mean variance, which is equal to the mean variance of the field generated from running a Kriging prediction on the equivalent field from a set of five samples taken from the main diagonal vesicles of the target field.
 
 \subsection{Prediction Error Calculation}
-The quality of each path planner will be judged by its ability to explore a field in a fixed amount of time. The prediction error of each method will be used as a metric of path planning quality. The actual values of the fields scanned are known in simulation, and for each rerouting iteration, the predictions and prediction errors will be recalculated.
+The quality of each path planner will be judged by its ability to explore a field with a fixed exploration path length. The prediction error of each method will be used as a criterion of path planning quality.
 
-The prediction error function, erf$(Z,\hat{Z})$, will be the average root mean square (RMS) value for all $N$ field predictions made, point by point, on the actual field, $Z$, and the predicted field, $\hat{Z}$.
+The prediction error function, $E (Z,\hat{Z})$, will be the average root mean square (RMS) error for all $N\times N$ points on the actual field, $Z$, and the predicted field, $\hat{Z}$.
 
 \begin{equation}
-\text{erf}(Z, \hat{Z}) = \frac{1}{N}\sum_{\forall i \in Z} (Z(\vect{s}_i) - \hat{Z}(\vect{s}_i))^2
+E (Z, \hat{Z}) = \frac{1}{N^2}\sum_{\forall \vect{s}_i \in Z} (Z(\vect{s}_i) - \hat{Z}(\vect{s}_i))^2
 \end{equation}
 
 \input{sections/chapters/results_random_seed_2}

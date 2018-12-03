@@ -1,5 +1,5 @@
 \chapter{Simulation Framework}
-Using \textit{MATLAB}, the methods described in Chapter \ref{ch:pp} on Path Planning were implemented to provide a simulation environment to show the effectiveness of the introduced methods. The target fields in the simulations are of a variable size with a single state of interest that can be sampled. The autocorrelation factor of the field in the simulation is an adjustable variable that determines the likeliness of each pair of neighboring points as a function of distance. 
+In order to show the effectiveness of the introduced path planners, the methods described in Chapter \ref{ch:pp} on Path Planning were implemented within a simulation environment in \textit{MATLAB}. The target fields in the simulations are of a variable size with a single state of interest that can be sampled. The autocorrelation factor of the field in the simulation is an adjustable variable that determines the likeliness of each pair of neighboring points as a function of distance. 
 
 \section{Simulated Exploration Vehicle Model Dynamics}
 The dynamics of the simulated vehicle are modeled after the vehicle model described in Equation \ref{eq:vehicledynamicsmodel}. In the simulation, $\Delta T$ and $V$ are constants predefined in the simulation environment. For a given waypoint destination, the vehicle will pass over every vesicle on the line connecting its original position and its final position. The vehicle's heading angle and speed can be controlled at any point in the simulation. The path planner directly feeds a control heading angle to the simulated vehicle. The speed of the vehicle is kept constant. A trajectory (a set of waypoints), $T$, calculated in Chapter \ref{ch:pp}, is loaded into a waypoint queue for the vehicle, where each waypoint is met one after another. After meeting the final waypoint in the trajectory, the next set of waypoints is calculated by a path planner. The process continues until the termination condition (maximum area scanned) is satisfied. A sample is taken at every possible vesicle that the vehicle passes over. The location and value of each sample is stored in the vehicle object's memory for later use in the prediction procedures.
@@ -85,22 +85,40 @@ The simulation, once started, runs a single exploration method at a time. A gene
 
 \begin{figure}[htb!]
     \centering
-    \includegraphics[width=0.8\linewidth]{figures/nhv_200x200_10_percent.png}
+    \includegraphics[width=0.8\linewidth]{figures/nhv_200_5p.png}
 	\captionsetup{skip=0.25\baselineskip}
 	\ssp
-    \caption{Next Highest Variance Path Planning. The actual field (top left), predicted field (with error) (top right), variance field (bottom left), and traversed path (bottom right). The path planner is conducted on the same field with an approximate 3\% scan area limit.}
+    \caption{Next Highest Variance Path Planning. The actual field (top left), predicted field (with error) (top right), variance field (bottom left), and traversed path (bottom right). The path planner is conducted on the same field with an approximate 5\% scan area limit.}
 \end{figure}
+
 \begin{figure}[htb!]
     \centering
-    \includegraphics[width=0.8\linewidth]{figures/mcpp_200x200_3_percent_mck_5_rands_20.png}
-	\captionsetup{skip=0.25\baselineskip}
-	\ssp
-    \caption{Monte Carlo path planner run ($N=5$, $M_{mc}=20$). The actual field (top left), predicted field (with error) (top right), variance field (bottom left), and traversed path (bottom right). The path planner is conducted on the same field with an approximate 3\% scan area limit.}
+    \includegraphics[width=0.8\linewidth]{figures/nnhv_200_5p.png}
+    \captionsetup{skip=0.25\baselineskip}
+    \ssp
+    \caption{$N$ Next Highest Variance Path Planning ($N=5$). The actual field (top left), predicted field (with error) (top right), variance field (bottom left), and traversed path (bottom right). The path planner is conducted on the same field with an approximate 5\% scan area limit.}
 \end{figure}
+
 \begin{figure}[htb!]
     \centering
-    \includegraphics[width=0.8\linewidth]{figures/zz_200x200_3.png}
-	\captionsetup{skip=0.25\baselineskip}
-	\ssp
-    \caption{Zig-Zag method. The actual field (top left), predicted field (with error) (top right), variance field (bottom left), and traversed path (bottom right). The path planner is conducted on the same field with an approximate 3\% scan area limit.}
+    \includegraphics[width=0.8\linewidth]{figures/mc_200_5p.png}
+    \captionsetup{skip=0.25\baselineskip}
+    \ssp
+    \caption{Monte Carlo Path Planning ($N=5$, $M_{mc}=20$). The actual field (top left), predicted field (with error) (top right), variance field (bottom left), and traversed path (bottom right). The path planner is conducted on the same field with an approximate 5\% scan area limit.}
+\end{figure}
+
+\begin{figure}[htb!]
+    \centering
+    \includegraphics[width=0.8\linewidth]{figures/zz_200_5p.png}
+    \captionsetup{skip=0.25\baselineskip}
+    \ssp
+    \caption{Zig-Zag Method. The actual field (top left), predicted field (with error) (top right), variance field (bottom left), and traversed path (bottom right). The path planner is conducted on the same field with an approximate 5\% scan area limit.}
+\end{figure}
+
+\begin{figure}[htb!]
+    \centering
+    \includegraphics[width=0.8\linewidth]{figures/greedy_200_5p.png}
+    \captionsetup{skip=0.25\baselineskip}
+    \ssp
+    \caption{Greedy Next-Best-View Method. The actual field (top left), predicted field (with error) (top right), variance field (bottom left), and traversed path (bottom right). The path planner is conducted on the same field with an approximate 5\% scan area limit.}
 \end{figure}
