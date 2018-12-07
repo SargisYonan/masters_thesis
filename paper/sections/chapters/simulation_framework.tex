@@ -77,7 +77,7 @@ The field is composed of a single feature which is geospatially autocorrelated. 
         \caption{$\sigma_{field} = w = 1000$. The field exhibits a high degree of spatial autocorrelation.}
     \end{subfigure}
     \ssp
-    \caption{A field is generated using a zero mean normal distribution with variance $1$. Varying degrees of spatial autocorrelation are shown for different values of $\sigma_{field}$.}
+    \caption{A field is generated using a random number generator with a zero mean normal distribution with variance $1$. Varying degrees of spatial autocorrelation are shown for different values of $\sigma_{field}$.}
 \end{figure}
 
 \section{Simulation Environment}
@@ -85,40 +85,40 @@ The simulation, once started, runs a single exploration method at a time. A gene
 
 \begin{figure}[htb!]
     \centering
-    \includegraphics[width=0.8\linewidth]{figures/nhv_200_5p.png}
+    \includegraphics[width=0.8\linewidth]{figures/sim_figures/nhv_3_5p_200x200_sf_20_seed_2}
 	\captionsetup{skip=0.25\baselineskip}
 	\ssp
-    \caption{Next Highest Variance Path Planning. The actual field (top left), predicted field (with error) (top right), variance field (bottom left), and traversed path (bottom right). The path planner is conducted on the same field with an approximate 5\% scan area limit.}
+    \caption{Highest Variance Path Planning. The actual field (top left), predicted field (with error) (top right), variance field (bottom left), and traversed path (bottom right).}
 \end{figure}
 
 \begin{figure}[htb!]
     \centering
-    \includegraphics[width=0.8\linewidth]{figures/nnhv_200_5p.png}
+    \includegraphics[width=0.8\linewidth]{figures/sim_figures/nnhv_3_5p_200x200_sf_20_seed_2}
     \captionsetup{skip=0.25\baselineskip}
     \ssp
-    \caption{$N$ Next Highest Variance Path Planning ($N=5$). The actual field (top left), predicted field (with error) (top right), variance field (bottom left), and traversed path (bottom right). The path planner is conducted on the same field with an approximate 5\% scan area limit.}
+    \caption{$N$ Highest Variance Path Planning ($N=5$). The actual field (top left), predicted field (with error) (top right), variance field (bottom left), and traversed path (bottom right).}
 \end{figure}
 
 \begin{figure}[htb!]
     \centering
-    \includegraphics[width=0.8\linewidth]{figures/mc_200_5p.png}
+    \includegraphics[width=0.8\linewidth]{figures/sim_figures/mc_3_5p_200x200_sf_20_seed_2}
     \captionsetup{skip=0.25\baselineskip}
     \ssp
-    \caption{Monte Carlo Path Planning ($N=5$, $M_{mc}=20$). The actual field (top left), predicted field (with error) (top right), variance field (bottom left), and traversed path (bottom right). The path planner is conducted on the same field with an approximate 5\% scan area limit.}
+    \caption{Monte Carlo Path Planning ($N=5$, $M_{mc}=20$). The actual field (top left), predicted field (with error) (top right), variance field (bottom left), and traversed path (bottom right).}
 \end{figure}
 
 \begin{figure}[htb!]
     \centering
-    \includegraphics[width=0.8\linewidth]{figures/zz_200_5p.png}
+    \includegraphics[width=0.8\linewidth]{figures/sim_figures/zz_3_5p_200x200_sf_20_seed_2}
     \captionsetup{skip=0.25\baselineskip}
     \ssp
-    \caption{Zig-Zag Method. The actual field (top left), predicted field (with error) (top right), variance field (bottom left), and traversed path (bottom right). The path planner is conducted on the same field with an approximate 5\% scan area limit.}
+    \caption{Zig-Zag Method. The actual field (top left), predicted field (with error) (top right), variance field (bottom left), and traversed path (bottom right).}
 \end{figure}
 
 \begin{figure}[htb!]
     \centering
-    \includegraphics[width=0.8\linewidth]{figures/greedy_200_5p.png}
+    \includegraphics[width=0.8\linewidth]{figures/sim_figures/greedy_3_5p_200x200_sf_20_seed_2}
     \captionsetup{skip=0.25\baselineskip}
     \ssp
-    \caption{Greedy Next-Best-View Method. The actual field (top left), predicted field (with error) (top right), variance field (bottom left), and traversed path (bottom right). The path planner is conducted on the same field with an approximate 5\% scan area limit.}
+    \caption{Greedy Next-Best-View Method. The actual field (top left), predicted field (with error) (top right), variance field (bottom left), and traversed path (bottom right).}
 \end{figure}
