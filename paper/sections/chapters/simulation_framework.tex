@@ -37,7 +37,16 @@ The dynamics of the simulated vehicle are modeled after the vehicle model descri
 \section{Generating a Target Field}
 The simulation yields a target field that is of variable height $h$, and width $w$. Each vesicle in the field is exactly the area of the sensor footprint of the simulated vehicle's sensor. This is to make the sensor measurements as ideal as possible, so no samples are missed when a vesicle is flown over.
 
-The field is composed of a single feature which is autocorrelated spatially. Initially, the points on the field are generated from a normal distribution with a standard deviation of $1$, and expected value of $0$. The field is then convolved with a two dimensional Gaussian filter, of size $h \times w$, with a variable standard deviation, $\sigma_{field}$. The final filter ``smooths" the field in order to simulate autocorrelation. The result is a randomly-generated, variably-sized, and autocorrelated field with a unit-less feature of interest. One such field can be observed in Figure \ref{fig:gen_field}. As the value of the standard deviation of the Gaussian filter kernel, $\sigma_{field}$, increases, the field exhibits higher spatial autocorrelation. Inversely, when $\sigma_{field}$ is close to zero, the field becomes has no signs of spatial autocorrelation.
+The field is composed of a single feature which is autocorrelated spatially. Initially, the points on the field are generated from a normal distribution with a standard deviation of $1$, and expected value of $0$. The field is then convolved with a two dimensional Gaussian filter, $G(x,y,\sigma_{field})$ (Equation \ref{eq:gauss_filt}), with a variable standard deviation, $\sigma_{field} \in \mathbb{R}_{\geq 0}$ which sets the radius of the filter. 
+
+\begin{equation}
+G(x,y,\sigma_{field}) = \frac{1}{2 \pi \sigma_{field}^2} e^{\frac{x^2 + y^2}{2\sigma_{field}^2}}
+\label{eq:gauss_filt}
+\end{equation}
+
+\noindent where $x \in \mathbb{N}$, $y \in \mathbb{N}$, and for all values $x \in [1, w], y \in [1, h]$.
+
+The Gaussian filter ``smooths" the field in order to simulate autocorrelation. In \textit{MATLAB}, the \textit{imfilter} function is used to perform a 2D convolution on the randomly generated field. The result is a randomly-generated, variably-sized, and autocorrelated field with a unit-less feature of interest. One such field can be observed in Figure \ref{fig:gen_field}. As the value of the standard deviation of the Gaussian filter kernel, $\sigma_{field}$, increases, the field exhibits higher spatial autocorrelation. Inversely, when $\sigma_{field}$ is close to zero, the field becomes has no signs of spatial autocorrelation.
 
 % \begin{figure}[htb!]
 % 	\begin{subfigure}
