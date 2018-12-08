@@ -4,7 +4,7 @@ Many of the methods introduced in this thesis will rely on works developed in th
 Tobler's First Law of Geography \cite{tobler:first_law} states,``Everything is related to everything else, but near things are more related than distant things." Regarding geospatial data, there is a positive correlation between observations with a small difference in distance \cite{miller:on_toblers_first_law}. This implies the existence of geospatial autocorrelation in many target fields of interest, where there exists a positive correlation between elements in a field. Geospatial autocorrelation is the hypothesis that allows naive prediction techniques, like Inverse Distance Weighting (IDW) (Section \ref{sec:idw_intro}), to work. The Kriging Method first finds the underlying spatial autocorrelation of a target field from a set of samples, and then predicts the state of a given vesicle by emphasizing values of statistically similar samples in a weighted sum. The methods introduced in this chapter are intended to serve as an introduction and background into the Kriging Method.
 
 \subsection{Autocorrelation in a Field}
-Positively correlated spatial autocorrelation in a field implies the existence of a cluster of similar points near one another i.e. relatively small covariances between two spatially similar points. The opposite is true when the overall spatial autocorrelation of a field is negative. Using Tobler's First Law of Geography, the assumption that fields measured will contain positive autocorrelation will be used. The degree of spatial autocorrelation in a field can be measured, and will be discussed in Section \ref{sec:vario} on Variography.
+Positively correlated spatial autocorrelation in a field implies the existence of a cluster of similar points near one another i.e. relatively small covariances between two spatially similar points. The opposite is true when the overall spatial autocorrelation of a field is negative. Using Tobler's First Law of Geography, along with the assumption that fields measured will contain positive autocorrelation distributed uniformly throughout a field, will be used. The degree of spatial autocorrelation in a field can be measured, and will be discussed in Section \ref{sec:vario} on Variography.
 
 \begin{figure}[ht!]
     \centering
@@ -71,7 +71,7 @@ h_{i,j} = \| \vect{s}_i - \vect{s}_j \|_2
 \label{eq:hdist}
 \end{equation}
 
-Using the assumption on what a point's value on a field is constructed of is made in Equation 2.4.1 of Matheron, 1963 \cite{matheron:geostat}:
+Following Equation 2.4.1 of Matheron, 1963 \cite{matheron:geostat}, the value of a point on a field is
 
 \begin{equation}
     Z(\vect{s}_i)=\mu(\vect{s}_i)+\theta(\vect{s}_i)
@@ -81,7 +81,7 @@ Using the assumption on what a point's value on a field is constructed of is mad
 \noindent where $\theta(\cdot)$ is a zero-mean intrinsically stationary stochastic Wiener process, and $\mu(\cdot) = \bar{Z}$ is the mean value of the state of interest in the field.
 
 \subsection{The Semivariogram}
-The Semivariogram is defined to be the average squared difference between two points separated by some distance apart. Matheron, 1963 defines a semivariogram in \cite{matheron:geostat} in three-dimensional space as:
+The Semivariogram is defined to be the average squared difference between two points separated by some distance apart. Matheron, 1963 defines a semivariogram in \cite{matheron:geostat} in three-dimensional space, which reduces to the following for two dimensions
 
 \begin{equation}
     \gamma(h) = \frac{1}{2A} \iint_A [ Z(\vect{s} + h) - Z(\vect{s}) ]^2 dA
@@ -116,6 +116,8 @@ The experimental variogram conveys the spatial autocorrelation of a sampled fiel
 The intent of fitting a statistical model to an experimental variogram is to approximate the continuous covariance for any two points, that have not necessarily been observed, on $Z$ that are at some known lag apart.
 
 The Empirical Semivariogram will be fit to a statistical model, or \textit{kernel}, known as a Variogram Model. There exist well-known models, further discussed in this section. Each model is a scalar function of lag, $h$, \text{sill}, $s$, and \text{range}, $a$. The term \textit{sill} refers to the point on the co-domain where two points at the lag specified are no longer autocorrelated. The sill is therefore the largest value of covariance for two disjoint points on a field that are still considered to be autocorrelated. The corresponding point on the domain for the sill is referred to as the \textit{range} on the variogram. Two points that have a lag larger than the range are not considered to be autocorrelated. The \textit{nugget} of the variogram is defined to be the variance at zero lag, or $\gamma(0)$ \cite{matheron:geostat}. This value is exactly zero for ideal measurements. For non-ideal situations, the nugget is typically non-zero. This can be attributed to drift in the the field states between sampling periods, or from measurement noise. The value found for the nugget is summed with the value yielded by $\gamma$, to get the final variogram value for a given lag \cite{goov:97}.
+
+Three kernel models used in this thesis are the Gaussian, Exponential, and Spherical models.
 
 \subsubsection{The Gaussian Model}
 
@@ -176,7 +178,7 @@ Using a version of the \textit{fminsearch} function in \textit{MATLAB}, a variog
 The Kriging Method conducts a weighted sum using the continuous variogram model that was fit to the physical observations made. The method can yield a prediction for each vesicle in a target space similar to the Inverse Distance Weighting method described in Section \ref{sec:idw_intro}, but with more statistical robustness.
 
 \subsection{Forms of the Kriging Method}
-There exist three major forms of the Kriging Method; all of which differ primarily in the handling of the mean gathered from observations of a target field. The \textit{Simple Kriging Method} makes the assumption that the mean is known and constant throughout the entirety of an observed field. This is not the case for fields that are very large as it does not follow Tobler's First Law. The \textit{Ordinary Kriging Method} can deduce the local mean of a neighborhood from a smaller subset of observations in a larger target field. This is done by classifying the larger field into smaller neighborhoods where the mean is only constant within those neighborhoods. Ordinary Kriging has the advantage that the mean is not required to be known before running a prediction. The \textit{Universal Kriging Method} can perform similar local mean calculations as the Ordinary Kriging Method, but does so by fitting a polynomial representing a mean trend model and not from a constant mean value representing that neighborhood \cite{vandergraaf:nnkrig} as seen in Section \ref{sec:varfit} on fitting a variogram. The Ordinary Kriging method will be used throughout the rest of this thesis because of its lack of requirement for the expected value of the field, and its computational simplicity when compared to the Universal Kriging Method.
+There are three major forms of the Kriging Method; all of which differ primarily in the handling of the mean gathered from observations of a target field. The \textit{Simple Kriging Method} makes the assumption that the mean is known and constant throughout the entirety of an observed field. This is not the case for fields that are very large as it does not follow Tobler's First Law. The \textit{Ordinary Kriging Method} can deduce the local mean of a neighborhood from a smaller subset of observations in a larger target field. This is done by classifying the larger field into smaller neighborhoods where the mean is only constant within those neighborhoods. Ordinary Kriging has the advantage that the mean is not required to be known before running a prediction. The \textit{Universal Kriging Method} can perform similar local mean calculations as the Ordinary Kriging Method, but does so by fitting a polynomial representing a mean trend model and not from a constant mean value representing that neighborhood \cite{vandergraaf:nnkrig} as seen in Section \ref{sec:varfit} on fitting a variogram. The Ordinary Kriging method will be used throughout the rest of this thesis because of its lack of requirement for the expected value of the field, and its computational simplicity when compared to the Universal Kriging Method.
 
 \subsection{Covariance Matrix From A Variogram} \label{sec:covmat}
 From the fit variogram which represents the spatial statistics of a field from a set of samples, a variance-covariance matrix for $N$ observations, $P \in \mathbb{R}^{N \times N}$, will be constructed. The value of the element $P_{i,j}$, will represent the covariance of the lag between the $i^{th}$ and $j^{th}$ observations on the field \cite{goov:97}, \cite{matheron:geostat}. If $i=j$, the value of the element, $P_{i,j}$ is the variance of the $i^{th}$ observation. 
@@ -196,10 +198,13 @@ From the fit variogram which represents the spatial statistics of a field from a
     \vdots & \vdots & \ddots & \vdots \\
     
     \gamma(\| \vect{s}_N - \vect{s}_1 \|_2) & \gamma(\| \vect{s}_N - \vect{s}_2 \|_2) & \dots & \gamma(0)\\
-
     \end{bmatrix}
+    \\
     \label{eq:covvarmat}
 \end{equation}
+
+\subsubsection{Numerical Precision Consideration}
+As the number of observations, $N$, made on a field become large, the matrix, $P$, grows on the order of $N^2$. For a $30\%$ scan of a size $100 \times 100$ field, $P$ grows to be a matrix of size $3000 \times 3000$. A matrix with a size on this order of magnitude is likely to be ill-conditioned, i.e. the matrix contains columns that are close to the linear combinations of the other columns in the matrix. A high condition number implies that $PP^{-1}$ deviates from the identity matrix of the same size. The inverse of such a matrix, used in Equation \ref{eq:krigweights}, will be prone to numerical imprecisions using \textit{MATLAB}'s standard inverse function, which uses a lower-upper (LU) decomposition \cite{mathworks:inv}. When taking the inverse of such a matrix, in \textit{MATLAB}, the Moore-Penrose pseudo-inverse of $P$, $P^{\dagger}$, is taken instead. The pseudo-inverse function in \textit{MATLAB} computes the Singular Value Decomposition (SVD) of the matrix \cite{mathworks:pinv}, which is more computationally expensive, but more robust to numerical errors while inverting an ill-conditioned matrix.
 
 \subsection{Mean \& Variance of a Point Prediction}
 For any given point on a field, we can construct a \textit{proximity vector}, $\vect{d}_0 \in \mathbb{R}^{N}$, which contains the covariance of a given point, $\vect{s}_0$ on the field with the $N$ observations made. The $k^{th}$ element of $\vect{d}_N$, would therefore contain the covariance for the lag between point $\vect{s}_0$ and the $k^{th}$ observation made, $\vect{s}_k$ \cite{matheron:geostat}.
@@ -217,7 +222,7 @@ $$\vect{d}_0(k) = \gamma(\| \vect{s}_0 - \vect{s}_k \|_2)$$
     \label{eq:proxvect}
 \end{equation}
 
-\noindent Furthermore, The Kriging Method can be bounded. If a to-be-predicted point and a given sample is beyond the range value fit to the variogram model, the corresponding element in the proximity vector is set to the sill. This ensures that points outside of the range of autocorrelation are not weighted anymore than they should be. This method is suggested when the variogram model used is a bounded function, e.g. the Spherical Model (Equation \ref{eq:sph_model}).
+\noindent Furthermore, the Kriging Method can be bounded. If a to-be-predicted point and a given sample is beyond the range value fit to the variogram model, the corresponding element in the proximity vector is set to the sill. This ensures that points outside of the range of autocorrelation are not weighted anymore than they should be. This method is suggested when the variogram model used is a bounded function, e.g. the Spherical Model (Equation \ref{eq:sph_model}).
 
 A set a weights will be computed for each vesicle in the target field similarly to the Inverse Distance Weighting method. These weights will be referred to as the \textit{Ordinary Kriging Weights}. For a given prediction location, $\vect{s}_0$, the Ordinary Kriging Weight vector, $\vect{\lambda}_0$, will be defined as the product of the inverse of the covariance matrix of the field and the proximity vector of the point to predict \cite{felus:srn}.
 
