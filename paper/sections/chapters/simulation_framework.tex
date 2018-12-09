@@ -46,7 +46,7 @@ G(x,y,\sigma_{field}) = \frac{1}{2 \pi \sigma_{field}^2} e^{\frac{x^2 + y^2}{2\s
 
 \noindent where $x \in \mathbb{N}$, $y \in \mathbb{N}$, and for all values $x \in [1, w], y \in [1, h]$.
 
-The Gaussian filter ``smooths" the field in order to simulate autocorrelation. In \textit{MATLAB}, the \textit{imfilter} function is used to perform a 2D convolution on the randomly generated field. The result is a randomly-generated, variably-sized, and autocorrelated field with a unit-less feature of interest. One such field can be observed in Figure \ref{fig:gen_field}. As the value of the standard deviation of the Gaussian filter kernel, $\sigma_{field}$, increases, the field exhibits higher spatial autocorrelation. Inversely, when $\sigma_{field}$ is close to zero, the field becomes has no signs of spatial autocorrelation.
+The Gaussian filter ``smooths'' the field in order to simulate autocorrelation. In \textit{MATLAB}, the \textit{imfilter} function is used to perform a 2D convolution on the randomly generated field. The result is a randomly-generated, variably-sized, and autocorrelated field with a unit-less feature of interest. One such field can be observed in Figure \ref{fig:gen_field}. As the value of the standard deviation of the Gaussian filter kernel, $\sigma_{field}$, increases, the field exhibits higher spatial autocorrelation. Inversely, when $\sigma_{field}$ is close to zero, the field becomes has no signs of spatial autocorrelation.
 
 % \begin{figure}[htb!]
 % 	\begin{subfigure}
@@ -92,42 +92,44 @@ The Gaussian filter ``smooths" the field in order to simulate autocorrelation. I
 \section{Simulation Environment}
 The simulation, once started, runs a single exploration method at a time starting with the same random number seed. A generated field is initially unknown to a vehicle object, but samples are collected as it passes along the field. The variances of Kriging predictions, the currently predicted field, and the path traversed are plotted along with the actual field being explored.
 
-\begin{figure}[htb!]
-    \centering
-    \includegraphics[width=0.8\linewidth]{figures/sim_figures/nhv_3_5p_200x200_sf_20_seed_2}
-	\captionsetup{skip=0.25\baselineskip}
-	\ssp
-    \caption{Highest Variance Path Planning. The actual field (top left), predicted field (with error) (top right), variance field (bottom left), and traversed path (bottom right).}
-\end{figure}
+% \begin{figure}[htb!]
+%     \centering
+%     \includegraphics[width=0.8\linewidth]{figures/sim_figures/nhv_3_5p_200x200_sf_20_seed_2}
+% 	\captionsetup{skip=0.25\baselineskip}
+% 	\ssp
+%     \caption{Highest Variance Path Planning. The actual field (top left), predicted field (with error) (top right), variance field (bottom left), and traversed path (bottom right).}
+% \end{figure}
 
-\begin{figure}[htb!]
-    \centering
-    \includegraphics[width=0.8\linewidth]{figures/sim_figures/nnhv_3_5p_200x200_sf_20_seed_2}
-    \captionsetup{skip=0.25\baselineskip}
-    \ssp
-    \caption{$N$ Highest Variance Path Planning ($N=5$). The actual field (top left), predicted field (with error) (top right), variance field (bottom left), and traversed path (bottom right).}
-\end{figure}
+% \begin{figure}[htb!]
+%     \centering
+%     \includegraphics[width=0.8\linewidth]{figures/sim_figures/nnhv_3_5p_200x200_sf_20_seed_2}
+%     \captionsetup{skip=0.25\baselineskip}
+%     \ssp
+%     \caption{$N$ Highest Variance Path Planning ($N=5$). The actual field (top left), predicted field (with error) (top right), variance field (bottom left), and traversed path (bottom right).}
+% \end{figure}
 
-\begin{figure}[htb!]
-    \centering
-    \includegraphics[width=0.8\linewidth]{figures/sim_figures/mc_3_5p_200x200_sf_20_seed_2}
-    \captionsetup{skip=0.25\baselineskip}
-    \ssp
-    \caption{Monte Carlo Path Planning ($N=5$, $M_{mc}=20$). The actual field (top left), predicted field (with error) (top right), variance field (bottom left), and traversed path (bottom right).}
-\end{figure}
+% \begin{figure}[htb!]
+%     \centering
+%     \includegraphics[width=0.8\linewidth]{figures/sim_figures/mc_3_5p_200x200_sf_20_seed_2}
+%     \captionsetup{skip=0.25\baselineskip}
+%     \ssp
+%     \caption{Monte Carlo Path Planning ($N=5$, $M_{mc}=20$). The actual field (top left), predicted field (with error) (top right), variance field (bottom left), and traversed path (bottom right).}
+% \end{figure}
 
-\begin{figure}[htb!]
-    \centering
-    \includegraphics[width=0.8\linewidth]{figures/sim_figures/zz_3_5p_200x200_sf_20_seed_2}
-    \captionsetup{skip=0.25\baselineskip}
-    \ssp
-    \caption{Zig-Zag Method. The actual field (top left), predicted field (with error) (top right), variance field (bottom left), and traversed path (bottom right).}
-\end{figure}
+% \begin{figure}[htb!]
+%     \centering
+%     \includegraphics[width=0.8\linewidth]{figures/sim_figures/zz_3_5p_200x200_sf_20_seed_2}
+%     \captionsetup{skip=0.25\baselineskip}
+%     \ssp
+%     \caption{Zig-Zag Method. The actual field (top left), predicted field (with error) (top right), variance field (bottom left), and traversed path (bottom right).}
+% \end{figure}
 
-\begin{figure}[htb!]
-    \centering
-    \includegraphics[width=0.8\linewidth]{figures/sim_figures/greedy_3_5p_200x200_sf_20_seed_2}
-    \captionsetup{skip=0.25\baselineskip}
-    \ssp
-    \caption{Greedy Next-Best-View Method. The actual field (top left), predicted field (with error) (top right), variance field (bottom left), and traversed path (bottom right).}
-\end{figure}
+% \begin{figure}[htb!]
+%     \centering
+%     \includegraphics[width=0.8\linewidth]{figures/sim_figures/greedy_3_5p_200x200_sf_20_seed_2}
+%     \captionsetup{skip=0.25\baselineskip}
+%     \ssp
+%     \caption{Greedy Next-Best-View Method. The actual field (top left), predicted field (with error) (top right), variance field (bottom left), and traversed path (bottom right).}
+% \end{figure}
+
+TODO: put in all runs including GA, GRA
