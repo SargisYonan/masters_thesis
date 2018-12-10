@@ -1,48 +1,132 @@
-\section{High Spatial Autocorrelation Results}
-The methods will be compared on target fields generated with an autocorrelation factor, $\sigma_{field}$, equal to the field width. A filter, $G(x,y,\sigma_{field}) = G(x,y,100)$ (Equation \ref{eq:gauss_filt}), is generated for all values of $(x,y) \in [1, w]$ where $x \in \mathbb{N}, y \in \mathbb{N}$.
+\section{Comparing to Greedy Next-Best-View}
+A course field of size $20 \times 20$ vesicles was generated with a autocorrelation factor, $\sigma_{field}$, equal to $4$, and limited to a $30\%$ scan.
 
 \begin{figure}[htb!]
     \centering
-    \begin{subfigure}[t]{0.25\textwidth}
+    \begin{subfigure}[t]{0.3333\textwidth}
         \centering
-        \includegraphics[width=\linewidth]{figures/path_greedy_30p_100x100_sf_100_seed_2.png}
+        \includegraphics[width=\linewidth]{figures/hbresults/path_nhv_40p_20x20_sf_4_seed_2.png}
+        \captionsetup{skip=0.20\baselineskip,size=footnotesize}
+        \caption{Highest Variance}
+    \end{subfigure}%
+    \begin{subfigure}[t]{0.3333\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{figures/hbresults/path_nnhv_40p_20x20_sf_4_seed_2.png}
+        \captionsetup{skip=0.20\baselineskip,size=footnotesize}
+        \caption{$N$ Highest Variance}
+    \end{subfigure}%
+    \begin{subfigure}[t]{0.3333\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{figures/hbresults/path_mc_40p_20x20_sf_4_seed_2.png}
+        \captionsetup{skip=0.20\baselineskip,size=footnotesize}
+        \caption{Monte Carlo}
+    \end{subfigure}%
+    \\
+    \begin{subfigure}[t]{0.3333\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{figures/hbresults/path_nbv_40p_20x20_sf_4_seed_2.png}
         \captionsetup{skip=0.20\baselineskip,size=footnotesize}
         \caption{Greedy NBV}
     \end{subfigure}%
-    \begin{subfigure}[t]{0.25\textwidth}
+    \begin{subfigure}[t]{0.3333\textwidth}
         \centering
-        \includegraphics[width=\linewidth]{figures/path_mc_30p_100x100_sf_100_seed_2.png}
+        \includegraphics[width=\linewidth]{figures/hbresults/path_gradient_40p_20x20_sf_4_seed_2.png}
         \captionsetup{skip=0.20\baselineskip,size=footnotesize}
-        \caption{MCPP}
+        \caption{Gradient Ascent}
     \end{subfigure}%
-    \begin{subfigure}[t]{0.25\textwidth}
+    \begin{subfigure}[t]{0.3333\textwidth}
         \centering
-        \includegraphics[width=\linewidth]{figures/path_nhv_30p_100x100_sf_100_seed_2.png}
+        \includegraphics[width=\linewidth]{figures/hbresults/path_gr_40p_20x20_sf_4_seed_2.png}
         \captionsetup{skip=0.20\baselineskip,size=footnotesize}
-        \caption{HV}
-    \end{subfigure}%
-    \begin{subfigure}[t]{0.25\textwidth}
-        \centering
-        \includegraphics[width=\linewidth]{figures/path_nnhv_30p_100x100_sf_100_seed_2.png}
-        \captionsetup{skip=0.20\baselineskip,size=footnotesize}
-        \caption{$N$-HV}
+        \caption{Gradient Range Ascent}
     \end{subfigure}%
     \\
-    \begin{subfigure}[t]{0.25\textwidth}
+    \begin{subfigure}[t]{0.3333\textwidth}
         \centering
-        \includegraphics[width=\linewidth]{figures/path_zz_10p_100x100_sf_100_seed_2.png}
+        \includegraphics[width=\linewidth]{figures/hbresults/path_zz_40p_20x20_sf_4_seed_2.png}
+        \captionsetup{skip=0.20\baselineskip,size=footnotesize}
+        \caption{$ZZ_{30}$}
+    \end{subfigure}%
+    \captionsetup{skip=0.20\baselineskip}
+    \caption{Exploration of a field of size $20 \times 20$, $\sigma_{field} = 4$, random seed 2.}
+    \label{fig:nbvpathcomp}
+\end{figure}
+
+\begin{figure}[htb!]
+    \centering
+    \begin{subfigure}[t]{0.75\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{figures/results/normalized_errors_40p_20x20_sf_4_seed_2_app_10.png}
+        \captionsetup{skip=0.20\baselineskip,size=footnotesize}
+        \caption{Normalized prediction errors for each method.}
+    \end{subfigure}%
+    \\
+    \begin{subfigure}[t]{0.75\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{figures/results/normalized_variances_40p_20x20_sf_4_seed_2_app_10.png}
+        \captionsetup{skip=0.20\baselineskip,size=footnotesize}
+        \caption{Normalized prediction variances for each method.}
+    \end{subfigure}%
+    \captionsetup{skip=0.20\baselineskip}
+    \caption{Prediction error and variances for an exploration of a field of size $20 \times 20$, $\sigma_{field} = 4$, random seed 2.}
+    \label{fig:nbvcomp}
+\end{figure}
+
+\FloatBarrier
+\clearpage
+
+\section{High Spatial Autocorrelation Results}
+The methods will be compared on target fields generated with an autocorrelation factor, $\sigma_{field}$, equal to the field width. A Gaussian filter $G(x,y,100)$ (Equation \ref{eq:gauss_filt}), is convolved with all points on the field.
+
+\begin{figure}[htb!]
+    \centering
+    \begin{subfigure}[t]{0.3333\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{figures/hbresults/path_nhv_30p_100x100_sf_100_seed_2.png}
+        \captionsetup{skip=0.20\baselineskip,size=footnotesize}
+        \caption{Highest Variance}
+    \end{subfigure}%
+    \begin{subfigure}[t]{0.3333\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{figures/hbresults/path_nnhv_30p_100x100_sf_100_seed_2.png}
+        \captionsetup{skip=0.20\baselineskip,size=footnotesize}
+        \caption{$N$ Highest Variance}
+    \end{subfigure}%
+    \begin{subfigure}[t]{0.3333\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{figures/hbresults/path_mc_30p_100x100_sf_100_seed_2.png}
+        \captionsetup{skip=0.20\baselineskip,size=footnotesize}
+        \caption{Monte Carlo}
+    \end{subfigure}%
+    \\
+    \begin{subfigure}[t]{0.3333\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{figures/hbresults/path_gradient_30p_100x100_sf_100_seed_2.png}
+        \captionsetup{skip=0.20\baselineskip,size=footnotesize}
+        \caption{Gradient Ascent}
+    \end{subfigure}%
+    \begin{subfigure}[t]{0.3333\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{figures/hbresults/path_gr_30p_100x100_sf_100_seed_2.png}
+        \captionsetup{skip=0.20\baselineskip,size=footnotesize}
+        \caption{Gradient Range Ascent}
+    \end{subfigure}%
+    \\
+    \begin{subfigure}[t]{0.3333\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{figures/hbresults/path_zz_10p_100x100_sf_100_seed_2.png}
         \captionsetup{skip=0.20\baselineskip,size=footnotesize}
         \caption{$ZZ_{10}$}
     \end{subfigure}%
-    \begin{subfigure}[t]{0.25\textwidth}
+    \begin{subfigure}[t]{0.3333\textwidth}
         \centering
-        \includegraphics[width=\linewidth]{figures/path_zz_20p_100x100_sf_100_seed_2.png}
+        \includegraphics[width=\linewidth]{figures/hbresults/path_zz_20p_100x100_sf_100_seed_2.png}
         \captionsetup{skip=0.20\baselineskip,size=footnotesize}
         \caption{$ZZ_{20}$}
     \end{subfigure}%
-    \begin{subfigure}[t]{0.25\textwidth}
+    \begin{subfigure}[t]{0.3333\textwidth}
         \centering
-        \includegraphics[width=\linewidth]{figures/path_zz_30p_100x100_sf_100_seed_2.png}
+        \includegraphics[width=\linewidth]{figures/hbresults/path_zz_30p_100x100_sf_100_seed_2.png}
         \captionsetup{skip=0.20\baselineskip,size=footnotesize}
         \caption{$ZZ_{30}$}
     \end{subfigure}%
@@ -55,14 +139,14 @@ The methods will be compared on target fields generated with an autocorrelation 
     \centering
     \begin{subfigure}[t]{0.75\textwidth}
         \centering
-        \includegraphics[width=\linewidth]{figures/normalized_errors_30p_100x100_sf_100_seed_2_app_10.png}
+        \includegraphics[width=\linewidth]{figures/results/normalized_errors_30p_100x100_sf_100_seed_2_app_50.png}
         \captionsetup{skip=0.20\baselineskip,size=footnotesize}
         \caption{Normalized prediction errors for each method.}
     \end{subfigure}%
     \\
     \begin{subfigure}[t]{0.75\textwidth}
         \centering
-        \includegraphics[width=\linewidth]{figures/normalized_variances_30p_100x100_sf_100_seed_2_app_10.png}
+        \includegraphics[width=\linewidth]{figures/results/normalized_variances_30p_100x100_sf_100_seed_2_app_50.png}
         \captionsetup{skip=0.20\baselineskip,size=footnotesize}
         \caption{Normalized prediction variances for each method.}
     \end{subfigure}%
@@ -72,59 +156,65 @@ The methods will be compared on target fields generated with an autocorrelation 
 \end{figure}
 
 \FloatBarrier
-\clearpage\
+\clearpage
 
 \section{Half Width Spatial Autocorrelation Results}
-The methods will be compared on target fields generated with an autocorrelation factor, $\sigma_{field}$, that is half of the field width. 
-A filter, $G(x,y,\sigma_{field}) = G(x,y,50)$ (Equation \ref{eq:gauss_filt}), is generated for all values of $(x,y) \in [1, w]$ where $x \in \mathbb{N}, y \in \mathbb{N}$.
+The methods will be compared on target fields generated with an autocorrelation factor, $\sigma_{field}$, equal to the half of the target field's width. A Gaussian filter $G(x,y,50)$ (Equation \ref{eq:gauss_filt}), is convolved with all points on the field.
 
 \begin{figure}[htb!]
     \centering
-    \begin{subfigure}[t]{0.25\textwidth}
+    \begin{subfigure}[t]{0.3333\textwidth}
         \centering
-        \includegraphics[width=\linewidth]{figures/path_greedy_30p_100x100_sf_50_seed_2.png}
+        \includegraphics[width=\linewidth]{figures/hbresults/path_nhv_30p_100x100_sf_50_seed_2.png}
         \captionsetup{skip=0.20\baselineskip,size=footnotesize}
-        \caption{Greedy NBV}
+        \caption{Highest Variance}
     \end{subfigure}%
-    \begin{subfigure}[t]{0.25\textwidth}
+    \begin{subfigure}[t]{0.3333\textwidth}
         \centering
-        \includegraphics[width=\linewidth]{figures/path_mc_30p_100x100_sf_50_seed_2.png}
+        \includegraphics[width=\linewidth]{figures/hbresults/path_nnhv_30p_100x100_sf_50_seed_2.png}
         \captionsetup{skip=0.20\baselineskip,size=footnotesize}
-        \caption{MCPP}
+        \caption{$N$ Highest Variance}
     \end{subfigure}%
-    \begin{subfigure}[t]{0.25\textwidth}
+    \begin{subfigure}[t]{0.3333\textwidth}
         \centering
-        \includegraphics[width=\linewidth]{figures/path_nhv_30p_100x100_sf_50_seed_2.png}
+        \includegraphics[width=\linewidth]{figures/hbresults/path_mc_30p_100x100_sf_50_seed_2.png}
         \captionsetup{skip=0.20\baselineskip,size=footnotesize}
-        \caption{HV}
-    \end{subfigure}%
-    \begin{subfigure}[t]{0.25\textwidth}
-        \centering
-        \includegraphics[width=\linewidth]{figures/path_nnhv_30p_100x100_sf_50_seed_2.png}
-        \captionsetup{skip=0.20\baselineskip,size=footnotesize}
-        \caption{$N$-HV}
+        \caption{Monte Carlo}
     \end{subfigure}%
     \\
-    \begin{subfigure}[t]{0.25\textwidth}
+    \begin{subfigure}[t]{0.3333\textwidth}
         \centering
-        \includegraphics[width=\linewidth]{figures/path_zz_10p_100x100_sf_50_seed_2.png}
+        \includegraphics[width=\linewidth]{figures/hbresults/path_gradient_30p_100x100_sf_50_seed_2.png}
+        \captionsetup{skip=0.20\baselineskip,size=footnotesize}
+        \caption{Gradient Ascent}
+    \end{subfigure}%
+    \begin{subfigure}[t]{0.3333\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{figures/hbresults/path_gr_30p_100x100_sf_50_seed_2.png}
+        \captionsetup{skip=0.20\baselineskip,size=footnotesize}
+        \caption{Gradient Range Ascent}
+    \end{subfigure}%
+    \\
+    \begin{subfigure}[t]{0.3333\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{figures/hbresults/path_zz_10p_100x100_sf_50_seed_2.png}
         \captionsetup{skip=0.20\baselineskip,size=footnotesize}
         \caption{$ZZ_{10}$}
     \end{subfigure}%
-    \begin{subfigure}[t]{0.25\textwidth}
+    \begin{subfigure}[t]{0.3333\textwidth}
         \centering
-        \includegraphics[width=\linewidth]{figures/path_zz_20p_100x100_sf_50_seed_2.png}
+        \includegraphics[width=\linewidth]{figures/hbresults/path_zz_20p_100x100_sf_50_seed_2.png}
         \captionsetup{skip=0.20\baselineskip,size=footnotesize}
         \caption{$ZZ_{20}$}
     \end{subfigure}%
-    \begin{subfigure}[t]{0.25\textwidth}
+    \begin{subfigure}[t]{0.3333\textwidth}
         \centering
-        \includegraphics[width=\linewidth]{figures/path_zz_30p_100x100_sf_50_seed_2.png}
+        \includegraphics[width=\linewidth]{figures/hbresults/path_zz_30p_100x100_sf_50_seed_2.png}
         \captionsetup{skip=0.20\baselineskip,size=footnotesize}
         \caption{$ZZ_{30}$}
     \end{subfigure}%
     \captionsetup{skip=0.20\baselineskip}
-    \caption{Exploration of a field of size $100 \times 100$, $\sigma_{field} = 50$, random seed 2.}
+    \caption{Exploration of a field of size $100 \times 100$, $\sigma_{field} = \frac{w}{2} = 50$, random seed 2.}
     \label{fig:sf50}
 \end{figure}
 
@@ -132,14 +222,14 @@ A filter, $G(x,y,\sigma_{field}) = G(x,y,50)$ (Equation \ref{eq:gauss_filt}), is
     \centering
     \begin{subfigure}[t]{0.75\textwidth}
         \centering
-        \includegraphics[width=\linewidth]{figures/normalized_errors_30p_100x100_sf_50_seed_2_app_10.png}
+        \includegraphics[width=\linewidth]{figures/results/normalized_errors_30p_100x100_sf_50_seed_2_app_50.png}
         \captionsetup{skip=0.20\baselineskip,size=footnotesize}
         \caption{Normalized prediction errors for each method.}
     \end{subfigure}%
     \\
     \begin{subfigure}[t]{0.75\textwidth}
         \centering
-        \includegraphics[width=\linewidth]{figures/normalized_variances_30p_100x100_sf_50_seed_2_app_10.png}
+        \includegraphics[width=\linewidth]{figures/results/normalized_variances_30p_100x100_sf_50_seed_2_app_50.png}
         \captionsetup{skip=0.20\baselineskip,size=footnotesize}
         \caption{Normalized prediction variances for each method.}
     \end{subfigure}%
@@ -151,127 +241,58 @@ A filter, $G(x,y,\sigma_{field}) = G(x,y,50)$ (Equation \ref{eq:gauss_filt}), is
 \FloatBarrier
 \clearpage
 
-\section{Quarter Width Spatial Autocorrelation Results}
-The methods will be compared on target fields generated with an autocorrelation factor, $\sigma_{field}$, that is one quarter of the field width. A filter, $G(x,y,\sigma_{field}) = G(x,y,25)$ (Equation \ref{eq:gauss_filt}), is generated for all values of $(x,y) \in [1, w]$ where $x \in \mathbb{N}, y \in \mathbb{N}$.
-
-\begin{figure}[htb!]
-    \centering
-    \begin{subfigure}[t]{0.25\textwidth}
-        \centering
-        \includegraphics[width=\linewidth]{figures/path_greedy_30p_100x100_sf_25_seed_2.png}
-        \captionsetup{skip=0.20\baselineskip,size=footnotesize}
-        \caption{Greedy NBV}
-    \end{subfigure}%
-    \begin{subfigure}[t]{0.25\textwidth}
-        \centering
-        \includegraphics[width=\linewidth]{figures/path_mc_30p_100x100_sf_25_seed_2.png}
-        \captionsetup{skip=0.20\baselineskip,size=footnotesize}
-        \caption{MCPP}
-    \end{subfigure}%
-    \begin{subfigure}[t]{0.25\textwidth}
-        \centering
-        \includegraphics[width=\linewidth]{figures/path_nhv_30p_100x100_sf_25_seed_2.png}
-        \captionsetup{skip=0.20\baselineskip,size=footnotesize}
-        \caption{HV}
-    \end{subfigure}%
-    \begin{subfigure}[t]{0.25\textwidth}
-        \centering
-        \includegraphics[width=\linewidth]{figures/path_nnhv_30p_100x100_sf_25_seed_2.png}
-        \captionsetup{skip=0.20\baselineskip,size=footnotesize}
-        \caption{$N$-HV}
-    \end{subfigure}%
-    \\
-    \begin{subfigure}[t]{0.25\textwidth}
-        \centering
-        \includegraphics[width=\linewidth]{figures/path_zz_10p_100x100_sf_25_seed_2.png}
-        \captionsetup{skip=0.20\baselineskip,size=footnotesize}
-        \caption{$ZZ_{10}$}
-    \end{subfigure}%
-    \begin{subfigure}[t]{0.25\textwidth}
-        \centering
-        \includegraphics[width=\linewidth]{figures/path_zz_20p_100x100_sf_25_seed_2.png}
-        \captionsetup{skip=0.20\baselineskip,size=footnotesize}
-        \caption{$ZZ_{20}$}
-    \end{subfigure}%
-    \begin{subfigure}[t]{0.25\textwidth}
-        \centering
-        \includegraphics[width=\linewidth]{figures/path_zz_30p_100x100_sf_25_seed_2.png}
-        \captionsetup{skip=0.20\baselineskip,size=footnotesize}
-        \caption{$ZZ_{30}$}
-    \end{subfigure}%
-    \captionsetup{skip=0.20\baselineskip}
-    \caption{Exploration of a field of size $100 \times 100$, $\sigma_{field} = 25$, random seed 2.}
-    \label{fig:sf25}
-\end{figure}
-
-\begin{figure}[htb!]
-    \centering
-    \begin{subfigure}[t]{0.75\textwidth}
-        \centering
-        \includegraphics[width=\linewidth]{figures/normalized_errors_30p_100x100_sf_25_seed_2_app_10.png}
-        \captionsetup{skip=0.20\baselineskip,size=footnotesize}
-        \caption{Normalized prediction errors for each method.}
-    \end{subfigure}%
-    \\
-    \begin{subfigure}[t]{0.75\textwidth}
-        \centering
-        \includegraphics[width=\linewidth]{figures/normalized_variances_30p_100x100_sf_25_seed_2_app_10.png}
-        \captionsetup{skip=0.20\baselineskip,size=footnotesize}
-        \caption{Normalized prediction variances for each method.}
-    \end{subfigure}%
-    \captionsetup{skip=0.20\baselineskip}
-    \caption{Prediction error and variances for an exploration of a field of size $100 \times 100$, $\sigma_{field} = 25$, random seed 2.}
-    \label{fig:errvar25}
-\end{figure}
-
-\FloatBarrier
-\clearpage
-
 \section{Low Spatial Autocorrelation Results}
-The methods will be compared on target fields generated with a low autocorrelation factor ($\sigma_{field}=1$). A filter, $G(x,y,\sigma_{field}) = G(x,y,1)$ (Equation \ref{eq:gauss_filt}), is generated for all values of $(x,y) \in [1, w]$ where $x \in \mathbb{N}, y \in \mathbb{N}$.
+The methods will be compared on target fields generated with an autocorrelation factor, $\sigma_{field}$, equal to one. A Gaussian filter $G(x,y,1)$ (Equation \ref{eq:gauss_filt}), is convolved with all points on the field.
 
 \begin{figure}[htb!]
     \centering
-    \begin{subfigure}[t]{0.25\textwidth}
+    \begin{subfigure}[t]{0.3333\textwidth}
         \centering
-        \includegraphics[width=\linewidth]{figures/path_greedy_30p_100x100_sf_1_seed_2.png}
+        \includegraphics[width=\linewidth]{figures/hbresults/path_nhv_30p_100x100_sf_1_seed_2.png}
         \captionsetup{skip=0.20\baselineskip,size=footnotesize}
-        \caption{Greedy NBV}
+        \caption{Highest Variance}
     \end{subfigure}%
-    \begin{subfigure}[t]{0.25\textwidth}
+    \begin{subfigure}[t]{0.3333\textwidth}
         \centering
-        \includegraphics[width=\linewidth]{figures/path_mc_30p_100x100_sf_1_seed_2.png}
+        \includegraphics[width=\linewidth]{figures/hbresults/path_nnhv_30p_100x100_sf_1_seed_2.png}
         \captionsetup{skip=0.20\baselineskip,size=footnotesize}
-        \caption{MCPP}
+        \caption{$N$ Highest Variance}
     \end{subfigure}%
-    \begin{subfigure}[t]{0.25\textwidth}
+    \begin{subfigure}[t]{0.3333\textwidth}
         \centering
-        \includegraphics[width=\linewidth]{figures/path_nhv_30p_100x100_sf_1_seed_2.png}
+        \includegraphics[width=\linewidth]{figures/hbresults/path_mc_30p_100x100_sf_1_seed_2.png}
         \captionsetup{skip=0.20\baselineskip,size=footnotesize}
-        \caption{HV}
-    \end{subfigure}%
-    \begin{subfigure}[t]{0.25\textwidth}
-        \centering
-        \includegraphics[width=\linewidth]{figures/path_nnhv_30p_100x100_sf_1_seed_2.png}
-        \captionsetup{skip=0.20\baselineskip,size=footnotesize}
-        \caption{$N$-HV}
+        \caption{Monte Carlo}
     \end{subfigure}%
     \\
-    \begin{subfigure}[t]{0.25\textwidth}
+    \begin{subfigure}[t]{0.3333\textwidth}
         \centering
-        \includegraphics[width=\linewidth]{figures/path_zz_10p_100x100_sf_1_seed_2.png}
+        \includegraphics[width=\linewidth]{figures/hbresults/path_gradient_30p_100x100_sf_1_seed_2.png}
+        \captionsetup{skip=0.20\baselineskip,size=footnotesize}
+        \caption{Gradient Ascent}
+    \end{subfigure}%
+    \begin{subfigure}[t]{0.3333\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{figures/hbresults/path_gr_30p_100x100_sf_1_seed_2.png}
+        \captionsetup{skip=0.20\baselineskip,size=footnotesize}
+        \caption{Gradient Range Ascent}
+    \end{subfigure}%
+    \\
+    \begin{subfigure}[t]{0.3333\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{figures/hbresults/path_zz_10p_100x100_sf_1_seed_2.png}
         \captionsetup{skip=0.20\baselineskip,size=footnotesize}
         \caption{$ZZ_{10}$}
     \end{subfigure}%
-    \begin{subfigure}[t]{0.25\textwidth}
+    \begin{subfigure}[t]{0.3333\textwidth}
         \centering
-        \includegraphics[width=\linewidth]{figures/path_zz_20p_100x100_sf_1_seed_2.png}
+        \includegraphics[width=\linewidth]{figures/hbresults/path_zz_20p_100x100_sf_1_seed_2.png}
         \captionsetup{skip=0.20\baselineskip,size=footnotesize}
         \caption{$ZZ_{20}$}
     \end{subfigure}%
-    \begin{subfigure}[t]{0.25\textwidth}
+    \begin{subfigure}[t]{0.3333\textwidth}
         \centering
-        \includegraphics[width=\linewidth]{figures/path_zz_30p_100x100_sf_1_seed_2.png}
+        \includegraphics[width=\linewidth]{figures/hbresults/path_zz_30p_100x100_sf_1_seed_2.png}
         \captionsetup{skip=0.20\baselineskip,size=footnotesize}
         \caption{$ZZ_{30}$}
     \end{subfigure}%
@@ -284,14 +305,14 @@ The methods will be compared on target fields generated with a low autocorrelati
     \centering
     \begin{subfigure}[t]{0.75\textwidth}
         \centering
-        \includegraphics[width=\linewidth]{figures/normalized_errors_30p_100x100_sf_1_seed_2_app_10.png}
+        \includegraphics[width=\linewidth]{figures/results/normalized_errors_30p_100x100_sf_1_seed_2_app_50.png}
         \captionsetup{skip=0.20\baselineskip,size=footnotesize}
         \caption{Normalized prediction errors for each method.}
     \end{subfigure}%
     \\
     \begin{subfigure}[t]{0.75\textwidth}
         \centering
-        \includegraphics[width=\linewidth]{figures/normalized_variances_30p_100x100_sf_1_seed_2_app_10.png}
+        \includegraphics[width=\linewidth]{figures/results/normalized_variances_30p_100x100_sf_1_seed_2_app_50.png}
         \captionsetup{skip=0.20\baselineskip,size=footnotesize}
         \caption{Normalized prediction variances for each method.}
     \end{subfigure}%
@@ -299,4 +320,6 @@ The methods will be compared on target fields generated with a low autocorrelati
     \caption{Prediction error and variances for an exploration of a field of size $100 \times 100$, $\sigma_{field} = 1$, random seed 2.}
     \label{fig:errvar1}
 \end{figure}
+
+\FloatBarrier
 \clearpage

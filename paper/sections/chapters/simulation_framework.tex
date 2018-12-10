@@ -92,44 +92,50 @@ The Gaussian filter ``smooths'' the field in order to simulate autocorrelation. 
 \section{Simulation Environment}
 The simulation, once started, runs a single exploration method at a time starting with the same random number seed. A generated field is initially unknown to a vehicle object, but samples are collected as it passes along the field. The variances of Kriging predictions, the currently predicted field, and the path traversed are plotted along with the actual field being explored.
 
-% \begin{figure}[htb!]
-%     \centering
-%     \includegraphics[width=0.8\linewidth]{figures/sim_figures/nhv_3_5p_200x200_sf_20_seed_2}
-% 	\captionsetup{skip=0.25\baselineskip}
-% 	\ssp
-%     \caption{Highest Variance Path Planning. The actual field (top left), predicted field (with error) (top right), variance field (bottom left), and traversed path (bottom right).}
-% \end{figure}
+\begin{figure}[htb!]
+    \centering
+    \includegraphics[width=0.8\linewidth]{figures/sim_figures/nhv_10p_100x100_sf_50_seed_2.png}
+	\captionsetup{skip=0.25\baselineskip}
+	\ssp
+    \caption{Highest Variance Path Planning. The actual field (top left), predicted field (with error) (top right), variance field (bottom left), and traversed path (bottom right).}
+\end{figure}
 
-% \begin{figure}[htb!]
-%     \centering
-%     \includegraphics[width=0.8\linewidth]{figures/sim_figures/nnhv_3_5p_200x200_sf_20_seed_2}
-%     \captionsetup{skip=0.25\baselineskip}
-%     \ssp
-%     \caption{$N$ Highest Variance Path Planning ($N=5$). The actual field (top left), predicted field (with error) (top right), variance field (bottom left), and traversed path (bottom right).}
-% \end{figure}
+\begin{figure}[htb!]
+    \centering
+    \includegraphics[width=0.8\linewidth]{figures/sim_figures/nnhv_10p_100x100_sf_50_seed_2}
+    \captionsetup{skip=0.25\baselineskip}
+    \ssp
+    \caption{$N$ Highest Variance Path Planning ($N=5$). The actual field (top left), predicted field (with error) (top right), variance field (bottom left), and traversed path (bottom right).}
+\end{figure}
 
-% \begin{figure}[htb!]
-%     \centering
-%     \includegraphics[width=0.8\linewidth]{figures/sim_figures/mc_3_5p_200x200_sf_20_seed_2}
-%     \captionsetup{skip=0.25\baselineskip}
-%     \ssp
-%     \caption{Monte Carlo Path Planning ($N=5$, $M_{mc}=20$). The actual field (top left), predicted field (with error) (top right), variance field (bottom left), and traversed path (bottom right).}
-% \end{figure}
+\begin{figure}[htb!]
+    \centering
+    \includegraphics[width=0.8\linewidth]{figures/sim_figures/mc_10p_100x100_sf_50_seed_2}
+    \captionsetup{skip=0.25\baselineskip}
+    \ssp
+    \caption{Monte Carlo Path Planning ($N=5$, $M_{mc}=5$). The actual field (top left), predicted field (with error) (top right), variance field (bottom left), and traversed path (bottom right).}
+\end{figure}
 
-% \begin{figure}[htb!]
-%     \centering
-%     \includegraphics[width=0.8\linewidth]{figures/sim_figures/zz_3_5p_200x200_sf_20_seed_2}
-%     \captionsetup{skip=0.25\baselineskip}
-%     \ssp
-%     \caption{Zig-Zag Method. The actual field (top left), predicted field (with error) (top right), variance field (bottom left), and traversed path (bottom right).}
-% \end{figure}
+\begin{figure}[htb!]
+    \centering
+    \includegraphics[width=0.8\linewidth]{figures/sim_figures/gradient_10p_100x100_sf_50_seed_2}
+    \captionsetup{skip=0.25\baselineskip}
+    \ssp
+    \caption{Gradient Ascent Path Planner. The actual field (top left), predicted field (with error) (top right), variance field (bottom left), and traversed path (bottom right).}
+\end{figure}
 
-% \begin{figure}[htb!]
-%     \centering
-%     \includegraphics[width=0.8\linewidth]{figures/sim_figures/greedy_3_5p_200x200_sf_20_seed_2}
-%     \captionsetup{skip=0.25\baselineskip}
-%     \ssp
-%     \caption{Greedy Next-Best-View Method. The actual field (top left), predicted field (with error) (top right), variance field (bottom left), and traversed path (bottom right).}
-% \end{figure}
+\begin{figure}[htb!]
+    \centering
+    \includegraphics[width=0.8\linewidth]{figures/sim_figures/gr_10p_100x100_sf_50_seed_2}
+    \captionsetup{skip=0.25\baselineskip}
+    \ssp
+    \caption{Gradient Range Ascent Path Planner. The actual field (top left), predicted field (with error) (top right), variance field (bottom left), and traversed path (bottom right).}
+\end{figure}
 
-TODO: put in all runs including GA, GRA
+\begin{figure}[htb!]
+    \centering
+    \includegraphics[width=0.8\linewidth]{figures/sim_figures/zz_10p_100x100_sf_50_seed_2}
+    \captionsetup{skip=0.25\baselineskip}
+    \ssp
+    \caption{Zig-Zag Method. The actual field (top left), predicted field (with error) (top right), variance field (bottom left), and traversed path (bottom right).}
+\end{figure}

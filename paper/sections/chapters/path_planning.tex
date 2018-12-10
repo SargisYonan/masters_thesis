@@ -243,16 +243,6 @@ As introduced in the $N$-HV path planner, a candidate trajectory is generated fo
 
 % In Algorithm \ref{alg:mcpp}, the function \texttt{SetWaypoint()} is an abstracted function which steers the vehicle in the direction of the waypoint specified, and blocks the code instruction until the waypoint has been met. The function \texttt{length(}$T$\texttt{)} finds the arc length of the path by connecting all points in the trajectory, $T$. For a deterministically calculated trajectory, $T$, the arc length is $\alpha |T|$.
 
-\begin{figure}[htb!]
-	\centering
-	\includegraphics[width=0.95\linewidth]{figures/mc_4panel.png}
-	\captionsetup{skip=0.20\baselineskip}
-	\ssp
-	\caption{The Monte Carlo Path Planner (MCPP) algorithm (Section \ref{sec:mcpp}. The actual field that is being explored is shown in the upper left. The current prediction of the actual field is shown in the upper right. The variance of the current prediction of the field is shown in the lower left. The trace of the exploration vehicle's path taken to the point of termination (in red) is shown in the lower right panel. All distance units are in meters. Here, $N$, the number of endpoints selected is $N=3$, and the number of random paths per cord calculated is $15$.}
-	\label{fig:mcpp}
-\end{figure}
-\clearpage
-
 \section{The Gradient Ascent Path Planner}
 The Gradient Ascent (GA) Path Planner reduces field prediction variance by maximizing the movement in the local variance field's gradient at every move. At every decision point, a circle, with radius $r \in \mathbb{R}_{\geq 0}$, is generated around the exploration vehicle. The point on the circle surrounding the exploration vehicle with the highest Kriging prediction variance is set as the next decision point. In order to approximate the field variance gradient surrounding the exploration vehicle, a small step size value for $r$ is chosen. In this thesis, $r=3$ vesicles is used.
 TODO: put a picture of it here
@@ -267,16 +257,6 @@ The three planners introduced will be compared to two planners discussed in the 
 \subsection{Zig-Zag Method}
 A common approach to exploration and patrolling problems is the use of a zig-zag pattern. The methods introduced will be compared to a zig-zagging approach demonstrated in Nikhil Nigam, et al. \textit{Control and Design of Multiple Unmanned Air Vehicles for a Persistent Surveillance Task} (Part II.C.3, Figure 6, \cite{nigam:zigzag}). The method will run a Kriging prediction and variance calculation on the samples taken using the zig-zag explorer, even though a prediction is not specified in the original work. This is to generate measurable and comparable metrics against the path planners introduced. The path planners introduced will be compared against the zig-zag exploration method shown in Figure \ref{fig:zigzag4}.
 
-\begin{figure}[hbt!]
-    \centering
-    \includegraphics[width=0.9\linewidth]{figures/hbresults/zz_10p_100x100_sf_25_seed_2.png}
-    \captionsetup{skip=0.20\baselineskip}
-    \ssp
-    \caption{Zig-Zag exploration method set to scan a fixed percentage of a target field. A Kriging prediction and variance calculation is computed after completing the maneuver. The actual field that is being explored is shown in the upper left. The current prediction of the actual field is shown in the upper right. The variance of the current prediction of the field is shown in the lower left. The trace of the exploration vehicle's path taken to the point of termination (in red) is shown in the lower right panel. All distance units are in meters.}
-    \label{fig:zigzag4}
-\end{figure}
-\clearpage
-
 The zig-zag exploration method will stop the field exploration process when the exploration vehicle traverses a predefined area to scan, $A_{scan}$. If the maximum scan area of a field is $w \times h$, and the percent of the field to scan is $p\%$, then the method will stop exploring when the area $A_{scan} = \frac{p}{100}wh$ of the field has been sampled. In an effort to allow the zig-zag method to cover as much of the field as possible, the spacing between each spiral bound, $r$, will be pre-calculated.
 
 \begin{equation}
@@ -285,6 +265,14 @@ The zig-zag exploration method will stop the field exploration process when the 
 
 \subsection{Greedy Next-Best-View}
 The Greedy NBV method, demonstrated in \cite{fentanes:soilkrig}, triggers the selection of a new waypoint after every new sample is taken by the exploration vehicle. The point that is chosen is the point on the field with the highest Kriging prediction variance at the time of point selection. The planner must therefore recompute the fields variogram model, Kriging prediction, and field variances at each sample. For the sake of a fair comparison with the methods introduced in this thesis, the Greedy NBV planner will initiate by conducting an initial sweep on the main diagonal of the field and stop at the middle point of the field. This is done in order to collect a set of samples to make an initial decision on. At every sample, the planner will decide where its next decision point is by selecting the point with highest Kriging variance from a set of candidate points. In this case, the set of candidate points will be all point in the field. The vehicle will take a step in the direction of highest variance, and then recalculate its trajectory because a new sample was triggered.
+
+\begin{figure}[htb!]
+    \centering
+    \includegraphics[width=0.8\linewidth]{figures/sim_figures/nbv_40p_20x20_sf_4_seed_2.png}
+    \captionsetup{skip=0.25\baselineskip}
+    \ssp
+    \caption{Greedy Next-Best-View Method limited to scanning a size $20\times 20$ field up to $40\%$ percent. The actual field (top left), predicted field (with error) (top right), variance field (bottom left), and traversed path (bottom right).}
+\end{figure}
 
 \section{Discussion on the Planners Introduced}
 The Monte Carlo based path planner (MCPP) takes into account a set of noisy trajectories, and compares their estimated return on investment. The HV method simply takes the straight path to the highest prediction uncertainty location. Given enough trajectories (as $N$ and $M_{mc}$ get larger), the algorithm could find a path that will reduce overall field uncertainty in a more brute-force way over the HV algorithm. The disadvantages of The Monte Carlo Path Planner lay in the fact that the cost of each next move taken, is not considered directly. Rather, an entire trajectory is considered all at once. A more optimal approach to this planner would be to take into consideration the cost of each waypoint selected. Furthermore, the MCPP approach is the most expensive method introduced because of the need to re-predict the field for each candidate trajectory calculated. The HV planner is the simplest to compute because it only requires one run of the Kriging field predictions and variance calculations, followed by a simple search for the highest field variances.
