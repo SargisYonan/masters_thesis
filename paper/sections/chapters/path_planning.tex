@@ -92,7 +92,7 @@ Let $K_N$ be the set of the $N$ points of highest prediction variances on the fi
 T_{i}(k) = \begin{bmatrix} x_i(k) \\ y_i(k) \\ \theta_i(k) \end{bmatrix}
 \end{equation}
 
-Let $\alpha \in \mathbb{R}$ be the step size of the vehicle from one point to the next within the trajectory, $T_i$. Let $\vect{w}_i \in \mathbb{R}^2$ be a vector of two zero-mean Wiener processes with a tunable process standard deviation which is less than the step size, $\alpha$. Furthermore, the step size of the vehicle, $\alpha$, can not be a value less than the distance the exploration vehicle can travel in one time-step, $\Delta T$, given a constant vehicle velocity of $V$.
+Let $\alpha \in \mathbb{R}$ be the step size of the vehicle from one point to the next within the trajectory, $T_i$. Let $\vect{w}_i \in \mathbb{R}^2$ be a vector of two zero-mean Wiener processes with a tunable process standard deviation which is less than the step size, $\alpha$. Furthermore, the step size of the vehicle, $\alpha$, can not be a value less than the distance the exploration vehicle can travel in one time-step.
 
 \begin{equation}
 \text{var}\{\vect{w}_i\} = \begin{bmatrix} \text{var}\{w_{i_x}\} \\ \text{var}\{w_{i_y}\} \end{bmatrix}
@@ -104,10 +104,6 @@ Let $\alpha \in \mathbb{R}$ be the step size of the vehicle from one point to th
 
 \begin{equation}
 \text{var}\{w_{i_y}\} < \alpha^2
-\end{equation}
-
-\begin{equation}
-\alpha \geq V \Delta T
 \end{equation}
 
 The corresponding Monte Carlo path, or sequence of waypoints the exploration vehicle will make on its way to the candidate endpoint, $\vect{p}_i = [p_x\ p_y]^T$.
@@ -215,10 +211,10 @@ The zig-zag exploration method will stop the field exploration process when the 
 
 The zig-zag method starts at the first point on the field (upper-left corner), and moves to the waypoint coordinate ($\Large\lceil\frac{w}{2} - r \Large\rceil, \Large\lceil \frac{h}{2} - r \Large\rceil$). Every planner will set the initial waypoint of the exploration vehicle to this point on the field. This is done so the initial set of samples of each of the planners is identical.
 
-\subsection{Greedy Next-Best-View ($20 \times 20$)}
+\subsection{Greedy Next-Best-View}
 The Greedy NBV method, demonstrated in \cite{fentanes:soilkrig}, triggers the selection of a new waypoint after every new sample is taken by the exploration vehicle. The point that is chosen is the point on the field with the highest Kriging prediction variance at the time of point selection. After the next sample is taken on the way to the point of highest variance, the planner recomputes the field's variogram model, Kriging prediction, and field variance to recalculate the next decision point. The Greedy NBV planner will initiate by conducting an initial sweep on the main diagonal of the field and stop at the middle point of the field. This is done in order to collect a set of samples to make an initial decision.
 
-\section{Discussion on the Planners Introduced} \label{sec:discuss}
+\section{Planner Discussion} \label{sec:discuss}
 The Monte Carlo path planner takes into account a set of noisy trajectories, and compares their estimated return on investment similarly to the $N$-HV method. Given enough trajectories, as $N$ gets larger for $N$-HV and MCPP and $M_{mc}$ gets larger for MCPP, the planners could find a path that will reduce overall field uncertainty in a more brute-force way over the HV, GA, and RGA methods introduced. The disadvantages of MCPP and $N$-HV lie in the fact that the cost of each next move taken is not considered directly because an entire trajectory is considered, in its entirety, at once. A more optimal approach to this planner would be to take into consideration the cost of each waypoint selected on the trajectory, and amend only the best waypoints found along the way. Furthermore, the MCPP approach is more computationally expensive (for $N > 1$, $M_{mc} > 1$) when compared to HV and $N$-HV because of the need to re-predict the field for each candidate trajectory calculated. The GA method becomes more computationally expensive as more samples are taken on the field, as this makes it more difficult to recompute the variogram model and Kriging predictions for the field at each step of the path. The HV, GA, and RGA planners are the simplest to compute because they only require one run of the Kriging field predictions and variance calculations, followed by a simple search for the highest field variances from a specified set of points.
 
 The Greedy Next-Best-View planner, though similar to the GA and RGA planners introduced, does not purposefully attempt to directly sample the point of highest prediction variance from a set of candidate points. Both the GA and RGA planners arrive at a point of high variance from a set of candidate points, and sample it, where as the Greedy NBV will only move in the direction of the point of highest variance. As the field sizes get larger, the point of highest variance could be relatively distant from the point that is actually explored using Greedy NBV. The Greedy NBV method is therefore not expected to do well for larger fields. This is because the exploration vehicle can run into the problem where it will stick in a low variance valley. Once trapped in the valley, the vehicle will repeatedly move between two previously explored points until the end condition is met. The method will only be compared to the introduced methods in this thesis using course as presented in \cite{fentanes:soilkrig}.
