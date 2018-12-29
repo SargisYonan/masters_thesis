@@ -154,7 +154,7 @@ The spherical model will reach an exactly zero slope at the sill and range \cite
     \label{fig:fit_kernel_cop}
 \end{figure}
 
-\subsection{Fitting A Semi-Variogram} \label{sec:varfit}
+\subsection{Fitting a Semi-Variogram} \label{sec:varfit}
 The kernel function of the range, $a$, the sill, $s$, and lag, $h$ is chosen based on the statistical properties of the field being examined. Although there exist no closed form solution for finding an appropriate variogram model for a given field, one can compare a variety of different models against one another. Conducting cross-validation tests and comparing root-mean squared prediction errors for different models are common approaches for finding appropriate variogram models.
 
 Using a version of the \textit{fminsearch} function in \textit{MATLAB}, a variogram can be fit to the desired objective function from a set of samples and initial guesses for the range and sill using a simplex search method. As the function is used over several iterations of sampling, the fit range and sill values found in the previous iteration can be used as the seed to the next iteration of the fit in an attempt to minimize computation time. The \textit{MATLAB} function, \textit{fminsearch}, is defined to ``find the minimum of an unconstrained multi-variable function using a derivative-free method'' \cite{mathworks:fminsearch}, expressed in Equation \ref{eq:matlabfmin}.
@@ -180,7 +180,7 @@ The Kriging Method conducts a weighted sum using the continuous variogram model 
 \subsection{Forms of the Kriging Method}
 There are three major forms of the Kriging Method; all of which differ primarily in the handling of the mean gathered from observations of a target field. The \textit{Simple Kriging Method} makes the assumption that the mean is known and constant throughout the entirety of an observed field. This is not the case for fields that are very large as it does not follow Tobler's First Law. The \textit{Ordinary Kriging Method} can deduce the local mean of a neighborhood from a smaller subset of observations in a larger target field. This is done by classifying the larger field into smaller neighborhoods where the mean is only constant within those neighborhoods. Ordinary Kriging has the advantage that the mean is not required to be known before running a prediction. The \textit{Universal Kriging Method} can perform similar local mean calculations as the Ordinary Kriging Method, but does so by fitting a polynomial representing a mean trend model and not from a constant mean value representing that neighborhood \cite{vandergraaf:nnkrig} as seen in Section \ref{sec:varfit} on fitting a variogram. The Ordinary Kriging method will be used throughout the rest of this thesis because of its lack of requirement for the expected value of the field, and its computational simplicity when compared to the Universal Kriging Method.
 
-\subsection{Covariance Matrix From A Variogram} \label{sec:covmat}
+\subsection{Covariance Matrix from a Variogram} \label{sec:covmat}
 From the fit variogram which represents the spatial statistics of a field from a set of samples, a variance-covariance matrix for $N$ observations, $P \in \mathbb{R}^{N \times N}$, will be constructed. The value of the element $P_{i,j}$, will represent the covariance of the lag between the $i^{th}$ and $j^{th}$ observations on the field \cite{goov:97}, \cite{matheron:geostat}. If $i=j$, the value of the element, $P_{i,j}$ is the variance of the $i^{th}$ observation. 
 
 \begin{equation}
@@ -263,7 +263,7 @@ The variance of a point predicted on a target field can be calculated using bypr
     \text{var}\{\hat{Z}(\vect{s}_0)\} = \begin{bmatrix}\vect{d}_0 \\ 1\end{bmatrix} \begin{bmatrix}\vect{\lambda}_0^T & \eta_0 \end{bmatrix}
 \end{equation}
 
-\subsection{Procedure For Field Prediction Using The Kriging Method}
+\subsection{Procedure for Field Prediction Using the Kriging Method}
 The Kriging Prediction is run at every possible unobserved vesicle in the target field in order to predict the entirety of a target field from a finite set of $N$ observations and their respective locations, $O$.
 
 \begin{algorithm}[thpb!]
